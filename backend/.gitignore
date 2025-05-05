@@ -1,3 +1,4 @@
 node_modules/
 tech-readme.md
 .env
+bcryptDemo.js
