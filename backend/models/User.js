@@ -37,9 +37,24 @@ const userSchema = new mongoose.Schema(
       type: String, // URL to their profile picture (optional LATER)
       default: "",
     },
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        required: true,
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        required: true,
+      },
+    },
   },
   { timestamps: true }
 );
+
+/* -------------- Location Index Definition ------------- */
+userSchema.index({ location: "2dsphere" });
 
 /* ----------- Password Hashing Before Saving ----------- */
 userSchema.pre("save", async function (next) {

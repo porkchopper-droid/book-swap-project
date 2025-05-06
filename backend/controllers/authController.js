@@ -55,7 +55,7 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials." });
     }
 
-    const token = generateToken(user._id); // generating a token
+    const token = generateToken(user._id); // generating a token!!!
 
     // Return user info (without password)
     const { __v, password: _, ...userData } = user._doc;

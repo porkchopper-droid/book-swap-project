@@ -5,6 +5,11 @@ const bookSchema = new mongoose.Schema(
     title: { type: String, required: true },
     author: { type: String, required: true },
     year: Number,
+    status: {
+      type: String,
+      enum: ["available", "booked", "swapped"],
+      default: "available",
+    },
     description: String,
     genre: String,
     imageUrl: String,
