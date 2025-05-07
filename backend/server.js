@@ -5,7 +5,7 @@ import cors from "cors";
 
 import authRoutes from "./routes/authRoutes.js"
 import bookRoutes from "./routes/bookRoutes.js";
-import requestRoutes from "./routes/requestRoutes.js";
+import swapRoutes from "./routes/swapRoutes.js"
 
 dotenv.config();
 
@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes)
 app.use("/api/books", bookRoutes);
-app.use("/api/requests", requestRoutes);
+app.use("/api/swaps", swapRoutes)
 
 /* ----------------- MongoDB Connection ----------------- */
 

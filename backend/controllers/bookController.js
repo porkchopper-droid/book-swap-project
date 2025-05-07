@@ -5,7 +5,7 @@ export const createBook = async (req, res) => {
   try {
     const newBook = new Book({
       ...req.body,
-      user: req.user.id, // comes from JWT middleware
+      user: req.user._id, // comes from JWT middleware
     });
 
     const saved = await newBook.save();

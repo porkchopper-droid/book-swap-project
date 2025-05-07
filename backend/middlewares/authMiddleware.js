@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
-export const protect = (req, res, next) => {
+export const protect = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -11,7 +12,7 @@ export const protect = (req, res, next) => {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded; // now we have access to user ID
+    req.user = await User.findById(decoded.id).select("_id username email"); // now we have access to user ID
     next();
   } catch (err) {
     console.error("Token error:", err);

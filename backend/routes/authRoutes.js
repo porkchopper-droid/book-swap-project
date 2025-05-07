@@ -12,7 +12,7 @@ router.post("/login", loginUser);
 router.get("/profile", protect, (req, res) => {
   res.json({
     message: "Welcome to your profile!",
-    userId: req.user.id,
+    userId: req.user._id,
   });
 });
 
