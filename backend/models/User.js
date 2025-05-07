@@ -76,5 +76,5 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 };
 
 /* ----------- Model Export ----------- */
-const User = mongoose.model("User", userSchema); // Mongoose created >> users (seen in MongoDB)
-export default User;
+export default mongoose.model("User", userSchema); // Mongoose created >> users (seen in MongoDB)
+
