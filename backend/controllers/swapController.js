@@ -45,13 +45,6 @@ export const respondToSwapProposal = async (req, res) => {
     }
 
     // Only the recipient can respond
-    console.log("req.user._id:", req.user._id);
-    console.log("proposal.to:", proposal.to);
-    console.log(
-      "String comparison:",
-      String(req.user._id) === String(proposal.to)
-    );
-    
     if (String(proposal.to) !== String(req.user._id)) {
       return res.status(403).json({ message: "Unauthorized." });
     }
@@ -78,10 +71,6 @@ export const respondToSwapProposal = async (req, res) => {
     // Mark both books as booked
     await Book.findByIdAndUpdate(proposal.offeredBook, { status: "booked" });
     await Book.findByIdAndUpdate(proposal.requestedBook, { status: "booked" });
-
-    // Debug logs
-    console.log("req.user._id:", req.user._id);
-    console.log("proposal.from:", proposal.from);
 
     // Safe partner selection
     const fromUser = await User.findById(proposal.from).select(
