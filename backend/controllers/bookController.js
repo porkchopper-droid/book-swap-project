@@ -1,3 +1,5 @@
+import axios from "axios";
+
 import Book from "../models/Book.js";
 import User from "../models/User.js";
 
@@ -65,5 +67,37 @@ export const getNearbyBooks = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch nearby books." });
+  }
+};
+
+export const fetchBookByISBN = async (req, res) => {
+  const { isbn } = req.params;
+
+  try {
+    
+    if (!/^\d{10}(\d{3})?$/.test(isbn)) {
+      return res.status(400).json({ message: "Invalid ISBN format" });
+    }
+
+    const response = await axios.get(
+      `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
+    );
+
+    const book = response.data.items?.[0]?.volumeInfo;
+    if (!book) {
+      return res.status(404).json({ message: "No book found for that ISBN." });
+    }
+
+    res.json({
+      title: book.title || "",
+      author: book.authors?.join(", ") || "",
+      year: book.publishedDate?.substring(0, 4) || "",
+      description: book.description || "",
+      genre: book.categories?.[0] || "",
+      imageUrl: book.imageLinks?.thumbnail || "",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch book data." });
   }
 };

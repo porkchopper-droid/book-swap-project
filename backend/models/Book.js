@@ -13,6 +13,11 @@ const bookSchema = new mongoose.Schema(
     description: String,
     genre: String,
     imageUrl: String,
+    isbn: {
+      type: String,
+      trim: true,
+      match: [/^\d{10}(\d{3})?$/, "Invalid ISBN format"],
+    },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
