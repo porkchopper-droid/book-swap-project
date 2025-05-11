@@ -3,7 +3,7 @@
 import mongoose from "mongoose";
 import express from "express";
 import dotenv from "dotenv";
-import http from "http"
+import http from "http";
 import cors from "cors";
 
 /* ---------------------- Socket.IO --------------------- */
@@ -18,6 +18,7 @@ import authRoutes from "./routes/authRoutes.js";
 import bookRoutes from "./routes/bookRoutes.js";
 import swapRoutes from "./routes/swapRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -28,7 +29,8 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/swaps", swapRoutes);
-app.use("/api/chat", chatRoutes);
+app.use("/api/chats", chatRoutes);
+app.use("/api/users", userRoutes);
 
 /* ----------------- MongoDB Connection ----------------- */
 
@@ -73,7 +75,8 @@ io.on("connection", (socket) => {
       const message = new Message({ swapId, sender: senderId, text });
       const saved = await message.save();
 
-      const receiverId = senderId === String(swap.from) ? String(swap.to) : String(swap.from);
+      const receiverId =
+        senderId === String(swap.from) ? String(swap.to) : String(swap.from);
       const receiverSocket = connectedUsers.get(receiverId);
 
       if (receiverSocket) {
