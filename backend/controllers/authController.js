@@ -59,7 +59,9 @@ export const loginUser = async (req, res) => {
 
     // Return user info (without password)
     const { __v, password: _, ...userData } = user._doc;
-    res.status(200).json({ message: "Login successful", token, user: userData });
+    res
+      .status(200)
+      .json({ message: "Login successful", token, user: userData });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error during login." });
