@@ -74,7 +74,6 @@ export const fetchBookByISBN = async (req, res) => {
   const { isbn } = req.params;
 
   try {
-    
     if (!/^\d{10}(\d{3})?$/.test(isbn)) {
       return res.status(400).json({ message: "Invalid ISBN format" });
     }
@@ -99,5 +98,18 @@ export const fetchBookByISBN = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch book data." });
+  }
+};
+
+export const getMyBooks = async (req, res) => {
+  try {
+    const books = await Book.find({ user: req.user._id }).populate(
+      "user",
+      "username city country"
+    );
+    res.json(books);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch your books." });
   }
 };

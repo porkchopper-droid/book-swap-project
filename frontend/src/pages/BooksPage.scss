@@ -1,0 +1,76 @@
+.books-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.book-card {
+  background: grey;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 250px;
+  padding: 1rem;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+
+  img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    object-fit: cover;
+  }
+
+  h3 {
+    margin: 10px 0;
+  }
+
+  p {
+    margin-bottom: 10px;
+  }
+
+  .status {
+    margin-top: auto;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+
+    &.available {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    &.booked {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    &.swapped {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+}
