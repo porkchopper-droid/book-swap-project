@@ -113,3 +113,15 @@ export const getMyBooks = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch your books." });
   }
 };
+
+export const updateBook = async (req, res) => {
+  try {
+    const updated = await Book.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to update book." });
+  }
+};

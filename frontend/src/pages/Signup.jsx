@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useAuth } from "../contexts/AuthContext";
+import { signup } from "../services/authService";
+
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -10,36 +13,36 @@ export default function Signup() {
   const [status, setStatus] = useState("");
 
   const navigate = useNavigate();
+  const { setUser } = useAuth();
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     setStatus("⏳ Creating your account...");
 
-    fetch("http://localhost:6969/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      const data = await signup({
         email,
         password,
         username,
         city,
         country,
         location: { type: "Point", coordinates: [0, 0] },
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          setStatus("✅ Account created & logged in!");
-          navigate("/my-account");
-        } else {
-          setStatus("❌ Signup failed: " + data.message);
-        }
-      })
-      .catch((err) => {
-        console.error("Signup error:", err);
-        setStatus("❌ Something went wrong during signup.");
       });
+
+      console.log("Signup response:", data);
+
+      if (data.token && data.user) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
+        setStatus("✅ Account created & logged in!");
+        navigate("/my-account");
+      } else {
+        setStatus("❌ Signup failed: " + (data.message || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      setStatus("❌ Something went wrong during signup.");
+    }
   };
 
   return (

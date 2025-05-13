@@ -1,23 +1,36 @@
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import "./Navbar.scss";
 
 export default function Navbar() {
+  const { user } = useAuth();
+  // console.log("Navbar user:", user);
   return (
-    <nav style={{ padding: "1rem", borderBottom: "1px solid #ccc" }}>
-      <NavLink to="/my-account" style={{ marginRight: "1rem" }}>
-        Home
-      </NavLink>
-      <NavLink to="/books" style={{ marginRight: "1rem" }}>
-        Books
-      </NavLink>
-      <NavLink to="/chats" style={{ marginRight: "1rem" }}>
-        Chats
-      </NavLink>
-      <NavLink to="/swaps" style={{ marginRight: "1rem" }}>
-        Swaps
-      </NavLink>
-      <NavLink to="/logout">
-        Logout
-      </NavLink>
+    <nav className="navbar">
+      <div className="nav-left">
+        <NavLink to="/my-account" className="profile-link">
+          {user?.profilePicture && user.profilePicture.trim() !== "" ? (
+            <img src={user.profilePicture} alt="Profile" />
+          ) : (
+            <div className="avatar-fallback">
+              {user?.username?.charAt(0).toUpperCase() || "?"}
+            </div>
+          )}
+          <div>
+            <h3>Hello, {user?.username || "Guest"}</h3>
+          </div>
+        </NavLink>
+      </div>
+
+      <div className="nav-center">
+        <NavLink to="/books">Books</NavLink>
+        <NavLink to="/chats">Chats</NavLink>
+        <NavLink to="/swaps">Swaps</NavLink>
+      </div>
+
+      <div className="nav-right">
+        <NavLink to="/logout">Logout</NavLink>
+      </div>
     </nav>
   );
 }
