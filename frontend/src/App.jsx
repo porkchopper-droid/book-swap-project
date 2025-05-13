@@ -1,23 +1,25 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Layout from "./components/Layout";
-import Landing from "./pages/Landing";
-import Signup from "./pages/Signup";
 import MyAccount from "./pages/MyAccount";
 import BooksPage from "./pages/Bookspage";
 import SwapsPage from "./pages/SwapsPage";
 import ChatsPage from "./pages/ChatsPage";
+import Landing from "./pages/Landing";
+import Signup from "./pages/Signup";
 import Logout from "./pages/Logout";
 import SetLocation from "./pages/SetLocation";
+
+import ProtectedRoutes from "./routes/ProtectedRoutes";
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Wrapped routes (only for logged-in users later) */}
-        <Route element={<Layout />}>
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoutes />}>
           <Route path="/my-account" element={<MyAccount />} />
           <Route path="/books" element={<BooksPage />} />
           <Route path="/swaps" element={<SwapsPage />} />
