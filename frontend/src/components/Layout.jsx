@@ -1,13 +1,12 @@
 import Navbar from "./Navbar";
 import { Outlet } from "react-router-dom";
+import "./Layout.scss";
 
 export default function Layout() {
   return (
-    <div>
+    <div className="app-wrapper">
       <Navbar />
-      <div style={{ padding: "20px" }}>
-        <Outlet />
-      </div>
+      <Outlet />
     </div>
   );
 }
