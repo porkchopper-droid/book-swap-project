@@ -74,16 +74,23 @@ io.on("connection", (socket) => {
 
       const message = new Message({ swapId, sender: senderId, text });
       const saved = await message.save();
+      const populated = await saved.populate("sender", "username");
 
       const receiverId =
         senderId === String(swap.from) ? String(swap.to) : String(swap.from);
       const receiverSocket = connectedUsers.get(receiverId);
 
+      /* ------------------------ DEBUG START ----------------------- */
+      console.log("📡 Emitting newMessage to socket:", receiverSocket);
+      console.log("📨 Message content:", populated);
+      console.log("🗺️ Current connectedUsers map:", connectedUsers);
+      /* ------------------------ DEBUG END ------------------------ */
+      
       if (receiverSocket) {
-        io.to(receiverSocket).emit("newMessage", saved);
+        io.to(receiverSocket).emit("newMessage", populated);
       }
 
-      socket.emit("messageSent", saved);
+      socket.emit("messageSent", populated);
     } catch (err) {
       console.error("❌ Message failed:", err);
       socket.emit("error", "Message failed.");
