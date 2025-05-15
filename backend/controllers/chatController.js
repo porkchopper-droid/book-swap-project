@@ -78,8 +78,8 @@ export const getMyChats = async (req, res) => {
       status: "accepted",
       $or: [{ from: userId }, { to: userId }],
     })
-      .populate("from", "username profilePicture")
-      .populate("to", "username profilePicture");
+      .populate("offeredBook", "title")
+      .populate("requestedBook", "title");
 
     res.json(acceptedSwaps);
   } catch (err) {

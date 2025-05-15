@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { io } from "socket.io-client";
+import { format, parseISO } from "date-fns";
 import "./ChatsPage.scss";
 
 export default function ChatsPage() {
@@ -10,9 +11,18 @@ export default function ChatsPage() {
   const [newMessage, setNewMessage] = useState("");
   const socket = useRef(null);
   const activeSwapIdRef = useRef(null);
+  const groupedMessages = {};
 
   const { user } = useAuth(); // initialize
   const userId = user?._id; // use
+
+  messages.forEach((msg) => {
+    const dateKey = format(new Date(msg.createdAt), "yyyy-MM-dd");
+    if (!groupedMessages[dateKey]) {
+      groupedMessages[dateKey] = [];
+    }
+    groupedMessages[dateKey].push(msg);
+  });
 
   // Sync activeSwapId to ref (used inside socket listeners)
   useEffect(() => {
@@ -34,14 +44,6 @@ export default function ChatsPage() {
 
     socket.current.on("newMessage", (msg) => {
       console.log("🔥 newMessage:", msg);
-      console.log(
-        "🧠 Comparing:",
-        msg.swapId,
-        typeof msg.swapId,
-        "vs",
-        activeSwapIdRef.current,
-        typeof activeSwapIdRef.current
-      );
 
       if (!activeSwapIdRef.current) {
         console.warn("📪 No active chat open. Ignoring incoming message.");
@@ -120,19 +122,18 @@ export default function ChatsPage() {
       <div className="chat-list">
         <h3>My Chats</h3>
         {chats.map((swap) => {
-          // Figure out who the "other" person is in this swap
-          const otherUser =
-            swap.from._id === userId ? swap.to.username : swap.from.username;
+          const offered = swap.offeredBook?.title || "❓";
+          const requested = swap.requestedBook?.title || "❓";
 
           return (
             <div
               key={swap._id}
-              onClick={() => setActiveSwapId(swap._id)} // <-- when you click a swap, set it as active
+              onClick={() => setActiveSwapId(swap._id)}
               className={`chat-item ${
                 activeSwapId === swap._id ? "active" : ""
               }`}
             >
-              {otherUser}
+              {offered} ⇄ {requested}
             </div>
           );
         })}
@@ -141,21 +142,97 @@ export default function ChatsPage() {
       <div className="chat-window">
         <h3>Chat</h3>
         <div className="messages">
-          {messages.map((msg) => {
-            const isOwn = msg.sender._id === userId;
-
-            return (
-              <div
-                key={msg._id}
-                className={`message ${
-                  isOwn ? "own-message" : "incoming-message"
-                }`}
-              >
-                <strong>{msg.sender.username}</strong>: {msg.text}
+          {Object.entries(groupedMessages).map(([date, msgs]) => (
+            <div key={date} className="date-block">
+              <div className="date-divider">
+                {format(new Date(date), "MMMM d, yyyy")}
               </div>
-            );
-          })}
+
+              {msgs.map((msg, index) => {
+                const isOwn = msg.sender._id === userId;
+
+                const prevMsg = msgs[index - 1];
+                const nextMsg = msgs[index + 1];
+
+                const isSameAsPrev =
+                  prevMsg && prevMsg.sender._id === msg.sender._id;
+                const isSameAsNext =
+                  nextMsg && nextMsg.sender._id === msg.sender._id;
+
+                const showAvatar = !isSameAsNext;
+
+                let positionClass = "";
+                if (!isSameAsPrev && isSameAsNext) positionClass = "start";
+                else if (isSameAsPrev && isSameAsNext) positionClass = "middle";
+                else if (isSameAsPrev && !isSameAsNext) positionClass = "end";
+                else positionClass = "single";
+
+                const time = format(new Date(msg.createdAt), "HH:mm");
+
+                return (
+                  <div
+                    key={msg._id}
+                    className={`message-row ${isOwn ? "own" : "incoming"}`}
+                  >
+                    {/* Incoming avatar (left) */}
+                    {!isOwn && (
+                      <div className="avatar-container">
+                        {showAvatar ? (
+                          msg.sender.profilePicture?.trim() ? (
+                            <img
+                              src={msg.sender.profilePicture}
+                              className="avatar"
+                              alt="avatar"
+                            />
+                          ) : (
+                            <div className="avatar-fallback">
+                              {msg.sender.username?.charAt(0).toUpperCase() ||
+                                "?"}
+                            </div>
+                          )
+                        ) : (
+                          <div className="avatar-placeholder" />
+                        )}
+                      </div>
+                    )}
+
+                    {/* Message bubble */}
+                    <div
+                      className={`message-bubble ${
+                        isOwn ? "own" : "incoming"
+                      } ${positionClass}`}
+                    >
+                      {msg.text}
+                      <span className="timestamp">{time}</span>
+                    </div>
+
+                    {/* Own avatar (right) */}
+                    {isOwn && (
+                      <div className="avatar-container">
+                        {showAvatar ? (
+                          user.profilePicture?.trim() ? (
+                            <img
+                              src={user.profilePicture}
+                              className="avatar"
+                              alt="avatar"
+                            />
+                          ) : (
+                            <div className="avatar-fallback">
+                              {user.username?.charAt(0).toUpperCase() || "?"}
+                            </div>
+                          )
+                        ) : (
+                          <div className="avatar-placeholder" />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
         </div>
+
         <div className="message-input">
           <textarea
             value={newMessage}
