@@ -43,6 +43,7 @@ export const sendMessage = async (req, res) => {
 
 export const getMessages = async (req, res) => {
   const { swapId } = req.params;
+  const { before } = req.query;
 
   try {
     const swap = await SwapProposal.findById(swapId);
@@ -60,9 +61,18 @@ export const getMessages = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized access." });
     }
 
-    const messages = await Message.find({ swapId })
-      .sort({ createdAt: 1 })
+    const query = { swapId };
+
+    if (before) {
+      // Fetch messages older than the timestamp
+      query.createdAt = { $lte: new Date(before) };
+    }
+
+    const messages = await Message.find(query)
+      .sort({ createdAt: -1 }) // 👈 newest first, we’ll reverse on frontend
+      .limit(20)
       .populate("sender", "username");
+
     res.json(messages);
   } catch (err) {
     console.error(err);
@@ -78,8 +88,10 @@ export const getMyChats = async (req, res) => {
       status: "accepted",
       $or: [{ from: userId }, { to: userId }],
     })
-      .populate("offeredBook", "title")
-      .populate("requestedBook", "title");
+      .populate("from", "username profilePicture") // name and avatar
+      .populate("to", "username profilePicture") // name and avatar
+      .populate("offeredBook", "title") // book title
+      .populate("requestedBook", "title"); // book title
 
     res.json(acceptedSwaps);
   } catch (err) {

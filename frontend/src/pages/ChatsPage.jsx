@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { io } from "socket.io-client";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import "./ChatsPage.scss";
 
 export default function ChatsPage() {
@@ -9,14 +9,30 @@ export default function ChatsPage() {
   const [activeSwapId, setActiveSwapId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [hasMore, setHasMore] = useState(true);
   const socket = useRef(null);
   const activeSwapIdRef = useRef(null);
+  const scrollingUpRef = useRef(false);
+  const messagesEndRef = useRef(null); // for scrolling
+
   const groupedMessages = {};
 
   const { user } = useAuth(); // initialize
   const userId = user?._id; // use
 
-  messages.forEach((msg) => {
+  let ohMyGodTheyMatched = null;
+  const activeSwap = chats.find((s) => s._id === activeSwapId);
+
+  if (activeSwap) {
+    ohMyGodTheyMatched =
+      activeSwap.from._id === user._id ? activeSwap.to : activeSwap.from;
+  }
+
+  const sortedMessages = [...messages].sort(
+    (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+  );
+
+  sortedMessages.forEach((msg) => {
     const dateKey = format(new Date(msg.createdAt), "yyyy-MM-dd");
     if (!groupedMessages[dateKey]) {
       groupedMessages[dateKey] = [];
@@ -86,26 +102,58 @@ export default function ChatsPage() {
     fetchChats();
   }, []);
 
-  // Fetch messages for selected chat (when activeSwapId changes)
   useEffect(() => {
-    const fetchMessages = async () => {
-      if (!activeSwapId) return;
-
-      const res = await fetch(
-        `http://localhost:6969/api/chats/${activeSwapId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      const data = await res.json();
-      setMessages(data);
-    };
-
+    setHasMore(true); // reset before fetching a new chat
     fetchMessages();
   }, [activeSwapId]);
+
+  const fetchMessages = async (before = null) => {
+    if (!activeSwapId) return;
+
+    let url = `http://localhost:6969/api/chats/${activeSwapId}`;
+    if (before) {
+       scrollingUpRef.current = true;
+      url += `?before=${before}`;
+    }
+
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (before) {
+      const reversed = data.reverse();
+      const filtered = reversed.filter(
+        (m) => !messages.find((msg) => msg._id === m._id)
+      );
+
+      console.log(
+        `📦 Actually added: ${filtered.length} (of ${data.length} fetched)`
+      );
+
+      setMessages((prev) => [...filtered, ...prev]);
+    } else {
+      setMessages(data.reverse());
+    }
+
+    if (data.length < 20) {
+      setHasMore(false); // no more older messages to load
+    }
+  };
+
+  useEffect(() => {
+    if (scrollingUpRef.current) {
+      scrollingUpRef.current = false; // ✅ reset flag
+      return; // ⛔ Don't auto-scroll down after fetching older messages
+    }
+
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   const handleSend = () => {
     if (!newMessage.trim()) return;
@@ -120,10 +168,10 @@ export default function ChatsPage() {
   return (
     <div className="chats-page">
       <div className="chat-list">
-        <h3>My Chats</h3>
+        <h3>My Chats </h3>
         {chats.map((swap) => {
-          const offered = swap.offeredBook?.title || "❓";
-          const requested = swap.requestedBook?.title || "❓";
+          const offeredBook = swap.offeredBook?.title || "❓";
+          const requestedBook = swap.requestedBook?.title || "❓";
 
           return (
             <div
@@ -133,14 +181,27 @@ export default function ChatsPage() {
                 activeSwapId === swap._id ? "active" : ""
               }`}
             >
-              {offered} ⇄ {requested}
+              {offeredBook} ⇄ {requestedBook}
             </div>
           );
         })}
       </div>
 
       <div className="chat-window">
-        <h3>Chat</h3>
+        <h3>Chat with {ohMyGodTheyMatched?.username}</h3>
+        {activeSwapId && hasMore && (
+          <div
+            className="load-earlier"
+            onClick={() => {
+              const oldest = messages[0]?.createdAt;
+              if (oldest) {
+                fetchMessages(oldest);
+              }
+            }}
+          >
+            ↑ Load earlier messages
+          </div>
+        )}
         <div className="messages">
           {Object.entries(groupedMessages).map(([date, msgs]) => (
             <div key={date} className="date-block">
@@ -232,6 +293,8 @@ export default function ChatsPage() {
             </div>
           ))}
         </div>
+
+        <div ref={messagesEndRef} />
 
         <div className="message-input">
           <textarea
