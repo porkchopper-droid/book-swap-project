@@ -1,3 +1,5 @@
+@use "./styles/variables.scss" as *;
+
 * {
   margin: 0;
   padding: 0;
@@ -15,12 +17,7 @@ body,
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #474747;
+  color: $color-text;
+  background-color: $color-bg;
 
-  /* ------------------- TO BE HOOKED UP ------------------ */
-
-  /* --color-bg: #474747;
-  --color-text: #fff;
-  --gap-default: 20px; */
 }

@@ -1,6 +1,8 @@
+@use "../styles/variables.scss" as *;
+
 .chats-page {
   display: flex;
-  gap: 20px;
+  gap: $gap-default;
 
   .chat-list {
     width: 20%;
@@ -8,7 +10,7 @@
     background-color: #746d61;
 
     .chat-item {
-      padding: 0.5rem;
+      padding: 8px;
       cursor: pointer;
       transition: background-color 0.2s;
 
@@ -19,7 +21,7 @@
 
       span {
         display: block;
-        font-size: 0.9rem;
+        font-size: 14px;
         font-weight: 500;
         color: #fefefe;
       }
@@ -28,18 +30,16 @@
 
   .chat-window {
     width: 80%;
-
     display: flex;
-
     flex-direction: column;
-    gap: 20px;
+    gap: $gap-default;
 
     .load-earlier {
       text-align: right;
       color: #ccc;
       cursor: pointer;
       padding: 10px;
-      font-size: 0.9rem;
+      font-size: 14px;
       transition: color 0.2s;
 
       &:hover {
@@ -51,7 +51,6 @@
       display: flex;
       flex-direction: column;
       align-items: stretch;
-   
 
       .date-block {
         display: flex;
@@ -60,8 +59,8 @@
 
         .date-divider {
           text-align: center;
-          font-size: 0.75rem;
-          color: #d4d4d4;
+          font-size: 12px;
+          color: $color-border;
           margin: 15px 0 10px 0;
           position: relative;
 
@@ -72,7 +71,7 @@
             top: 50%;
             width: 40%;
             height: 0.5px;
-            background-color: #d4d4d4;
+            background-color: $color-border;
           }
 
           &::before {
@@ -83,37 +82,38 @@
             right: 0;
           }
         }
+
         .message-row {
           display: flex;
           align-items: flex-end;
           gap: 10px;
 
           .avatar-container {
-            width: 32px;
-            height: 32px;
+            width: $avatar-size-small;
+            height: $avatar-size-small;
             display: flex;
             align-items: flex-end;
             justify-content: center;
 
             .avatar {
-              width: 32px;
-              height: 32px;
+              width: $avatar-size-small;
+              height: $avatar-size-small;
               border-radius: 50%;
               object-fit: cover;
             }
 
             .avatar-placeholder {
-              width: 32px;
-              height: 32px;
-              visibility: hidden; // <<< TO MAKE IT HIDDEN!!!
+              width: $avatar-size-small;
+              height: $avatar-size-small;
+              visibility: hidden;
             }
 
             .avatar-fallback {
-              width: 32px;
-              height: 32px;
+              width: $avatar-size-small;
+              height: $avatar-size-small;
               border-radius: 50%;
-              background-color: #888;
-              color: white;
+              background-color: $color-avatar-fallback;
+              color: $color-heading;
               display: flex;
               align-items: center;
               justify-content: center;
@@ -131,12 +131,12 @@
           }
 
           .message-bubble {
-            padding: 0.5rem 0.75rem;
+            padding: 8px 12px;
             max-width: 60%;
-            font-size: 0.95rem;
+            font-size: 15px;
 
             &.own {
-              background-color: #6586aa;
+              background-color: $color-chat-own;
               color: white;
               text-align: right;
 
@@ -149,7 +149,7 @@
             }
 
             &.incoming {
-              background-color: #ddd;
+              background-color: $color-chat-incoming;
               color: #222;
               text-align: left;
 
@@ -165,26 +165,25 @@
               border-radius: 15px;
             }
           }
-          /* Outgoing (right) */
+
           .message-bubble.own.start {
-            border-radius: 15px 15px 0px 15px;
+            border-radius: 15px 15px 0 15px;
           }
           .message-bubble.own.middle {
-            border-radius: 15px 0px 0px 15px;
+            border-radius: 15px 0 0 15px;
           }
           .message-bubble.own.end {
-            border-radius: 15px 0px 15px 15px;
+            border-radius: 15px 0 15px 15px;
           }
 
-          /* Incoming (left) */
           .message-bubble.incoming.start {
-            border-radius: 15px 15px 15px 0px;
+            border-radius: 15px 15px 15px 0;
           }
           .message-bubble.incoming.middle {
-            border-radius: 0px 15px 15px 0px;
+            border-radius: 0 15px 15px 0;
           }
           .message-bubble.incoming.end {
-            border-radius: 0px 15px 15px 15px;
+            border-radius: 0 15px 15px 15px;
           }
         }
       }
@@ -193,20 +192,20 @@
     .message-input {
       margin-top: auto;
       display: flex;
-      gap: 0.5rem;
+      gap: 8px;
 
       textarea {
         flex: 1;
         resize: none;
-        min-height: 3rem;
-        max-height: 10rem;
-        padding: 0.5rem;
-        font-size: 1rem;
+        min-height: 48px;
+        max-height: 160px;
+        padding: 8px;
+        font-size: 16px;
       }
 
       button {
-        padding: 0.5rem 1rem;
-        background: #6586aa;
+        padding: 8px 16px;
+        background: $color-chat-own;
         color: white;
         border: none;
         cursor: pointer;

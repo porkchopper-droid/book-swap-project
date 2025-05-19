@@ -69,7 +69,7 @@ export const getMessages = async (req, res) => {
     }
 
     const messages = await Message.find(query)
-      .sort({ createdAt: -1 }) // 👈 newest first, we’ll reverse on frontend
+      .sort({ createdAt: -1 }) // 👈 newest first
       .limit(20)
       .populate("sender", "username");
 

@@ -69,8 +69,6 @@ export default function BooksPage() {
 
   return (
     <>
-      <h2>📚 My Books</h2>
-
       {loading && <p>Loading books...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 

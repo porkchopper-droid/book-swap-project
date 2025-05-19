@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { io } from "socket.io-client";
 import { format } from "date-fns";
@@ -16,6 +17,8 @@ export default function ChatsPage() {
   const messagesEndRef = useRef(null); // for scrolling
 
   const groupedMessages = {};
+
+  const {swapId} = useParams;
 
   const { user } = useAuth(); // initialize
   const userId = user?._id; // use
@@ -176,7 +179,7 @@ export default function ChatsPage() {
           return (
             <div
               key={swap._id}
-              onClick={() => setActiveSwapId(swap._id)}
+              onClick={() => navigate(`/chats/${swap._id}`)}
               className={`chat-item ${
                 activeSwapId === swap._id ? "active" : ""
               }`}

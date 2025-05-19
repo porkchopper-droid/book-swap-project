@@ -1,0 +1,43 @@
+/* ------------------- COLORS ------------------- */
+$color-bg: #474747;
+$color-text: rgba(255, 255, 255, 0.87);
+$color-heading: #fefefe;
+$color-border: #ccc;
+
+$color-card-bg: #595959;
+$color-box-bg: #646464;
+
+$color-link: #d4964a;
+$color-link-hover: #f0c14b;
+
+$color-success-bg: #d4edda;
+$color-success-text: #155724;
+$color-warning-bg: #fff3cd;
+$color-warning-text: #856404;
+$color-danger-bg: #f8d7da;
+$color-danger-text: #721c24;
+
+$color-chat-own: #6586aa; // CHECKED
+$color-chat-incoming: #ddd; // CHECKED
+$color-avatar-fallback: #888; // CHECKED
+
+/* ------------------- SPACING ------------------- */
+$gap-mini: 10px;
+$gap-default: 20px;
+$padding-mini: 15px;
+$padding-default: 20px;
+$margin-default: 20px;
+$border-radius: 15px;
+
+/* ------------------- FONT ------------------- */
+$font-family-default: system-ui, Avenir, Helvetica, Arial, sans-serif;
+$font-size-base: 16px;
+$font-size-small: 14px;
+$font-size-tiny: 12px;
+
+/* ------------------- SHADOW ------------------- */
+$box-shadow-default: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+/* ------------------- AVATAR ------------------- */
+$avatar-size-small: 32px;
+$avatar-size-large: 40px;

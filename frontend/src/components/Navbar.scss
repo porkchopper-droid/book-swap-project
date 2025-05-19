@@ -1,11 +1,12 @@
+@use "../styles/variables.scss" as *;
+
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px 20px 20px;
-  background-color: #474747;
+  padding: 0 $padding-default $padding-default $padding-default;
   color: white;
-  border-bottom: 1px solid #dadada;
+  border-bottom: 1px solid $color-border;
 
   .nav-left,
   .nav-center,
@@ -24,8 +25,8 @@
       gap: 10px;
 
       img {
-        width: 40px;
-        height: 40px;
+        width: $avatar-size-large;
+        height: $avatar-size-large;
         border-radius: 50%;
         margin-right: 0.75rem;
       }
@@ -71,10 +72,10 @@
 }
 
 .avatar-fallback {
-  width: 40px;
-  height: 40px;
+  width: $avatar-size-large;
+  height: $avatar-size-large;
   border-radius: 50%;
-  background-color: #888;
+  background-color: $color-avatar-fallback;
   color: white;
   display: flex;
   align-items: center;

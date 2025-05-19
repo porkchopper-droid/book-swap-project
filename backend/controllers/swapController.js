@@ -95,3 +95,23 @@ export const respondToSwapProposal = async (req, res) => {
     res.status(500).json({ message: "Failed to respond to proposal." });
   }
 };
+
+export const getMySwaps = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const swaps = await SwapProposal.find({
+      $or: [{ from: userId }, { to: userId }],
+    })
+      .populate("offeredBook")
+      .populate("requestedBook")
+      .populate("from", "username profilePicture")
+      .populate("to", "username profilePicture")
+      .sort({ updatedAt: -1 }); // optional, newest first
+
+    res.json(swaps);
+  } catch (err) {
+    console.error("Failed to fetch swaps:", err);
+    res.status(500).json({ message: "Server error fetching your swaps." });
+  }
+};

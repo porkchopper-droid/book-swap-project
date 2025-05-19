@@ -24,6 +24,7 @@ function App() {
           <Route path="/books" element={<BooksPage />} />
           <Route path="/swaps" element={<SwapsPage />} />
           <Route path="/chats" element={<ChatsPage />} />
+          <Route path="/chats/:swapId" element={<ChatsPage />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/set-location" element={<SetLocation />} />
         </Route>
