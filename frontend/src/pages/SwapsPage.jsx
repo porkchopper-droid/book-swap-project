@@ -1,38 +1,73 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./SwapsPage.scss"; // Create this later
+import SwapCard from "../components/SwapCard";
+import "./SwapsPage.scss";
+import axios from "axios";
 
 export default function SwapsPage() {
   const [swaps, setSwaps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("active");
 
-  const navigate = useNavigate();
+  const tabOptions = [
+    { label: "🔄 Active", value: "active" },
+    { label: "❌ Declined", value: "declined" },
+    { label: "✅ Completed", value: "completed" },
+    { label: "📦 Archived", value: "archived" },
+  ];
+
+  const filteredSwaps = swaps.filter((swap) => {
+    switch (activeTab) {
+      case "active":
+        return (
+          ["pending", "accepted"].includes(swap.status) && !swap.isCompleted
+        );
+      case "declined":
+        return swap.status === "declined";
+      case "completed":
+        return swap.isCompleted === true && !swap.isArchived;
+      case "archived":
+        return swap.isArchived === true;
+      default:
+        return true; // fallback if something breaks
+    }
+  });
 
   useEffect(() => {
-    fetch("http://localhost:6969/api/swaps/mine", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setSwaps(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch swaps:", err);
-        setError("Could not load swaps.");
-        setLoading(false);
-      });
+    fetchSwaps();
   }, []);
+
+  const fetchSwaps = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get("/api/swaps/mine", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setSwaps(res.data);
+      setLoading(false);
+    } catch (err) {
+      console.error("Failed to fetch swaps:", err);
+      setError("Could not load swaps.");
+      setLoading(false);
+    }
+  };
 
   const handleAccept = async (swapId) => {
     try {
-      await axios.patch(`/api/swaps/${swapId}/respond`, {
-        response: "accepted",
-      });
-      fetchSwaps(); // or update state manually if you want
+      await axios.patch(
+        `/api/swaps/${swapId}/respond`,
+        {
+          response: "accepted",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      fetchSwaps();
     } catch (err) {
       console.error(err);
     }
@@ -40,9 +75,17 @@ export default function SwapsPage() {
 
   const handleDecline = async (swapId) => {
     try {
-      await axios.patch(`/api/swaps/${swapId}/respond`, {
-        response: "declined",
-      });
+      await axios.patch(
+        `/api/swaps/${swapId}/respond`,
+        {
+          response: "declined",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       fetchSwaps();
     } catch (err) {
       console.error(err);
@@ -51,8 +94,10 @@ export default function SwapsPage() {
 
   const handleMarkCompleted = async (swapId) => {
     try {
-      await axios.patch(`/api/swaps/${swapId}/respond`, {
-        response: "completed",
+      await axios.patch(`/api/swaps/${swapId}/complete`, null, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
       fetchSwaps();
     } catch (err) {
@@ -62,8 +107,23 @@ export default function SwapsPage() {
 
   const handleArchive = async (swapId) => {
     try {
-      await axios.patch(`/api/swaps/${swapId}/respond`, {
-        response: "archive",
+      await axios.patch(`/api/swaps/${swapId}/archive`, null, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      fetchSwaps();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUnarchive = async (swapId) => {
+    try {
+      await axios.patch(`/api/swaps/${swapId}/unarchive`, null, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
       fetchSwaps();
     } catch (err) {
@@ -76,45 +136,34 @@ export default function SwapsPage() {
       {loading && <p>Loading swaps...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <div className="swaps-grid">
-        {swaps.map((swap) => (
-          <div key={swap._id} className="swap-card">
-            <p>
-              <strong>{swap.offeredBook.title}</strong> ⇄{" "}
-              <strong>{swap.requestedBook.title}</strong>
-            </p>
-            <p>
-              @{swap.from.username} ⇄ @{swap.to.username}
-            </p>
-            {swap.status && (
-              <div className={`status-ribbon ${swap.status}`}>
-               {swap.status.toUpperCase()}
-              </div>
-            )}
-
-            {swap.fromMessage && <p>💬 {swap.fromMessage}</p>}
-            {swap.toMessage && <p>💬 {swap.toMessage}</p>}
-
-            <button onClick={() => navigate(`/chats/${swap._id}`)}>
-              Go to Chat
-            </button>
-            {swap.status === "pending" && (
-              <>
-                <button onClick={() => handleAccept(swap._id)}>Accept</button>
-                <button onClick={() => handleDecline(swap._id)}>Decline</button>
-              </>
-            )}
-            {swap.status === "accepted" && !swap.isCompleted && (
-              <button onClick={() => handleMarkCompleted(swap._id)}>
-                Mark Completed
-              </button>
-            )}
-
-            {swap.isCompleted && !swap.isArchived && (
-              <button onClick={() => handleArchive(swap._id)}>Archive</button>
-            )}
-          </div>
+      <div className="tabs">
+        {tabOptions.map((tab) => (
+          <button
+            key={tab.value}
+            className={activeTab === tab.value ? "active" : ""}
+            onClick={() => setActiveTab(tab.value)}
+          >
+            {tab.label}
+          </button>
         ))}
+      </div>
+
+      <div className="swaps-grid">
+        {filteredSwaps.length === 0 ? (
+          <p>No {activeTab} swaps to show.</p>
+        ) : (
+          filteredSwaps.map((swap) => (
+            <SwapCard
+              key={swap._id}
+              swap={swap}
+              handleAccept={handleAccept}
+              handleDecline={handleDecline}
+              handleMarkCompleted={handleMarkCompleted}
+              handleArchive={handleArchive}
+              handleUnarchive={handleUnarchive}
+            />
+          ))
+        )}
       </div>
     </>
   );

@@ -21,6 +21,9 @@ $color-chat-own: #6586aa; // CHECKED
 $color-chat-incoming: #ddd; // CHECKED
 $color-avatar-fallback: #888; // CHECKED
 
+$color-button-bg: #d4964a;
+$color-button-hover: #f0c14b;
+
 /* ------------------- SPACING ------------------- */
 $gap-mini: 10px;
 $gap-default: 20px;
@@ -28,6 +31,7 @@ $padding-mini: 15px;
 $padding-default: 20px;
 $margin-default: 20px;
 $border-radius: 15px;
+$border-radius-mini: 5px;
 
 /* ------------------- FONT ------------------- */
 $font-family-default: system-ui, Avenir, Helvetica, Arial, sans-serif;

@@ -1,186 +1,191 @@
 @use "../styles/variables.scss" as *;
 
 .chat-window {
-    width: 80%;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  gap: $gap-default;
+
+  .load-earlier {
+    text-align: right;
+    color: #ccc;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 14px;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  .messages {
     display: flex;
     flex-direction: column;
-    gap: $gap-default;
+    align-items: stretch;
 
-    .load-earlier {
-      text-align: right;
-      color: #ccc;
-      cursor: pointer;
-      padding: 10px;
-      font-size: 14px;
-      transition: color 0.2s;
-
-      &:hover {
-        color: #fff;
-      }
-    }
-
-    .messages {
+    .date-block {
       display: flex;
       flex-direction: column;
-      align-items: stretch;
+      gap: 5px;
 
-      .date-block {
+      .date-divider {
+        text-align: center;
+        font-size: 12px;
+        color: $color-border;
+        margin: 15px 0 10px 0;
+        position: relative;
+
+        &::before,
+        &::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          width: 40%;
+          height: 0.5px;
+          background-color: $color-border;
+        }
+
+        &::before {
+          left: 0;
+        }
+
+        &::after {
+          right: 0;
+        }
+      }
+
+      .message-row {
         display: flex;
-        flex-direction: column;
-        gap: 5px;
+        align-items: flex-end;
+        gap: 10px;
 
-        .date-divider {
-          text-align: center;
-          font-size: 12px;
-          color: $color-border;
-          margin: 15px 0 10px 0;
-          position: relative;
+        .avatar-container {
+          width: $avatar-size-small;
+          height: $avatar-size-small;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
 
-          &::before,
-          &::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            width: 40%;
-            height: 0.5px;
-            background-color: $color-border;
+          .avatar {
+            width: $avatar-size-small;
+            height: $avatar-size-small;
+            border-radius: 50%;
+            object-fit: cover;
           }
 
-          &::before {
-            left: 0;
+          .avatar-placeholder {
+            width: $avatar-size-small;
+            height: $avatar-size-small;
+            visibility: hidden;
           }
 
-          &::after {
-            right: 0;
+          .avatar-fallback {
+            width: $avatar-size-small;
+            height: $avatar-size-small;
+            border-radius: 50%;
+            background-color: $color-avatar-fallback;
+            color: $color-heading;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 15px;
           }
         }
 
-        .message-row {
-          display: flex;
-          align-items: flex-end;
-          gap: 10px;
+        &.own {
+          justify-content: flex-end;
+        }
 
-          .avatar-container {
-            width: $avatar-size-small;
-            height: $avatar-size-small;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
+        &.incoming {
+          justify-content: flex-start;
+        }
 
-            .avatar {
-              width: $avatar-size-small;
-              height: $avatar-size-small;
-              border-radius: 50%;
-              object-fit: cover;
-            }
-
-            .avatar-placeholder {
-              width: $avatar-size-small;
-              height: $avatar-size-small;
-              visibility: hidden;
-            }
-
-            .avatar-fallback {
-              width: $avatar-size-small;
-              height: $avatar-size-small;
-              border-radius: 50%;
-              background-color: $color-avatar-fallback;
-              color: $color-heading;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-weight: bold;
-              font-size: 15px;
-            }
-          }
+        .message-bubble {
+          padding: 8px 12px;
+          max-width: 60%;
+          font-size: 15px;
 
           &.own {
-            justify-content: flex-end;
+            background-color: $color-chat-own;
+            color: white;
+            text-align: right;
+
+            .timestamp {
+              display: block;
+              text-align: right;
+              font-size: 10px;
+              color: #dcdcdc;
+            }
           }
 
           &.incoming {
-            justify-content: flex-start;
-          }
+            background-color: $color-chat-incoming;
+            color: #222;
+            text-align: left;
 
-          .message-bubble {
-            padding: 8px 12px;
-            max-width: 60%;
-            font-size: 15px;
-
-            &.own {
-              background-color: $color-chat-own;
-              color: white;
-              text-align: right;
-
-              .timestamp {
-                display: block;
-                text-align: right;
-                font-size: 10px;
-                color: #dcdcdc;
-              }
-            }
-
-            &.incoming {
-              background-color: $color-chat-incoming;
-              color: #222;
+            .timestamp {
+              display: block;
               text-align: left;
-
-              .timestamp {
-                display: block;
-                text-align: left;
-                font-size: 10px;
-                color: #393939;
-              }
-            }
-
-            &.single {
-              border-radius: 15px;
+              font-size: 10px;
+              color: #393939;
             }
           }
 
-          .message-bubble.own.start {
-            border-radius: 15px 15px 0 15px;
+          &.single {
+            border-radius: 15px;
           }
-          .message-bubble.own.middle {
-            border-radius: 15px 0 0 15px;
-          }
-          .message-bubble.own.end {
-            border-radius: 15px 0 15px 15px;
-          }
+        }
 
-          .message-bubble.incoming.start {
-            border-radius: 15px 15px 15px 0;
-          }
-          .message-bubble.incoming.middle {
-            border-radius: 0 15px 15px 0;
-          }
-          .message-bubble.incoming.end {
-            border-radius: 0 15px 15px 15px;
-          }
+        .message-bubble.own.start {
+          border-radius: 15px 15px 0 15px;
+        }
+        .message-bubble.own.middle {
+          border-radius: 15px 0 0 15px;
+        }
+        .message-bubble.own.end {
+          border-radius: 15px 0 15px 15px;
+        }
+
+        .message-bubble.incoming.start {
+          border-radius: 15px 15px 15px 0;
+        }
+        .message-bubble.incoming.middle {
+          border-radius: 0 15px 15px 0;
+        }
+        .message-bubble.incoming.end {
+          border-radius: 0 15px 15px 15px;
         }
       }
     }
+  }
 
-    .message-input {
-      margin-top: auto;
-      display: flex;
-      gap: 8px;
+  .message-input {
+    margin-top: auto;
+    display: flex;
+    gap: 8px;
 
-      textarea {
-        flex: 1;
-        resize: none;
-        min-height: 48px;
-        max-height: 160px;
-        padding: 8px;
-        font-size: 16px;
-      }
+    textarea {
+      flex: 1;
+      resize: none;
+      min-height: 48px;
+      max-height: 160px;
+      padding: 8px;
+      font-size: 16px;
+    }
 
-      button {
-        padding: 8px 16px;
-        background: $color-chat-own;
-        color: white;
-        border: none;
-        cursor: pointer;
+    button {
+      padding: 8px 16px;
+      background: $color-button-bg;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+
+      &:hover {
+        background-color: $color-button-hover;
       }
     }
   }
+}

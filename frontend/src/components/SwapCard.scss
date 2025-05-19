@@ -1,0 +1,69 @@
+@use "../styles/variables.scss" as *;
+
+.swap-card {
+  background-color: $color-box-bg;
+  border: 0.5px solid $color-border;
+  border-radius: $border-radius;
+  padding: $padding-mini;
+  box-shadow: $box-shadow-default;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  width: 200px;
+
+  .status-ribbon {
+    position: relative;
+    top: 0;
+    left: -15px;
+    width: calc(100% + 30px); // overshoot to ignore padding
+    text-align: center;
+    font-weight: bold;
+    padding: 6px 0;
+    z-index: 1;
+    pointer-events: none;
+
+    &.pending {
+      color: $color-warning-text;
+      background-color: $color-warning-bg;
+    }
+    &.accepted {
+      color: $color-success-text;
+      background-color: $color-success-bg;
+    }
+    &.declined {
+      color: $color-danger-text;
+      background-color: $color-danger-bg;
+    }
+  }
+
+  button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: $color-button-bg;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background-color: $color-button-hover;
+    }
+
+    &:not(:last-child) {
+      margin-bottom: 5px;
+    }
+  }
+}
+
+.swap-card.greyscale {
+  filter: grayscale(100%);
+  opacity: 0.6;
+
+  .unarchive-button {
+    filter: none !important;
+    opacity: 1 !important;
+    isolation: isolate;
+    z-index: 1;
+  }
+}

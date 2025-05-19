@@ -1,5 +1,5 @@
 import Book from "../models/Book.js";
-import User from "../models/User.js"
+import User from "../models/User.js";
 import SwapProposal from "../models/SwapProposal.js";
 
 export const createSwapProposal = async (req, res) => {
@@ -31,14 +31,14 @@ export const createSwapProposal = async (req, res) => {
 
 export const respondToSwapProposal = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { swapId } = req.params;
     const { action, toMessage } = req.body; // action = "accept" or "decline"
 
     if (!["accept", "decline"].includes(action)) {
       return res.status(400).json({ message: "Invalid action." });
     }
 
-    const proposal = await SwapProposal.findById(id);
+    const proposal = await SwapProposal.findById(swapId);
 
     if (!proposal) {
       return res.status(404).json({ message: "Proposal not found." });
@@ -48,7 +48,6 @@ export const respondToSwapProposal = async (req, res) => {
     if (String(proposal.to) !== String(req.user._id)) {
       return res.status(403).json({ message: "Unauthorized." });
     }
-    
 
     if (proposal.status !== "pending") {
       return res.status(400).json({ message: "Proposal already resolved." });
@@ -118,7 +117,7 @@ export const getMySwaps = async (req, res) => {
 
 export const getSwapById = async (req, res) => {
   try {
-    const swap = await SwapProposal.findById(req.params.id)
+    const swap = await SwapProposal.findById(req.params.swapId)
       .populate("offeredBook", "title")
       .populate("requestedBook", "title")
       .populate("from", "username profilePicture")
@@ -132,5 +131,110 @@ export const getSwapById = async (req, res) => {
   } catch (err) {
     console.error("Failed to fetch swap:", err);
     res.status(500).json({ message: "Server error fetching swap." });
+  }
+};
+
+export const markSwapAsCompleted = async (req, res) => {
+  try {
+    const { swapId } = req.params;
+
+    const proposal = await SwapProposal.findById(swapId);
+
+    if (!proposal) {
+      return res.status(404).json({ message: "Swap not found." });
+    }
+
+    // Only allow if status is accepted
+    if (proposal.status !== "accepted") {
+      return res
+        .status(400)
+        .json({ message: "Only accepted swaps can be marked completed." });
+    }
+
+    // Only participants can mark as completed
+    const userId = req.user._id.toString();
+    if (![proposal.from.toString(), proposal.to.toString()].includes(userId)) {
+      return res.status(403).json({ message: "Unauthorized." });
+    }
+
+    proposal.isCompleted = true;
+    await proposal.save();
+
+    res.json({ message: "Swap marked as completed.", proposal });
+  } catch (err) {
+    console.error("Failed to mark completed:", err);
+    res
+      .status(500)
+      .json({ message: "Server error marking swap as completed." });
+  }
+};
+
+export const markSwapAsArchived = async (req, res) => {
+  try {
+    const { swapId } = req.params;
+
+    const proposal = await SwapProposal.findById(swapId);
+
+    if (!proposal) {
+      return res.status(404).json({ message: "Swap not found." });
+    }
+
+    // Only allow if status is completed
+    if (!proposal.isCompleted) {
+      return res
+        .status(400)
+        .json({ message: "Only swaps marked as 'Completed' can be archived." });
+    }
+
+    // Only participants can mark as completed
+    const userId = req.user._id.toString();
+    if (![proposal.from.toString(), proposal.to.toString()].includes(userId)) {
+      return res.status(403).json({ message: "Unauthorized." });
+    }
+
+    proposal.isArchived = true;
+    await proposal.save();
+
+    res.json({ message: "Swap marked as archived.", proposal });
+  } catch (err) {
+    console.error("Failed to mark archived:", err);
+    res
+      .status(500)
+      .json({ message: "Server error marking swap as archived." });
+  }
+};
+
+export const unarchiveSwap = async (req, res) => {
+  try {
+    const { swapId } = req.params;
+
+    const proposal = await SwapProposal.findById(swapId);
+
+    if (!proposal) {
+      return res.status(404).json({ message: "Swap not found." });
+    }
+
+    // Only allow if status is archived
+    if (!proposal.isArchived) {
+      return res
+        .status(400)
+        .json({ message: "Only archived swaps can be brought back to life." });
+    }
+
+    // Only participants can mark as completed
+    const userId = req.user._id.toString();
+    if (![proposal.from.toString(), proposal.to.toString()].includes(userId)) {
+      return res.status(403).json({ message: "Unauthorized." });
+    }
+
+    proposal.isArchived = false;
+    await proposal.save();
+
+    res.json({ message: "Swap unarchived", proposal });
+  } catch (err) {
+    console.error("Unarchive error:", err);
+    res
+      .status(500)
+      .json({ message: "Server error unarchiving." });
   }
 };

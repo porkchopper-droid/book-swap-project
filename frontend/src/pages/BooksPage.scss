@@ -1,3 +1,5 @@
+@use "../styles/variables.scss" as *;
+
 .books-container {
   display: flex;
   flex-wrap: wrap;
@@ -8,9 +10,9 @@
 .book-card {
   background: grey;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: $border-radius;
   width: 250px;
-  padding: 1rem;
+  padding: $padding-mini;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -20,14 +22,14 @@
   img {
     width: 100%;
     height: auto;
-    border-radius: 4px;
+    border-radius: $border-radius-mini;
     object-fit: cover;
   }
 
   .status {
     margin-top: auto;
     padding: 10px;
-    border-radius: 4px;
+    border-radius: $border-radius-mini;
     text-align: center;
     font-weight: bold;
 
