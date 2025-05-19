@@ -115,3 +115,22 @@ export const getMySwaps = async (req, res) => {
     res.status(500).json({ message: "Server error fetching your swaps." });
   }
 };
+
+export const getSwapById = async (req, res) => {
+  try {
+    const swap = await SwapProposal.findById(req.params.id)
+      .populate("offeredBook", "title")
+      .populate("requestedBook", "title")
+      .populate("from", "username profilePicture")
+      .populate("to", "username profilePicture");
+
+    if (!swap) {
+      return res.status(404).json({ message: "Swap not found" });
+    }
+
+    res.status(200).json(swap);
+  } catch (err) {
+    console.error("Failed to fetch swap:", err);
+    res.status(500).json({ message: "Server error fetching swap." });
+  }
+};

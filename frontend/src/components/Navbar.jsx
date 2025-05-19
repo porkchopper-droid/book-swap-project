@@ -4,7 +4,6 @@ import "./Navbar.scss";
 
 export default function Navbar() {
   const { user } = useAuth();
-  // console.log("Navbar user:", user);
   return (
     <nav className="navbar">
       <div className="nav-left">

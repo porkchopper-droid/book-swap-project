@@ -9,7 +9,7 @@
 
 .swap-card {
   background-color: $color-box-bg;
-  border: 1px solid $color-border;
+  border: 0.5px solid $color-border;
   border-radius: $border-radius;
   padding: $padding-mini;
   box-shadow: $box-shadow-default;
@@ -19,17 +19,28 @@
   text-align: left;
   width: 200px;
 
-  .status {
+  .status-ribbon {
+    position: relative;
+    top: 0;
+    left: -15px;
+    width: calc(100% + 30px); // overshoot to ignore padding
+    text-align: center;
     font-weight: bold;
+    padding: 6px 0;
+    z-index: 1;
+    pointer-events: none;
 
     &.pending {
-      color: orange;
+      color: $color-warning-text;
+      background-color: $color-warning-bg;
     }
     &.accepted {
-      color: green;
+      color: $color-success-text;
+      background-color: $color-success-bg;
     }
     &.declined {
-      color: crimson;
+      color: $color-danger-text;
+      background-color: $color-danger-bg;
     }
   }
 

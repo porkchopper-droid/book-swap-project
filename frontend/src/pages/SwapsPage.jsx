@@ -86,15 +86,16 @@ export default function SwapsPage() {
             <p>
               @{swap.from.username} ⇄ @{swap.to.username}
             </p>
-            <p>
-              Status:{" "}
-              <span className={`status ${swap.status}`}>{swap.status}</span>
-            </p>
+            {swap.status && (
+              <div className={`status-ribbon ${swap.status}`}>
+               {swap.status.toUpperCase()}
+              </div>
+            )}
 
             {swap.fromMessage && <p>💬 {swap.fromMessage}</p>}
             {swap.toMessage && <p>💬 {swap.toMessage}</p>}
 
-            <button onClick={() => navigate(`/chat/${swap._id}`)}>
+            <button onClick={() => navigate(`/chats/${swap._id}`)}>
               Go to Chat
             </button>
             {swap.status === "pending" && (
