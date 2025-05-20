@@ -1,6 +1,7 @@
 import Book from "../models/Book.js";
 import User from "../models/User.js";
 import SwapProposal from "../models/SwapProposal.js";
+import { checkAndExpireSwap } from "../utils/checkAndExpireSwap.js";
 
 export const createSwapProposal = async (req, res) => {
   try {
@@ -39,6 +40,7 @@ export const respondToSwapProposal = async (req, res) => {
     }
 
     const proposal = await SwapProposal.findById(swapId);
+    await checkAndExpireSwap(proposal); // check if it is expired
 
     if (!proposal) {
       return res.status(404).json({ message: "Proposal not found." });
@@ -62,6 +64,7 @@ export const respondToSwapProposal = async (req, res) => {
     // If accepted
     proposal.toAccepted = true;
     proposal.status = "accepted";
+    proposal.acceptedAt = new Date(); // timestamp locked
     if (toMessage) {
       proposal.toMessage = toMessage;
     }
@@ -138,6 +141,7 @@ export const markSwapAsCompleted = async (req, res) => {
   try {
     const { swapId } = req.params;
     const proposal = await SwapProposal.findById(swapId);
+    await checkAndExpireSwap(proposal); // check if it is expired
 
     if (!proposal) {
       return res.status(404).json({ message: "Swap not found." });
@@ -168,15 +172,17 @@ export const markSwapAsCompleted = async (req, res) => {
 
     // Final completion check
     if (proposal.fromCompleted && proposal.toCompleted) {
-      proposal.isCompleted = true;
+      proposal.status = "completed";
+      proposal.completedAt = new Date();
     }
 
     await proposal.save();
 
     res.json({
-      message: proposal.isCompleted
-        ? "Swap fully completed."
-        : "Marked as completed. Awaiting other user.",
+      message:
+        proposal.status === "completed"
+          ? "Swap fully completed."
+          : "Marked as completed. Awaiting other user.",
       proposal,
     });
   } catch (err) {
@@ -198,7 +204,7 @@ export const markSwapAsArchived = async (req, res) => {
     }
 
     // Only allow if status is completed
-    if (!proposal.isCompleted) {
+    if (proposal.status !== "completed") {
       return res
         .status(400)
         .json({ message: "Only swaps marked as 'Completed' can be archived." });
@@ -224,7 +230,6 @@ export const markSwapAsArchived = async (req, res) => {
     res.status(500).json({ message: "Server error marking swap as archived." });
   }
 };
-
 
 export const unarchiveSwap = async (req, res) => {
   try {
@@ -259,4 +264,3 @@ export const unarchiveSwap = async (req, res) => {
     res.status(500).json({ message: "Server error unarchiving." });
   }
 };
-

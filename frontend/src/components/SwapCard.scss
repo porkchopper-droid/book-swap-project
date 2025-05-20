@@ -57,6 +57,10 @@
       background-color: rgb(30, 128, 64);
       color: rgb(158, 255, 202);
     }
+    &.expired {
+      background-color: #000000;
+      color: $color-text;
+    }
   }
 
   @keyframes blink {

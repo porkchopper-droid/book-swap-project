@@ -17,6 +17,7 @@ export default function SwapsPage() {
     { label: "❌ Declined", value: "declined" },
     { label: "✅ Completed", value: "completed" },
     { label: "📦 Archived", value: "archived" },
+    { label: "⏳ Expired", value: "expired" },
   ];
 
   const filteredSwaps = swaps.filter((swap) => {
@@ -25,17 +26,15 @@ export default function SwapsPage() {
 
     switch (activeTab) {
       case "active":
-        return (
-          ["pending", "accepted"].includes(swap.status) &&
-          !swap.isCompleted &&
-          !userArchived
-        );
+        return ["pending", "accepted"].includes(swap.status) && !userArchived;
       case "declined":
         return swap.status === "declined" && !userArchived;
       case "completed":
-        return swap.isCompleted === true && !userArchived;
+        return swap.status === "completed" && !userArchived;
       case "archived":
         return userArchived === true;
+      case "expired":
+        return swap.status === "expired";
       default:
         return true; // fallback
     }

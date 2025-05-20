@@ -47,8 +47,10 @@ const userSchema = new mongoose.Schema(
       coordinates: {
         type: [Number], // [longitude, latitude]
         required: true,
-        default: [0, 0]
+        default: [0, 0],
       },
+      reportedCount: { type: Number, default: 0 },
+      isFlagged: { type: Boolean, default: false },
     },
   },
   { timestamps: true }
@@ -78,4 +80,3 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 
 /* ----------- Model Export ----------- */
 export default mongoose.model("User", userSchema); // Mongoose created >> users (seen in MongoDB)
-

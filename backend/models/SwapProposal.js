@@ -32,33 +32,20 @@ const swapProposalSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "accepted", "declined"],
+      enum: ["pending", "accepted", "declined", "completed", "expired"],
       default: "pending",
     },
     fromCompleted: { type: Boolean, default: false },
     toCompleted: { type: Boolean, default: false },
-    isCompleted: { type: Boolean, default: false },
     fromArchived: { type: Boolean, default: false },
     toArchived: { type: Boolean, default: false },
     acceptedAt: { type: Date, default: null },
-    expiredAt: {
-      type: Date,
-      default: null,
-    },
-    isExpired: {
-      type: Boolean,
-      default: false,
-    },
-    fromMessage: {
-      type: String,
-      trim: true,
-    },
-    toMessage: {
-      type: String,
-      trim: true,
-    },
+    completedAt: { type: Date, default: null },
+    expiredAt: { type: Date, default: null },
+    fromMessage: { type: String, trim: true },
+    toMessage: { type: String, trim: true },
   },
-  { timestamps: true }
+  { timestamps: true } // createdAt
 );
 
 export default mongoose.model("SwapProposal", swapProposalSchema);

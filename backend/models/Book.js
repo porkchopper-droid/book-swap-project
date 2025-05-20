@@ -7,7 +7,7 @@ const bookSchema = new mongoose.Schema(
     year: Number,
     status: {
       type: String,
-      enum: ["available", "booked"],
+      enum: ["available", "booked", "swapped", "reported"],
       default: "available",
     },
     description: String,
@@ -27,6 +27,10 @@ const bookSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true, // original owner, set only once
+    },
+    reportedAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }

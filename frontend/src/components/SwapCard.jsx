@@ -23,31 +23,36 @@ export default function SwapCard({
     : swap.toCompleted;
   const hasUserArchived = isUserFrom ? swap.fromArchived : swap.toArchived;
 
-    const showReport =
+  const showReport =
     swap.status === "accepted" &&
-    !swap.isCompleted &&
+    swap.status !== "completed" &&
     !hasUserMarkedCompleted &&
     (isUserFrom ? swap.toCompleted : swap.fromCompleted);
 
   let ribbonText = swap.status.toUpperCase();
   let ribbonClass = swap.status;
 
-  if (swap.status === "accepted") {
+  if (swap.status === "completed") {
+    if (hasUserArchived) {
+      ribbonText = "ARCHIVED";
+    } else {
+      ribbonText = "COMPLETED";
+      ribbonClass = "completed";
+    }
+  } else if (swap.status === "accepted") {
     const userCompleted = hasUserMarkedCompleted;
     const otherCompleted = isUserFrom ? swap.toCompleted : swap.fromCompleted;
 
-    if (hasUserArchived && swap.isCompleted) {
-      ribbonText = "ARCHIVED";
-    } else if (swap.isCompleted) {
-      ribbonText = "COMPLETED";
-      ribbonClass = "completed";
-    } else if (userCompleted && !otherCompleted) {
+    if (userCompleted && !otherCompleted) {
       ribbonText = "WAITING FOR OTHER USER";
       ribbonClass = "waiting";
     } else if (!userCompleted && otherCompleted) {
       ribbonText = "PENDING YOUR APPROVAL";
       ribbonClass = "waiting";
     }
+  } else if (swap.status === "expired") {
+    ribbonText = "EXPIRED";
+    ribbonClass = "expired"
   }
 
   return (
@@ -60,20 +65,20 @@ export default function SwapCard({
         {swap.from.username} ⇄ {swap.to.username}
       </p> */}
 
-       <div
-      className={`status-ribbon ${ribbonClass}`}
-      onMouseEnter={() => setHoveringRibbon(true)}
-      onMouseLeave={() => setHoveringRibbon(false)}
-      onClick={() => {
-        if (showReport) {
-          // show confirmation / send report
-          handleReport(swap._id);
-        }
-      }}
-      style={{ cursor: showReport ? "pointer" : "default" }}
-    >
-      {showReport && hoveringRibbon ? "REPORT" : ribbonText}
-    </div>
+      <div
+        className={`status-ribbon ${ribbonClass}`}
+        onMouseEnter={() => setHoveringRibbon(true)}
+        onMouseLeave={() => setHoveringRibbon(false)}
+        onClick={() => {
+          if (showReport) {
+            // show confirmation / send report
+            handleReport(swap._id);
+          }
+        }}
+        style={{ cursor: showReport ? "pointer" : "default" }}
+      >
+        {showReport && hoveringRibbon ? "REPORT" : ribbonText}
+      </div>
 
       {swap.fromMessage && (
         <p className="swap-message">💬 {swap.fromMessage}</p>
@@ -82,7 +87,8 @@ export default function SwapCard({
 
       {!hasUserArchived &&
         swap.status !== "declined" &&
-        swap.status !== "pending" && (
+        swap.status !== "pending" &&
+        swap.status !== "expired" && (
           <button onClick={() => navigate(`/chats/${swap._id}`)}>
             Go to Chat
           </button>
@@ -100,11 +106,11 @@ export default function SwapCard({
         </button>
       )}
 
-      {swap.isCompleted && !hasUserArchived && (
+      {swap.status === "completed" && !hasUserArchived && (
         <button onClick={() => handleArchive(swap._id)}>Archive</button>
       )}
 
-      {swap.isCompleted && hasUserArchived && (
+      {swap.status === "completed" && hasUserArchived && (
         <button onClick={() => handleUnarchive(swap._id)}>Unarchive</button>
       )}
     </div>
