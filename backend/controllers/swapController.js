@@ -32,10 +32,10 @@ export const createSwapProposal = async (req, res) => {
 export const respondToSwapProposal = async (req, res) => {
   try {
     const { swapId } = req.params;
-    const { action, toMessage } = req.body; // action = "accept" or "decline"
+    const { response, toMessage } = req.body; // response = "accept" or "decline"
 
-    if (!["accept", "decline"].includes(action)) {
-      return res.status(400).json({ message: "Invalid action." });
+    if (!["accept", "decline"].includes(response)) {
+      return res.status(400).json({ message: "Invalid response." });
     }
 
     const proposal = await SwapProposal.findById(swapId);
@@ -53,7 +53,7 @@ export const respondToSwapProposal = async (req, res) => {
       return res.status(400).json({ message: "Proposal already resolved." });
     }
 
-    if (action === "decline") {
+    if (response === "decline") {
       proposal.status = "declined";
       await proposal.save();
       return res.json({ message: "Proposal declined.", proposal });
@@ -137,7 +137,6 @@ export const getSwapById = async (req, res) => {
 export const markSwapAsCompleted = async (req, res) => {
   try {
     const { swapId } = req.params;
-
     const proposal = await SwapProposal.findById(swapId);
 
     if (!proposal) {
@@ -157,10 +156,29 @@ export const markSwapAsCompleted = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized." });
     }
 
-    proposal.isCompleted = true;
+    // separate completion flags
+    if (proposal.fromCompleted === undefined) proposal.fromCompleted = false;
+    if (proposal.toCompleted === undefined) proposal.toCompleted = false;
+
+    if (userId === proposal.from.toString()) {
+      proposal.fromCompleted = true;
+    } else if (userId === proposal.to.toString()) {
+      proposal.toCompleted = true;
+    }
+
+    // Final completion check
+    if (proposal.fromCompleted && proposal.toCompleted) {
+      proposal.isCompleted = true;
+    }
+
     await proposal.save();
 
-    res.json({ message: "Swap marked as completed.", proposal });
+    res.json({
+      message: proposal.isCompleted
+        ? "Swap fully completed."
+        : "Marked as completed. Awaiting other user.",
+      proposal,
+    });
   } catch (err) {
     console.error("Failed to mark completed:", err);
     res
@@ -186,27 +204,32 @@ export const markSwapAsArchived = async (req, res) => {
         .json({ message: "Only swaps marked as 'Completed' can be archived." });
     }
 
-    // Only participants can mark as completed
+    // Only participants can mark as archived
     const userId = req.user._id.toString();
     if (![proposal.from.toString(), proposal.to.toString()].includes(userId)) {
       return res.status(403).json({ message: "Unauthorized." });
     }
 
-    proposal.isArchived = true;
+    if (userId === proposal.from.toString()) {
+      proposal.fromArchived = true;
+    } else if (userId === proposal.to.toString()) {
+      proposal.toArchived = true;
+    }
+
     await proposal.save();
 
     res.json({ message: "Swap marked as archived.", proposal });
   } catch (err) {
     console.error("Failed to mark archived:", err);
-    res
-      .status(500)
-      .json({ message: "Server error marking swap as archived." });
+    res.status(500).json({ message: "Server error marking swap as archived." });
   }
 };
+
 
 export const unarchiveSwap = async (req, res) => {
   try {
     const { swapId } = req.params;
+    const userId = req.user._id.toString();
 
     const proposal = await SwapProposal.findById(swapId);
 
@@ -214,27 +237,26 @@ export const unarchiveSwap = async (req, res) => {
       return res.status(404).json({ message: "Swap not found." });
     }
 
-    // Only allow if status is archived
-    if (!proposal.isArchived) {
-      return res
-        .status(400)
-        .json({ message: "Only archived swaps can be brought back to life." });
-    }
+    const isUserFrom = userId === proposal.from.toString();
+    const isUserTo = userId === proposal.to.toString();
 
-    // Only participants can mark as completed
-    const userId = req.user._id.toString();
-    if (![proposal.from.toString(), proposal.to.toString()].includes(userId)) {
+    if (!isUserFrom && !isUserTo) {
       return res.status(403).json({ message: "Unauthorized." });
     }
 
-    proposal.isArchived = false;
+    // Unarchive only for the current user
+    if (isUserFrom) {
+      proposal.fromArchived = false;
+    } else if (isUserTo) {
+      proposal.toArchived = false;
+    }
+
     await proposal.save();
 
-    res.json({ message: "Swap unarchived", proposal });
+    res.json({ message: "Swap unarchived for current user", proposal });
   } catch (err) {
     console.error("Unarchive error:", err);
-    res
-      .status(500)
-      .json({ message: "Server error unarchiving." });
+    res.status(500).json({ message: "Server error unarchiving." });
   }
 };
+

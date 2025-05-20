@@ -35,18 +35,12 @@ const swapProposalSchema = new mongoose.Schema(
       enum: ["pending", "accepted", "declined"],
       default: "pending",
     },
-    isCompleted: {
-      type: Boolean,
-      default: false,
-    },
-    isArchived: {
-      type: Boolean,
-      default: false,
-    },
-    acceptedAt: {
-      type: Date,
-      default: null,
-    },
+    fromCompleted: { type: Boolean, default: false },
+    toCompleted: { type: Boolean, default: false },
+    isCompleted: { type: Boolean, default: false },
+    fromArchived: { type: Boolean, default: false },
+    toArchived: { type: Boolean, default: false },
+    acceptedAt: { type: Date, default: null },
     expiredAt: {
       type: Date,
       default: null,

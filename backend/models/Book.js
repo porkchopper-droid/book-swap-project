@@ -7,7 +7,7 @@ const bookSchema = new mongoose.Schema(
     year: Number,
     status: {
       type: String,
-      enum: ["available", "booked", "swapped"],
+      enum: ["available", "booked"],
       default: "available",
     },
     description: String,
@@ -18,7 +18,16 @@ const bookSchema = new mongoose.Schema(
       trim: true,
       match: [/^\d{10}(\d{3})?$/, "Invalid ISBN format"],
     },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true, // current owner
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true, // original owner, set only once
+    },
   },
   { timestamps: true }
 );

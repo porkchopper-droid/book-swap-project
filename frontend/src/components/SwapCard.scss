@@ -22,6 +22,7 @@
     padding: 6px 0;
     z-index: 1;
     pointer-events: none;
+    letter-spacing: 1px;
 
     &.pending {
       color: $color-warning-text;
@@ -35,6 +36,42 @@
       color: $color-danger-text;
       background-color: $color-danger-bg;
     }
+    &.waiting {
+      background-color: $color-warning-bg;
+      color: $color-warning-text;
+      animation: blink 1s linear infinite;
+      pointer-events: auto;
+      height: 65px;
+
+      &:hover {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $color-danger-bg;
+        color: $color-danger-text;
+        animation: none;
+        cursor: pointer;
+      }
+    }
+    &.completed {
+      background-color: rgb(30, 128, 64);
+      color: rgb(158, 255, 202);
+    }
+  }
+
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+
+  .swap-message {
+    font-size: small;
+    font-style: italic;
   }
 
   button {

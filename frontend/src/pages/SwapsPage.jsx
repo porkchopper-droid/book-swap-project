@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import SwapCard from "../components/SwapCard";
-import "./SwapsPage.scss";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
+import "./SwapsPage.scss";
 
 export default function SwapsPage() {
   const [swaps, setSwaps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("active");
+
+  const { user } = useAuth();
 
   const tabOptions = [
     { label: "🔄 Active", value: "active" },
@@ -17,19 +20,24 @@ export default function SwapsPage() {
   ];
 
   const filteredSwaps = swaps.filter((swap) => {
+    const isUserFrom = user._id === swap.from._id;
+    const userArchived = isUserFrom ? swap.fromArchived : swap.toArchived;
+
     switch (activeTab) {
       case "active":
         return (
-          ["pending", "accepted"].includes(swap.status) && !swap.isCompleted
+          ["pending", "accepted"].includes(swap.status) &&
+          !swap.isCompleted &&
+          !userArchived
         );
       case "declined":
-        return swap.status === "declined";
+        return swap.status === "declined" && !userArchived;
       case "completed":
-        return swap.isCompleted === true && !swap.isArchived;
+        return swap.isCompleted === true && !userArchived;
       case "archived":
-        return swap.isArchived === true;
+        return userArchived === true;
       default:
-        return true; // fallback if something breaks
+        return true; // fallback
     }
   });
 
@@ -59,7 +67,7 @@ export default function SwapsPage() {
       await axios.patch(
         `/api/swaps/${swapId}/respond`,
         {
-          response: "accepted",
+          response: "accept",
         },
         {
           headers: {
@@ -78,7 +86,7 @@ export default function SwapsPage() {
       await axios.patch(
         `/api/swaps/${swapId}/respond`,
         {
-          response: "declined",
+          response: "decline",
         },
         {
           headers: {
