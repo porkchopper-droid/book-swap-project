@@ -1,53 +1,31 @@
 @use "../styles/variables.scss" as *;
 
+.book-tabs {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+
+  button {
+    padding: 8px 16px;
+    background: none;
+    border: 0.5px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+
+    &.active {
+      background-color: #d4964a;
+      color: black;
+    }
+  }
+}
+
 .books-container {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: center;
-}
-
-.book-card {
-  background: grey;
-  border: 1px solid #ccc;
-  border-radius: $border-radius;
-  width: 250px;
-  padding: $padding-mini;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  cursor: pointer;
-
-  img {
-    width: 100%;
-    height: auto;
-    border-radius: $border-radius-mini;
-    object-fit: cover;
-  }
-
-  .status {
-    margin-top: auto;
-    padding: 10px;
-    border-radius: $border-radius-mini;
-    text-align: center;
-    font-weight: bold;
-
-    &.available {
-      background-color: #d4edda;
-      color: #155724;
-    }
-
-    &.booked {
-      background-color: #fff3cd;
-      color: #856404;
-    }
-
-    &.swapped {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-  }
 }
 
 .modal-overlay {

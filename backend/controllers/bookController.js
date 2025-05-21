@@ -103,10 +103,7 @@ export const fetchBookByISBN = async (req, res) => {
 
 export const getMyBooks = async (req, res) => {
   try {
-    const books = await Book.find({ user: req.user._id }).populate(
-      "user",
-      "username city country"
-    );
+    const books = await Book.find({ user: req.user._id });
     res.json(books);
   } catch (err) {
     console.error(err);

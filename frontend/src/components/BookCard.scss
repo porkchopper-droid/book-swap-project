@@ -1,0 +1,96 @@
+@use "../styles/variables.scss" as *;
+
+.book-card {
+  background: grey;
+  border: 1px solid #ccc;
+  border-radius: $border-radius;
+  width: 200px;
+  padding: $padding-mini;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+
+  .image-wrapper {
+    position: relative;
+
+    .book-cover {
+      width: 100%;
+      height: auto;
+      border-radius: $border-radius-mini;
+      object-fit: cover;
+      display: block;
+    }
+
+    .swap-status-ribbon {
+      position: absolute;
+      bottom: 0px;
+      //   left: -15px;
+      width: 100%; // overshoot to ignore padding
+      text-align: center;
+      font-weight: bold;
+      padding: 6px 0;
+      z-index: 2;
+      pointer-events: none;
+      letter-spacing: 1px;
+      opacity: 0.75;
+      border-bottom-left-radius: $border-radius-mini;
+      border-bottom-right-radius: $border-radius-mini;
+      backdrop-filter: blur(4px); // nice glass effect ✨
+
+      &.available {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      &.booked {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+
+      &.swapped {
+        background-color: $color-zen-bg;
+        color: $color-zen-text;
+      }
+
+      &.reported {
+        background-color: #f5c6cb;
+        color: #721c24;
+      }
+    }
+  }
+
+  .title-container {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    height: 1.5em; // adjust as needed
+  }
+
+  .scrolling-title {
+    display: inline-block;
+    padding-left: 100%; // start off-screen from the right :)
+    animation: scroll-title 20s linear infinite;
+  }
+
+  .short-title {
+    display: flex;
+    justify-content: center;
+  }
+
+  @keyframes scroll-title {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  p {
+    font-size: $font-size-base;
+    text-align: center;
+  }
+}

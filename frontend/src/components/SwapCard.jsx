@@ -11,6 +11,7 @@ export default function SwapCard({
   handleMarkCompleted,
   handleArchive,
   handleUnarchive,
+  handleReport,
 }) {
   const [hoveringRibbon, setHoveringRibbon] = useState(false);
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ export default function SwapCard({
     }
   } else if (swap.status === "expired") {
     ribbonText = "EXPIRED";
-    ribbonClass = "expired"
+    ribbonClass = "expired";
   }
 
   return (
@@ -66,7 +67,7 @@ export default function SwapCard({
       </p> */}
 
       <div
-        className={`status-ribbon ${ribbonClass}`}
+        className={`swap-status-ribbon ${ribbonClass}`}
         onMouseEnter={() => setHoveringRibbon(true)}
         onMouseLeave={() => setHoveringRibbon(false)}
         onClick={() => {

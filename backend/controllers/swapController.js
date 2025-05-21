@@ -1,7 +1,6 @@
 import Book from "../models/Book.js";
 import User from "../models/User.js";
 import SwapProposal from "../models/SwapProposal.js";
-import { checkAndExpireSwap } from "../utils/checkAndExpireSwap.js";
 
 export const createSwapProposal = async (req, res) => {
   try {
@@ -40,7 +39,6 @@ export const respondToSwapProposal = async (req, res) => {
     }
 
     const proposal = await SwapProposal.findById(swapId);
-    await checkAndExpireSwap(proposal); // check if it is expired
 
     if (!proposal) {
       return res.status(404).json({ message: "Proposal not found." });
@@ -141,7 +139,6 @@ export const markSwapAsCompleted = async (req, res) => {
   try {
     const { swapId } = req.params;
     const proposal = await SwapProposal.findById(swapId);
-    await checkAndExpireSwap(proposal); // check if it is expired
 
     if (!proposal) {
       return res.status(404).json({ message: "Swap not found." });
@@ -174,6 +171,24 @@ export const markSwapAsCompleted = async (req, res) => {
     if (proposal.fromCompleted && proposal.toCompleted) {
       proposal.status = "completed";
       proposal.completedAt = new Date();
+
+      // Transfer book ownership + update status
+      const [offeredBook, requestedBook] = await Promise.all([
+        Book.findById(proposal.offeredBook),
+        Book.findById(proposal.requestedBook),
+      ]);
+
+      if (offeredBook && requestedBook) {
+        offeredBook.status = "swapped";
+        requestedBook.status = "swapped";
+
+        // Swap owners
+        offeredBook.user = proposal.to;
+        requestedBook.user = proposal.from;
+
+        await offeredBook.save();
+        await requestedBook.save();
+      }
     }
 
     await proposal.save();
@@ -262,5 +277,35 @@ export const unarchiveSwap = async (req, res) => {
   } catch (err) {
     console.error("Unarchive error:", err);
     res.status(500).json({ message: "Server error unarchiving." });
+  }
+};
+
+export const reportSwap = async (req, res) => {
+  try {
+    const { swapId } = req.params;
+    const swap = await SwapProposal.findById(swapId);
+
+    if (!swap) {
+      return res.status(404).json({ message: "Swap not found." });
+    }
+
+    // Only participants can report
+    const userId = req.user._id.toString();
+    if (![swap.from.toString(), swap.to.toString()].includes(userId)) {
+      return res.status(403).json({ message: "Unauthorized." });
+    }
+
+    // Update swap and books
+    swap.status = "reported";
+    swap.reportedAt = new Date();
+    await swap.save();
+
+    await Book.findByIdAndUpdate(swap.offeredBook, { status: "reported" });
+    await Book.findByIdAndUpdate(swap.requestedBook, { status: "reported" });
+
+    res.json({ message: "Swap and books reported.", swap });
+  } catch (err) {
+    console.error("Error reporting swap:", err);
+    res.status(500).json({ message: "Server error reporting swap." });
   }
 };

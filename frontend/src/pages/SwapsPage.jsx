@@ -18,6 +18,7 @@ export default function SwapsPage() {
     { label: "✅ Completed", value: "completed" },
     { label: "📦 Archived", value: "archived" },
     { label: "⏳ Expired", value: "expired" },
+    { label: "🚨 Reported", value: "reported" },
   ];
 
   const filteredSwaps = swaps.filter((swap) => {
@@ -35,6 +36,8 @@ export default function SwapsPage() {
         return userArchived === true;
       case "expired":
         return swap.status === "expired";
+      case "reported":
+        return swap.status === "reported";
       default:
         return true; // fallback
     }
@@ -138,12 +141,25 @@ export default function SwapsPage() {
     }
   };
 
+  const handleReport = async (swapId) => {
+    try {
+      await axios.patch(`/api/swaps/${swapId}/report`, null, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      fetchSwaps();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <>
       {loading && <p>Loading swaps...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <div className="tabs">
+      <div className="swap-tabs">
         {tabOptions.map((tab) => (
           <button
             key={tab.value}
@@ -168,6 +184,7 @@ export default function SwapsPage() {
               handleMarkCompleted={handleMarkCompleted}
               handleArchive={handleArchive}
               handleUnarchive={handleUnarchive}
+              handleReport={handleReport}
             />
           ))
         )}

@@ -12,7 +12,7 @@
   text-align: left;
   width: 200px;
 
-  .status-ribbon {
+  .swap-status-ribbon {
     position: relative;
     top: 0;
     left: -15px;
@@ -60,6 +60,10 @@
     &.expired {
       background-color: #000000;
       color: $color-text;
+    }
+    &.reported {
+      background-color: $color-danger-text;
+      color: $color-danger-bg;
     }
   }
 

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import "./BooksPage.scss";
+import BookCard from "../components/BookCard";
 
 export default function BooksPage() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingBook, setEditingBook] = useState(null);
+  const [activeTab, setActiveTab] = useState("available");
   const [editForm, setEditForm] = useState({
     title: "",
     author: "",
@@ -13,6 +15,28 @@ export default function BooksPage() {
     description: "",
     genre: "",
     imageUrl: "",
+  });
+
+  const tabOptions = [
+    { label: "📚 Available", value: "available" },
+    { label: "📖 Booked", value: "booked" },
+    { label: "🔁 Swapped", value: "swapped" },
+    { label: "🚨 Reported", value: "reported" },
+  ];
+
+  const filteredBooks = books.filter((book) => {
+    switch (activeTab) {
+      case "available":
+        return book.status === "available";
+      case "booked":
+        return book.status === "booked";
+      case "swapped":
+        return book.status === "swapped";
+      case "reported":
+        return book.status === "reported";
+      default:
+        return true; // fallback, show all
+    }
   });
 
   const handleEdit = (book) => {
@@ -72,38 +96,26 @@ export default function BooksPage() {
       {loading && <p>Loading books...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <div className="books-container">
-        {books.map((book) => (
-          <div
-            key={book._id}
-            className="book-card"
-            onClick={() => handleEdit(book)}
+      <div className="book-tabs">
+        {tabOptions.map(({ label, value }) => (
+          <button
+            key={value}
+            className={activeTab === value ? "active" : ""}
+            onClick={() => setActiveTab(value)}
           >
-            <img
-              className="book-cover"
-              src={
-                book.imageUrl && book.imageUrl.trim() !== ""
-                  ? book.imageUrl
-                  : "/no-cover.png"
-              }
-              alt={`Cover of ${book.title}`}
-            />
-
-            <h3>{book.title}</h3>
-            <p>
-              <strong>Author:</strong> {book.author}
-            </p>
-            <p>
-              <strong>Year:</strong> {book.year}
-            </p>
-            <p>
-              <strong>Genre:</strong> {book.genre}
-            </p>
-            <h4 className={`status ${book.status}`}>
-              {book.status.toUpperCase()}
-            </h4>
-          </div>
+            {label}
+          </button>
         ))}
+      </div>
+
+      <div className="books-container">
+        {filteredBooks.length === 0 ? (
+          <p>No books with {activeTab} status.</p>
+        ) : (
+          filteredBooks.map((book) => (
+            <BookCard key={book._id} book={book} onEdit={handleEdit} />
+          ))
+        )}
       </div>
       {editingBook && (
         <div className="modal-overlay" onClick={() => setEditingBook(null)}>
