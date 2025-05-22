@@ -1,0 +1,100 @@
+@use "../styles/variables.scss" as *;
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+
+  .modal {
+    background: $color-card-bg;
+    border-radius: $border-radius;
+    padding: $padding-default;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $gap-mini;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+    color: $color-text;
+    transform: scale(1);
+    animation: modalFadeIn 0.2s ease-out;
+
+    .modal-input,
+    .modal-textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 0.5px solid #ccc;
+      background-color: $color-box-bg;
+      color: $color-text;
+
+      &:focus {
+        outline: none;
+        border-color: #d4964a;
+        box-shadow: 0 0 0 2px rgba(212, 150, 74, 0.3);
+      }
+
+      &::placeholder {
+        color: #aaa;
+      }
+    }
+
+    .modal-textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: $gap-default;
+      margin-top: $margin-default;
+
+      .isbn-fetch {
+        display: flex;
+        flex-direction: column;
+        gap: $gap-mini;
+      }
+
+      button {
+        padding: 8px 30px;
+        background: none;
+        border: 0.5px solid #ccc;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        color: white;
+
+        &:hover {
+          background-color: darken(#d4964a, 10%);
+        }
+      }
+
+      button:last-child {
+        background-color: darkred;
+        color: white;
+
+        &:hover {
+          background-color: lighten(darkred, 10%);
+        }
+      }
+    }
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

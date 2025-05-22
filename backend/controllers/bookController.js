@@ -8,6 +8,7 @@ export const createBook = async (req, res) => {
     const newBook = new Book({
       ...req.body,
       user: req.user._id, // comes from JWT middleware
+      createdBy: req.user._id, 
     });
 
     const saved = await newBook.save();
@@ -72,7 +73,6 @@ export const getNearbyBooks = async (req, res) => {
 
 export const fetchBookByISBN = async (req, res) => {
   const { isbn } = req.params;
-
   try {
     if (!/^\d{10}(\d{3})?$/.test(isbn)) {
       return res.status(400).json({ message: "Invalid ISBN format" });
@@ -120,5 +120,25 @@ export const updateBook = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to update book." });
+  }
+};
+
+export const deleteBook = async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id);
+
+    if (!book) {
+      return res.status(404).json({ message: "Book not found." });
+    }
+
+    if (!book.user.equals(req.user._id)) {
+      return res.status(403).json({ message: "Not authorized to delete this book." });
+    }
+
+    await book.deleteOne();
+    res.json({ message: "Book deleted successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to delete book." });
   }
 };

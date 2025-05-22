@@ -24,16 +24,17 @@ export default function BookCard({ book, onEdit }) {
           {book.status.toUpperCase()}
         </div>
       </div>
+      <div className="book-info">
+        <div className="title-container" ref={titleRef}>
+          <span className={isOverflowing ? "scrolling-title" : "short-title"}>
+            {book.title}
+          </span>
+        </div>
 
-      <div className="title-container" ref={titleRef}>
-        <span className={isOverflowing ? "scrolling-title" : "short-title"}>
-          {book.title}
-        </span>
+        <p className="book-author">{book.author}</p>
+        {/* <p><strong>Year:</strong> {book.year}</p> */}
+        {/* <p><strong>Genre:</strong> {book.genre}</p> */}
       </div>
-
-      <p>Author: {book.author}</p>
-      {/* <p><strong>Year:</strong> {book.year}</p> */}
-      {/* <p><strong>Genre:</strong> {book.genre}</p> */}
     </div>
   );
 }

@@ -66,11 +66,25 @@ export const respondToSwapProposal = async (req, res) => {
     if (toMessage) {
       proposal.toMessage = toMessage;
     }
+
     await proposal.save();
 
     // Mark both books as booked
     await Book.findByIdAndUpdate(proposal.offeredBook, { status: "booked" });
     await Book.findByIdAndUpdate(proposal.requestedBook, { status: "booked" });
+
+    // Decline all other pending proposals involving the same books
+    await SwapProposal.updateMany(
+      {
+        _id: { $ne: proposal._id },
+        status: "pending",
+        $or: [
+          { offeredBook: proposal.offeredBook }, // I'm offering this elsewhere
+          { requestedBook: proposal.offeredBook }, // Others trying to grab it
+        ],
+      },
+      { status: "declined" }
+    );
 
     // Safe partner selection
     const fromUser = await User.findById(proposal.from).select(

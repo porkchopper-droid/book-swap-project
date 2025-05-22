@@ -8,10 +8,11 @@ export const sendMessage = async (req, res) => {
   try {
     // validate swap
     const swap = await SwapProposal.findById(swapId);
-    if (!swap || swap.status !== "accepted") {
+    const validStatuses = ["accepted", "completed", "reported"];
+    if (!swap || !validStatuses.includes(swap.status)) {
       return res
         .status(403)
-        .json({ message: "Swap not found or not accepted." });
+        .json({ message: "Swap not found or not accessible." });
     }
 
     // Validate user is part of the swap
@@ -47,10 +48,11 @@ export const getMessages = async (req, res) => {
 
   try {
     const swap = await SwapProposal.findById(swapId);
-    if (!swap || swap.status !== "accepted") {
+    const validStatuses = ["accepted", "completed", "reported"];
+    if (!swap || !validStatuses.includes(swap.status)) {
       return res
         .status(403)
-        .json({ message: "Swap not found or not accepted." });
+        .json({ message: "Swap not found or not accessible." });
     }
 
     const userId = req.user._id.toString();
@@ -62,7 +64,6 @@ export const getMessages = async (req, res) => {
     }
 
     const query = { swapId };
-
     if (before) {
       // Fetch messages older than the timestamp
       query.createdAt = { $lte: new Date(before) };
@@ -71,11 +72,11 @@ export const getMessages = async (req, res) => {
     const messages = await Message.find(query)
       .sort({ createdAt: -1 }) // 👈 newest first
       .limit(20)
-      .populate("sender", "username");
+      .populate("sender", "username profilePicture");
 
     res.json(messages);
   } catch (err) {
-    console.error(err);
+    console.error("getMessages error:", err);
     res.status(500).json({ message: "Could not fetch messages." });
   }
 };
@@ -85,8 +86,11 @@ export const getMyChats = async (req, res) => {
     const userId = req.user._id;
 
     const acceptedSwaps = await SwapProposal.find({
-      status: "accepted",
-      $or: [{ from: userId }, { to: userId }],
+      status: { $in: ["accepted", "completed", "reported"] },
+      $or: [
+        { from: userId, fromArchived: false },
+        { to: userId, toArchived: false },
+      ],
     })
       .populate("from", "username profilePicture") // name and avatar
       .populate("to", "username profilePicture") // name and avatar
