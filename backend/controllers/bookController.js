@@ -8,7 +8,8 @@ export const createBook = async (req, res) => {
     const newBook = new Book({
       ...req.body,
       user: req.user._id, // comes from JWT middleware
-      createdBy: req.user._id, 
+      createdBy: req.user._id,
+      isbn: req.body.isbn,
     });
 
     const saved = await newBook.save();
@@ -132,7 +133,9 @@ export const deleteBook = async (req, res) => {
     }
 
     if (!book.user.equals(req.user._id)) {
-      return res.status(403).json({ message: "Not authorized to delete this book." });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete this book." });
     }
 
     await book.deleteOne();

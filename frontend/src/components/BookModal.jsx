@@ -19,7 +19,11 @@ export default function BookModal({ book, onSave, onClose, onDelete }) {
           },
         }
       );
-      setForm(data); // overwrite form fields with fetched data
+      setForm((prev) => ({
+        ...prev,
+        ...data,
+        isbn: cleaned, // extra saved
+      }));
     } catch (err) {
       alert(err.response?.data?.message || "Failed to fetch book data.");
     }
@@ -32,6 +36,7 @@ export default function BookModal({ book, onSave, onClose, onDelete }) {
     description: book?.description || "",
     genre: book?.genre || "",
     imageUrl: book?.imageUrl || "",
+    isbn: book?.isbn || "",
   });
 
   const handleSubmit = () => {
@@ -41,7 +46,7 @@ export default function BookModal({ book, onSave, onClose, onDelete }) {
 
     if (missingFields.length) {
       alert(`Missing required fields: ${missingFields.join(", ")}`);
-      return; 
+      return;
     }
     onSave(form); // let parent handle POST vs PATCH
   };
