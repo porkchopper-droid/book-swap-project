@@ -19,6 +19,7 @@ import bookRoutes from "./routes/bookRoutes.js";
 import swapRoutes from "./routes/swapRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import mapRoutes from "./routes/mapRoutes.js"
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use("/api/books", bookRoutes);
 app.use("/api/swaps", swapRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/map", mapRoutes);
 
 /* ----------------- MongoDB Connection ----------------- */
 

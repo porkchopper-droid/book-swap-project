@@ -15,4 +15,6 @@ export const deleteOldExpiredSwaps = async () => {
   }
 
   log(`✅ Purged ${staleExpired.length} old expired swap(s)`);
+
+  return staleExpired.length;
 };

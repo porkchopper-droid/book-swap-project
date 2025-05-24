@@ -14,7 +14,7 @@ log("🚀 Cron job starting...");
 mongoose.connect(process.env.MONGO_URL).then(() => {
   log("✅ Connected to MongoDB");
 
-  cron.schedule("0 0 * * *", async () => {
+  cron.schedule("0 0 * * *", async () => { // every midnight
     const logs = [];
     const logWrap = (msg) => {
       log(msg); // yes, we are still writing logs
@@ -34,7 +34,9 @@ mongoose.connect(process.env.MONGO_URL).then(() => {
 
     // deleting expired swaps which are older than 30 days
     await deleteOldExpiredSwaps();
-    logWrap("✅ Deleted old expired swaps");
+
+    const deletedCount = await deleteOldExpiredSwaps();
+    logWrap(`✅ Deleted ${deletedCount} old expired swap(s)`);
 
     logWrap("🎉 Finished handling swap maintenance");
 

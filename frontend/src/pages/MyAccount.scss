@@ -1,0 +1,17 @@
+@use "../styles/variables.scss" as *;
+
+.account-layout {
+  display: flex;
+  gap: $gap-default;
+}
+
+.sidebar {
+  width: 25%;
+  background-color: #222;
+  color: white;
+  overflow-y: auto;
+}
+
+.map-area {
+  flex: 1;
+}

@@ -3,7 +3,7 @@ import axios from "axios";
 import "./BookModal.scss";
 
 export default function BookModal({ book, onSave, onClose, onDelete }) {
-  const [isbn, setIsbn] = useState("");
+  const [isbn, setIsbn] = useState(book?.isbn || "");
   const isEdit = Boolean(book);
 
   const handleFetchISBN = async () => {

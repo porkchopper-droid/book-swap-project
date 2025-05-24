@@ -1,24 +1,31 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Select from "react-select";
+import AsyncSelect from "react-select/async";
+import countryList from "react-select-country-list";
+import "./Landing.scss";
 
 import { useAuth } from "../contexts/AuthContext";
-import { login } from "../services/authService";
+import { login, signup } from "../services/authService";
 
 export default function Landing() {
+  const [showSignup, setShowSignup] = useState(false);
+  const [status, setStatus] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [status, setStatus] = useState("");
-  const { setUser } = useAuth();
+  const [city, setCity] = useState(null);
+  const [country, setCountry] = useState(null);
 
+  const GEO_USERNAME = import.meta.env.VITE_GEONAMES_USER;
+
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     setStatus("⏳ Trying to log you in...");
-
     try {
       const data = await login(email, password);
-
       if (data.token && data.user) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
@@ -36,13 +43,71 @@ export default function Landing() {
     }
   };
 
+  const handleSignup = async () => {
+    setStatus("⏳ Creating your account...");
+    try {
+      const data = await signup({
+        email,
+        password,
+        username,
+        city: city?.value,
+        country: country?.label,
+        location: { type: "Point", coordinates: [0, 0] },
+      });
+
+      if (data.token && data.user) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
+        setStatus("✅ Account created & logged in!");
+        navigate("/my-account");
+      } else {
+        setStatus("❌ Signup failed: " + (data.message || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      setStatus("❌ Something went wrong during signup.");
+    }
+  };
+
+  const loadCityOptions = async (inputValue) => {
+    if (!inputValue || !country?.value) return [];
+    try {
+      const res = await fetch(
+        `https://secure.geonames.org/searchJSON?country=${country.value}&featureClass=P&maxRows=10&username=${GEO_USERNAME}&name_startsWith=${inputValue}`
+      );
+      const data = await res.json();
+      return data.geonames.map((place) => ({
+        label: place.name,
+        value: place.name,
+      }));
+    } catch (err) {
+      console.error("GeoNames city lookup failed:", err);
+      return [];
+    }
+  };
+
   return (
-    <div style={{ textAlign: "center", marginTop: "5rem" }}>
+    <div className="landing-container">
       <h1>📚 Welcome to BookBook 🍆</h1>
       <p>Find books. Swap books. Make connections.</p>
       <div>
-        <h2>🐔🐔🐔</h2>
-        <form onSubmit={handleLogin}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            showSignup ? handleSignup() : handleLogin();
+          }}
+        >
+          {showSignup && (
+            <>
+              <input
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </>
+          )}
+
           <input
             type="email"
             placeholder="Email"
@@ -50,7 +115,7 @@ export default function Landing() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <br />
+
           <input
             type="password"
             placeholder="Password"
@@ -58,14 +123,32 @@ export default function Landing() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <br />
 
-          <button type="submit" onClick={handleLogin}>
-            Log In
-          </button>
-          <button type="button" onClick={() => navigate("/signup")}>
-            Sign Up
-          </button>
+          {showSignup && (
+            <>
+              <Select
+                options={countryList().getData()}
+                value={country}
+                onChange={(val) => setCountry(val)}
+                placeholder="Select your country"
+                classNamePrefix="react-select"
+              />
+              <AsyncSelect
+                placeholder="Start typing your city"
+                loadOptions={loadCityOptions}
+                value={city}
+                onChange={(val) => setCity(val)}
+                isDisabled={!country}
+                classNamePrefix="react-select"
+              />
+            </>
+          )}
+          <div className="landing-buttons">
+            <button type="submit">{showSignup ? "Sign Up" : "Log In"}</button>
+            <button type="button" onClick={() => setShowSignup(!showSignup)}>
+              {showSignup ? "Back to Login" : "Sign Up"}
+            </button>
+          </div>
         </form>
 
         {status && <p>{status}</p>}
