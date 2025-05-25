@@ -6,7 +6,7 @@ import ChatsPage from "./pages/ChatsPage";
 import Landing from "./pages/Landing";
 import Logout from "./pages/Logout";
 import SetLocation from "./pages/SetLocation";
-import MapPage from "./pages/MapPage";
+import MapComponent from "./components/Map";
 
 import ProtectedRoutes from "./routes/ProtectedRoutes";
 
@@ -26,7 +26,7 @@ function App() {
           <Route path="/chats/:swapId" element={<ChatsPage />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/set-location" element={<SetLocation />} />
-          <Route path="/map" element={<MapPage />} />
+          <Route path="/map" element={<MapComponent />} />
         </Route>
       </Routes>
     </Router>

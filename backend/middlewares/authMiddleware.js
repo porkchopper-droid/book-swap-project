@@ -12,7 +12,7 @@ export const protect = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = await User.findById(decoded.id).select("_id username email"); // now we have access to user ID
+    req.user = await User.findById(decoded.id)
     next();
   } catch (err) {
     console.error("Token error:", err);

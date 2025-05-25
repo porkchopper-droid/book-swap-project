@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import MapPage from "./MapPage";
-import "./MyAccount.scss";
+import Map from "../components/Map";
 import UserInfoModal from "../components/UserInfoModal";
+import "./MyAccount.scss";
 
 export default function MyAccount() {
   const [showModal, setShowModal] = useState(false);
@@ -29,7 +29,7 @@ export default function MyAccount() {
 
   return (
     <div className="account-layout">
-      <aside className="sidebar">
+      <aside>
         {showModal && (
             <UserInfoModal
               user={userInfo}
@@ -63,9 +63,9 @@ export default function MyAccount() {
         </div>
       </aside>
 
-      <main className="map-area">
+      <main>
         <h2>📍 People Around You</h2>
-        <MapPage />
+        <Map />
       </main>
     </div>
   );

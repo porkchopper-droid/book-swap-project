@@ -3,15 +3,28 @@
 .account-layout {
   display: flex;
   gap: $gap-default;
+  flex: 1;
 }
 
-.sidebar {
+aside {
   width: 25%;
-  background-color: #222;
-  color: white;
-  overflow-y: auto;
+  background-color: $color-box-bg;
+  color: $color-text;
+
+  .my-stats {
+    ul {
+      list-style: none;
+    }
+  }
+  .my-info {
+    ul {
+      list-style: none;
+    }
+  }
 }
 
-.map-area {
+main {
+  display: flex;
+  flex-direction: column;
   flex: 1;
 }
