@@ -51,8 +51,7 @@ export default function Landing() {
         password,
         username,
         city: city?.value,
-        country: country?.label,
-        location: { type: "Point", coordinates: [0, 0] },
+        country: country?.value,
       });
 
       if (data.token && data.user) {
@@ -91,68 +90,67 @@ export default function Landing() {
     <div className="landing-container">
       <h1>📚 Welcome to BookBook 🍆</h1>
       <p>Find books. Swap books. Make connections.</p>
-      <div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            showSignup ? handleSignup() : handleLogin();
-          }}
-        >
-          {showSignup && (
-            <>
-              <input
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </>
-          )}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          showSignup ? handleSignup() : handleLogin();
+        }}
+      >
+        {showSignup && (
+          <>
+            <input
+              placeholder="Username"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </>
+        )}
 
-          <input
-            type="email"
-            placeholder="Email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+        <input
+          type="email"
+          placeholder="Email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-          <input
-            type="password"
-            placeholder="Password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+        <input
+          type="password"
+          placeholder="Password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-          {showSignup && (
-            <>
-              <Select
-                options={countryList().getData()}
-                value={country}
-                onChange={(val) => setCountry(val)}
-                placeholder="Select your country"
-                classNamePrefix="react-select"
-              />
-              <AsyncSelect
-                placeholder="Start typing your city"
-                loadOptions={loadCityOptions}
-                value={city}
-                onChange={(val) => setCity(val)}
-                isDisabled={!country}
-                classNamePrefix="react-select"
-              />
-            </>
-          )}
-          <div className="landing-buttons">
-            <button type="submit">{showSignup ? "Sign Up" : "Log In"}</button>
-            <button type="button" onClick={() => setShowSignup(!showSignup)}>
-              {showSignup ? "Back to Login" : "Sign Up"}
-            </button>
-          </div>
-        </form>
+        {showSignup && (
+          <>
+            <Select
+              options={countryList().getData()}
+              value={country}
+              onChange={(val) => setCountry(val)}
+              placeholder="Select your country"
+              classNamePrefix="react-select"
+            />
+            <AsyncSelect
+              placeholder="Start typing your city"
+              loadOptions={loadCityOptions}
+              value={city}
+              onChange={(val) => setCity(val)}
+              isDisabled={!country}
+              classNamePrefix="react-select"
+            />
+          </>
+        )}
+        <div className="landing-buttons">
+          <button type="submit">{showSignup ? "Sign Up" : "Log In"}</button>
+          <button type="button" onClick={() => setShowSignup(!showSignup)}>
+            {showSignup ? "Back to Login" : "Sign Up"}
+          </button>
+        </div>
+      </form>
 
-        {status && <p>{status}</p>}
-      </div>
+      {status && <p>{status}</p>}
     </div>
   );
 }

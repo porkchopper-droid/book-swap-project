@@ -10,6 +10,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 5;
 
   .modal {
     background: $color-card-bg;
@@ -23,61 +24,96 @@
     color: $color-text;
     transform: scale(1);
     animation: modalFadeIn 0.2s ease-out;
+    z-index: 6;
 
-    .modal-input,
-    .modal-textarea {
-      width: 100%;
+    form {
+      display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $gap-mini;
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      color: $color-text !important;
+
+      // Override any browser autofill styles
+      &:-webkit-autofill,
+      &:-webkit-autofill:hover,
+      &:-webkit-autofill:focus,
+      &:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px $color-box-bg inset !important;
+        -webkit-text-fill-color: $color-text !important;
+        background-color: $color-box-bg !important;
+      }
+    }
+
+    input,
+    .react-select__control {
+      width: 300px;
       padding: 10px;
+      font-size: $font-size-base;
+      border: 1px solid #ccc;
       border-radius: 6px;
-      border: 0.5px solid #ccc;
+      background-color: $color-box-bg;
+      color: $color-text !important; // Force override browser defaults
+    }
+
+    .react-select__control {
+      padding: 0 !important; // override default padding
+    }
+
+    .react-select__control {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .react-select__single-value,
+    .react-select__placeholder {
+      color: $color-text;
+    }
+
+    .react-select__menu {
+      background-color: $color-box-bg;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .react-select__option {
       background-color: $color-box-bg;
       color: $color-text;
 
-      &:focus {
-        outline: none;
-        border-color: #d4964a;
-        box-shadow: 0 0 0 2px rgba(212, 150, 74, 0.3);
+      &:hover {
+        background-color: darken($color-box-bg, 5%);
       }
 
-      &::placeholder {
-        color: #aaa;
+      &.react-select__option--is-focused {
+        background-color: darken($color-box-bg, 10%);
+      }
+
+      &.react-select__option--is-selected {
+        background-color: lighten($color-box-bg, 10%);
+        color: $color-text;
       }
     }
 
-    .modal-textarea {
-      min-height: 80px;
-      resize: vertical;
+    .react-select__control,
+    .react-select__menu,
+    .react-select__option,
+    .react-select__single-value,
+    .react-select__placeholder,
+    .react-select__input input {
+      font-family: Arial, Helvetica, sans-serif !important;
     }
-
-    .modal-buttons {
-      display: flex;
-      justify-content: center;
-      gap: $gap-default;
-      margin-top: $margin-default;
-
-      .isbn-fetch {
-        display: flex;
-        flex-direction: column;
-        gap: $gap-mini;
-      }
 
       button {
         padding: 8px 30px;
-        background: none;
-        border: 0.5px solid #ccc;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        color: white;
-
-        &:hover {
-          background-color: darken(#d4964a, 10%);
-        }
-      }
-
-      button:last-child {
         background-color: darkred;
         color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
 
         &:hover {
           background-color: lighten(darkred, 10%);

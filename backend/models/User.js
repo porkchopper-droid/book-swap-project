@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    profilePicture: {
+      type: String, // URL to their profile picture (optional LATER)
+      default: "",
+    },
     city: {
       type: String,
       trim: true,
@@ -32,10 +36,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: 100,
-    },
-    profilePicture: {
-      type: String, // URL to their profile picture (optional LATER)
-      default: "",
     },
     location: {
       type: {
@@ -49,8 +49,18 @@ const userSchema = new mongoose.Schema(
         required: true,
         default: [0, 0],
       },
-      reportedCount: { type: Number, default: 0 },
-      isFlagged: { type: Boolean, default: false },
+    },
+    reportedCount: {
+      type: Number,
+      default: 0,
+    },
+    isFlagged: {
+      type: Boolean,
+      default: false,
+    },
+    manualLocation: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

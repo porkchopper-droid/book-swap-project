@@ -3,6 +3,7 @@ import "./BookCard.scss";
 
 export default function BookCard({ book, onEdit }) {
   const titleRef = useRef();
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
 
   useEffect(() => {
@@ -19,10 +20,15 @@ export default function BookCard({ book, onEdit }) {
           className="book-cover"
           src={book.imageUrl?.trim() || "/no-cover.png"}
           alt={`Cover of ${book.title}`}
+          onLoad={() => setIsImageLoaded(true)}
+          onError={() => setIsImageLoaded(true)} // still show ribbon even on fallback
         />
-        <div className={`swap-status-ribbon ${book.status}`}>
-          {book.status.toUpperCase()}
-        </div>
+        {/* 💡 Only show the ribbon after image has loaded */}
+        {isImageLoaded && (
+          <div className={`swap-status-ribbon ${book.status}`}>
+            {book.status.toUpperCase()}
+          </div>
+        )}
       </div>
       <div className="book-info">
         <div className="title-container" ref={titleRef}>

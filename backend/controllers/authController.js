@@ -13,10 +13,8 @@ const generateToken = (userId) => {
 /* ----------------------- REGISTER ---------------------- */
 
 export const registerUser = async (req, res) => {
-  // console.log("REQ BODY:", req.body);
-
   try {
-    const { username, email, password, city, country, location } = req.body;
+    const { username, email, password, city, country } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -24,21 +22,39 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // console.log("Parsed location before saving:", req.body.location);
-    // console.log("Coordinates specifically:", req.body.location.coordinates);
+    // Default fallback location: Null Island 😅
+    let location = { type: "Point", coordinates: [0, 0] };
 
-    // Create and save the new user
+    // Try to geocode the city & country using GeoNames
+    if (city && country) {
+      const geoRes = await fetch(
+        `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(
+          city
+        )}&country=${country}&maxRows=1&username=${process.env.GEONAMES_USER}`
+      );
+      const geoData = await geoRes.json();
+      const geo = geoData.geonames?.[0];
+
+      if (geo) {
+        location = {
+          type: "Point",
+          coordinates: [parseFloat(geo.lng), parseFloat(geo.lat)],
+        };
+      }
+    }
+
     const newUser = new User({
       username,
       email,
       password,
       city,
       country,
-      location,
+      location, // 🧭 uses geocoded location
     });
+
     await newUser.save();
 
-    const token = generateToken(newUser._id); // generating a token!!
+    const token = generateToken(newUser._id);
 
     res.status(201).json({
       token,
@@ -49,7 +65,7 @@ export const registerUser = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Registration failed:", err);
     res.status(500).json({ message: "Something went wrong" });
   }
 };

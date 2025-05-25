@@ -156,39 +156,44 @@ export default function SwapsPage() {
 
   return (
     <>
-      {loading && <p>Loading swaps...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error ? (
+        <p style={{ color: "red" }}>{error}</p>
+      ) : (
+        <>
+          <div className="swap-tabs">
+            {tabOptions.map((tab) => (
+              <button
+                key={tab.value}
+                className={activeTab === tab.value ? "active" : ""}
+                onClick={() => setActiveTab(tab.value)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-      <div className="swap-tabs">
-        {tabOptions.map((tab) => (
-          <button
-            key={tab.value}
-            className={activeTab === tab.value ? "active" : ""}
-            onClick={() => setActiveTab(tab.value)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="swaps-grid">
-        {filteredSwaps.length === 0 ? (
-          <p>No {activeTab} swaps to show.</p>
-        ) : (
-          filteredSwaps.map((swap) => (
-            <SwapCard
-              key={swap._id}
-              swap={swap}
-              handleAccept={handleAccept}
-              handleDecline={handleDecline}
-              handleMarkCompleted={handleMarkCompleted}
-              handleArchive={handleArchive}
-              handleUnarchive={handleUnarchive}
-              handleReport={handleReport}
-            />
-          ))
-        )}
-      </div>
+          <div className="swaps-container">
+            {loading ? (
+              <p>Loading swaps...</p>
+            ) : filteredSwaps.length === 0 ? (
+              <p>No {activeTab} swaps to show.</p>
+            ) : (
+              filteredSwaps.map((swap) => (
+                <SwapCard
+                  key={swap._id}
+                  swap={swap}
+                  handleAccept={handleAccept}
+                  handleDecline={handleDecline}
+                  handleMarkCompleted={handleMarkCompleted}
+                  handleArchive={handleArchive}
+                  handleUnarchive={handleUnarchive}
+                  handleReport={handleReport}
+                />
+              ))
+            )}
+          </div>
+        </>
+      )}
     </>
   );
 }

@@ -4,7 +4,6 @@ import BooksPage from "./pages/Bookspage";
 import SwapsPage from "./pages/SwapsPage";
 import ChatsPage from "./pages/ChatsPage";
 import Landing from "./pages/Landing";
-import Signup from "./pages/Signup";
 import Logout from "./pages/Logout";
 import SetLocation from "./pages/SetLocation";
 import MapPage from "./pages/MapPage";
@@ -17,7 +16,6 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
-        <Route path="/signup" element={<Signup />} />
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoutes />}>

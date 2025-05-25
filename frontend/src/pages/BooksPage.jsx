@@ -113,53 +113,58 @@ export default function BooksPage() {
 
   return (
     <>
-      {loading && <p>Loading books...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <div className="book-header">
-        <button
-          className="add-book-button"
-          onClick={() => setShowAddModal(true)}
-        >
-          ✍️ Add Book
-        </button>
-
-        <div className="book-tabs">
-          {tabOptions.map(({ label, value }) => (
+      {error ? (
+        <p style={{ color: "red", textAlign: "center" }}>{error}</p>
+      ) : (
+        <>
+          <div className="book-header">
             <button
-              key={value}
-              className={activeTab === value ? "active" : ""}
-              onClick={() => setActiveTab(value)}
+              className="add-book-button"
+              onClick={() => setShowAddModal(true)}
             >
-              {label}
+              ✍️ Add Book
             </button>
-          ))}
-        </div>
-      </div>
 
-      <div className="books-container">
-        {filteredBooks.length === 0 ? (
-          <p>No books with {activeTab} status.</p>
-        ) : (
-          filteredBooks.map((book) => (
-            <BookCard
-              key={book._id}
-              book={book}
-              onEdit={(book) => setEditingBook(book)}
+            <div className="book-tabs">
+              {tabOptions.map(({ label, value }) => (
+                <button
+                  key={value}
+                  className={activeTab === value ? "active" : ""}
+                  onClick={() => setActiveTab(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="books-container">
+            {loading ? (
+              <p>Loading books...</p>
+            ) : filteredBooks.length === 0 ? (
+              <p>No books with {activeTab} status.</p>
+            ) : (
+              filteredBooks.map((book) => (
+                <BookCard
+                  key={book._id}
+                  book={book}
+                  onEdit={(book) => setEditingBook(book)}
+                />
+              ))
+            )}
+          </div>
+          {(editingBook || showAddModal) && (
+            <BookModal
+              book={editingBook} // null if adding
+              onSave={editingBook ? handleEditSave : handleAddSave}
+              onDelete={handleDelete}
+              onClose={() => {
+                setEditingBook(null);
+                setShowAddModal(false);
+              }}
             />
-          ))
-        )}
-      </div>
-      {(editingBook || showAddModal) && (
-        <BookModal
-          book={editingBook} // null if adding
-          onSave={editingBook ? handleEditSave : handleAddSave}
-          onDelete={handleDelete}
-          onClose={() => {
-            setEditingBook(null);
-            setShowAddModal(false);
-          }}
-        />
+          )}
+        </>
       )}
     </>
   );
