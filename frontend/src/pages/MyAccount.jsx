@@ -66,9 +66,6 @@ export default function MyAccount() {
         <div className="my-info">
           <h2>👤 My info</h2>
           <button onClick={() => setShowModal(true)}>✏️ Edit Info</button>
-          <button onClick={() => setEditLocation(true)}>
-            📍 Edit Location
-          </button>
 
           <ul>
             <li>

@@ -24,21 +24,22 @@
   z-index: 1000 !important;
 }
 
-.save-location-btn {
+.save-location-btn, .edit-location-btn, .cancel-location-btn {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: $color-button-bg;
+  background: $color-zen-bg;
   color: white;
   border: none;
   padding: 8px 14px;
   border-radius: 6px;
+  box-shadow: 0 0 15px black;
   cursor: pointer;
   font-weight: bold;
   z-index: 1000;
 
   &:hover {
-    background: $color-button-hover;
-    color: black;
+    background: lighten($color-zen-bg, 10%);
+ 
   }
 }

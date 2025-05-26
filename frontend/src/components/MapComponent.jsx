@@ -11,7 +11,7 @@ export const redIcon = new L.Icon({
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
-  className: "red-pin",
+  className: "red-pin"
 });
 
 export const blueIcon = new L.Icon({
@@ -21,7 +21,6 @@ export const blueIcon = new L.Icon({
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
-  
 });
 
 function RecenterMap({ center, zoom }) {
@@ -37,7 +36,7 @@ export default function MapComponent({
   forceReload,
   editLocation,
   setEditLocation,
-  refreshUserInfo,
+  refreshUserInfo
 }) {
   const [mapCenter, setMapCenter] = useState([
     12.891404295324467, 100.87394532173053,
@@ -85,11 +84,20 @@ export default function MapComponent({
       setMapCenter([lat, lng]);
       setTempPosition(null);
       setEditLocation(false);
-      await refreshUserInfo?.();
-      console.log("Location updated successfully");
+      refreshUserInfo?.();
+      console.log(" Location updated successfully");
     } catch (err) {
-      console.error(" Failed to update location", err);
+      console.error("Failed to update location", err);
     }
+  };
+
+  const handleStartEdit = () => {
+    setEditLocation(true);
+  };
+
+   const handleCancelEdit = () => {
+    setEditLocation(false);
+    setTempPosition(null);
   };
 
   return (
@@ -126,8 +134,6 @@ export default function MapComponent({
 
           if (user.isCurrentUser) return null;
 
-          console.log(user.username, lat, lon); // 👈 ADD THIS
-
           return (
             <Marker key={user._id} position={[lat, lon]} icon={blueIcon}>
               <Popup>
@@ -146,13 +152,31 @@ export default function MapComponent({
         })}
       </MapContainer>
 
-      {editLocation && tempPosition && (
+      {!editLocation && (
         <button
-          className="save-location-btn"
-          onClick={() => handleSaveLocation(tempPosition)}
+          className="edit-location-btn"
+          onClick={handleStartEdit}
         >
-          ✅ Save Location
+          📍 Edit Location
         </button>
+      )}
+
+      {editLocation && (
+        tempPosition ? (
+          <button
+            className="edit-location-btn"
+            onClick={() => handleSaveLocation(tempPosition)}
+          >
+            ✅ Save Location
+          </button>
+        ) : (
+          <button
+            className="cancel-location-btn"
+            onClick={handleCancelEdit}
+          >
+            ❌ Cancel
+          </button>
+        )
       )}
     </div>
   );
