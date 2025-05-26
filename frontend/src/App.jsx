@@ -6,7 +6,7 @@ import ChatsPage from "./pages/ChatsPage";
 import Landing from "./pages/Landing";
 import Logout from "./pages/Logout";
 import SetLocation from "./pages/SetLocation";
-import MapComponent from "./components/Map";
+import MapComponent from "./components/MapComponent";
 
 import ProtectedRoutes from "./routes/ProtectedRoutes";
 

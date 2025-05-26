@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 
 import "./ChatWindow.scss";
 
-export default function MessageWindow({ swapId }) {
+export default function ChatWindow({ swapId }) {
   const { user } = useAuth();
   const userId = user?._id;
 

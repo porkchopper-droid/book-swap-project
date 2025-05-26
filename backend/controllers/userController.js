@@ -49,23 +49,31 @@ export const updateUserProfile = async (req, res) => {
 
     // Step 2: If both city & country are present, geocode them
     if (city && country) {
-
-      console.log("Using GeoNames user:", process.env.GEONAMES_USER);
-
-      const response = await fetch(
-        `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(
+      try {
+        const url = `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(
           city
-        )}&country=${country}&maxRows=1&username=${process.env.GEONAMES_USER}`
-      );
+        )}&country=${country}&maxRows=1&username=${process.env.GEONAMES_USER}`;
 
-      const data = await response.json();
-      const geo = data.geonames?.[0];
+        console.log("🌍 Geocoding via GeoNames:", url);
 
-      if (geo) {
-        updates.location = {
-          type: "Point",
-          coordinates: [parseFloat(geo.lng), parseFloat(geo.lat)],
-        };
+        const geoRes = await fetch(url);
+        const geoData = await geoRes.json();
+        const geo = geoData.geonames?.[0];
+
+        if (geo) {
+          const jitter = () => (Math.random() - 0.5) * 0.02; // jittering users' location on country/city change
+          updates.location = {
+            type: "Point",
+            coordinates: [
+              parseFloat(geo.lng) + jitter(),
+              parseFloat(geo.lat) + jitter(),
+            ],
+          };
+        } else {
+          console.warn("⚠️ No matching GeoNames result found.");
+        }
+      } catch (geoErr) {
+        console.error("🌐 Geocoding failed:", geoErr);
       }
     }
 
@@ -77,11 +85,8 @@ export const updateUserProfile = async (req, res) => {
 
     res.json(user);
 
-    console.log("Geo request:", `https://secure.geonames.org/searchJSON?q=${city}&country=${country}&maxRows=1&username=${process.env.GEONAMES_USER}`);
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to update profile" });
   }
 };
-

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Map from "../components/Map";
+import MapComponent from "../components/MapComponent";
 import UserInfoModal from "../components/UserInfoModal";
 import "./MyAccount.scss";
 
 export default function MyAccount() {
   const [showModal, setShowModal] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
+  const [forceReload, setForceReload] = useState(false);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -31,12 +32,15 @@ export default function MyAccount() {
     <div className="account-layout">
       <aside>
         {showModal && (
-            <UserInfoModal
-              user={userInfo}
-              onClose={() => setShowModal(false)}
-              onUpdate={(updated) => setUserInfo(updated)}
-            />
-          )}
+          <UserInfoModal
+            user={userInfo}
+            onClose={() => setShowModal(false)}
+            onUpdate={(updated) => {
+              setUserInfo(updated);
+              setForceReload((prev) => !prev); // 💥 trigger map reload
+            }}
+          />
+        )}
         <div className="my-stats">
           <h2>📊 My Stats</h2>
           <ul>
@@ -64,8 +68,8 @@ export default function MyAccount() {
       </aside>
 
       <main>
-        <h2>📍 People Around You</h2>
-        <Map />
+        {/* <h2>📍 People Around You</h2> */}
+        <MapComponent forceReload={forceReload}/>
       </main>
     </div>
   );

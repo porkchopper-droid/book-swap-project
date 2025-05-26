@@ -27,19 +27,31 @@ export const registerUser = async (req, res) => {
 
     // Try to geocode the city & country using GeoNames
     if (city && country) {
-      const geoRes = await fetch(
-        `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(
+      try {
+        const url = `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(
           city
-        )}&country=${country}&maxRows=1&username=${process.env.GEONAMES_USER}`
-      );
-      const geoData = await geoRes.json();
-      const geo = geoData.geonames?.[0];
+        )}&country=${country}&maxRows=1&username=${process.env.GEONAMES_USER}`;
 
-      if (geo) {
-        location = {
-          type: "Point",
-          coordinates: [parseFloat(geo.lng), parseFloat(geo.lat)],
-        };
+        console.log("🌍 Geocoding via GeoNames:", url);
+
+        const geoRes = await fetch(url);
+        const geoData = await geoRes.json();
+        const geo = geoData.geonames?.[0];
+
+        if (geo) {
+          const jitter = () => (Math.random() - 0.5) * 0.02; // jittering users' location on creation
+          location = {
+            type: "Point",
+            coordinates: [
+              parseFloat(geo.lng) + jitter(),
+              parseFloat(geo.lat) + jitter(),
+            ],
+          };
+        } else {
+          console.warn("⚠️ No matching GeoNames result found.");
+        }
+      } catch (geoErr) {
+        console.error("🌐 Geocoding failed:", geoErr);
       }
     }
 

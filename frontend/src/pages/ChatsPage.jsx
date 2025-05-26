@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import MessageWindow from "../components/ChatWindow.jsx";
+import ChatWindow from "../components/ChatWindow.jsx";
 
 import "./ChatsPage.scss";
 
 export default function ChatsPage() {
-  const { swapId } = useParams(); // ✅ Corrected
+  const { swapId } = useParams();
   const navigate = useNavigate();
   const [activeSwapId, setActiveSwapId] = useState(null);
   const [chats, setChats] = useState([]);
@@ -52,7 +52,7 @@ export default function ChatsPage() {
 
       <div className="chat-window">
         {swapId ? (
-          <MessageWindow swapId={swapId} />
+          <ChatWindow swapId={swapId} />
         ) : (
           <div className="placeholder">
             <p>Select a chat from the list</p>
