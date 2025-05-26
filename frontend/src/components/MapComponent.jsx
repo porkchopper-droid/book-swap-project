@@ -1,12 +1,5 @@
 import L from "leaflet";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Tooltip,
-  Popup,
-  useMap,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./MapComponent.scss";
@@ -14,10 +7,11 @@ import "./MapComponent.scss";
 export const redIcon = new L.Icon({
   iconUrl: "/markers/marker-icon-2x-red.png",
   shadowUrl: "/markers/marker-shadow.png",
-  iconSize: [25, 41], // same as default Leaflet
-  iconAnchor: [12, 41], // tip of the pin
-  popupAnchor: [1, -34], // position where popup opens
-  shadowSize: [41, 41], // match the shadow
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+  className: "red-pin",
 });
 
 export const blueIcon = new L.Icon({
@@ -27,6 +21,7 @@ export const blueIcon = new L.Icon({
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
+  
 });
 
 function RecenterMap({ center, zoom }) {
@@ -38,10 +33,18 @@ function RecenterMap({ center, zoom }) {
   return null;
 }
 
-export default function MapComponent({ forceReload }) {
-  const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]); // 🇩🇪 fallback
+export default function MapComponent({
+  forceReload,
+  editLocation,
+  setEditLocation,
+  refreshUserInfo,
+}) {
+  const [mapCenter, setMapCenter] = useState([
+    12.891404295324467, 100.87394532173053,
+  ]);
   const [zoom, setZoom] = useState(4);
   const [users, setUsers] = useState([]);
+  const [tempPosition, setTempPosition] = useState(null);
 
   useEffect(() => {
     const fetchMapUsers = async () => {
@@ -51,12 +54,12 @@ export default function MapComponent({ forceReload }) {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-
+        console.log("Map Users Fetched:", res.data);
         setUsers(res.data);
 
-        const me = res.data.find((u) => u.isCurrentUser);
-        if (me) {
-          const [lon, lat] = me.location.coordinates;
+        const currentUser = res.data.find((u) => u.isCurrentUser);
+        if (currentUser) {
+          const [lon, lat] = currentUser.location.coordinates;
           setMapCenter([lat, lon]);
           setZoom(10);
         }
@@ -68,66 +71,89 @@ export default function MapComponent({ forceReload }) {
     fetchMapUsers();
   }, [forceReload]);
 
-  useEffect(() => {
-    const fetchMyLocation = async () => {
-      try {
-        const res = await axios.get("/api/map/me/location", {
+  const handleSaveLocation = async ([lat, lng]) => {
+    try {
+      await axios.patch(
+        "/api/users/update-location",
+        { lat, lon: lng },
+        {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        });
-        const { latitude, longitude } = res.data;
-        setMapCenter([latitude, longitude]);
-
-        setZoom(10);
-      } catch (err) {
-        console.error("Failed to fetch your location", err);
-      }
-    };
-
-    fetchMyLocation();
-  }, [forceReload]);
+        }
+      );
+      setMapCenter([lat, lng]);
+      setTempPosition(null);
+      setEditLocation(false);
+      await refreshUserInfo?.();
+      console.log("Location updated successfully");
+    } catch (err) {
+      console.error(" Failed to update location", err);
+    }
+  };
 
   return (
-    <MapContainer
-      className="map-container"
-      center={mapCenter}
-      zoom={zoom}
-      scrollWheelZoom
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <RecenterMap center={mapCenter} zoom={zoom} />
-      <Marker icon={redIcon} position={mapCenter} draggable={false}>
-      </Marker>
-      {users.map((user) => {
-        const [lon, lat] = user.location.coordinates;
+    <div className="map-wrapper">
+      <MapContainer
+        className="map-container"
+        center={mapCenter}
+        zoom={zoom}
+        scrollWheelZoom
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <RecenterMap center={mapCenter} zoom={zoom} />
+        <Marker
+          icon={redIcon}
+          position={tempPosition || mapCenter}
+          draggable={editLocation}
+          eventHandlers={
+            editLocation
+              ? {
+                  dragend: (e) => {
+                    const marker = e.target;
+                    const newPos = marker.getLatLng();
+                    setTempPosition([newPos.lat, newPos.lng]);
+                  },
+                }
+              : {}
+          }
+        />
+        {users.map((user) => {
+          const [lon, lat] = user.location.coordinates;
 
-        // Skip rendering your own pin (already done with redIcon)
-        if (user.isCurrentUser) return null;
+          if (user.isCurrentUser) return null;
 
-        return (
-          <Marker key={user._id} position={[lat, lon]} icon={blueIcon}>
-            <Tooltip direction="top" offset={[0, -10]} opacity={1} permanent>
-              {user.username}
-            </Tooltip>
+          console.log(user.username, lat, lon); // 👈 ADD THIS
 
-            <Popup>
-              <div>
-                <strong>{user.username}</strong>
-                <div className="book-preview">
-                  {user.books.slice(0, 5).map((book, idx) => (
-                    <div key={idx}>{book.title}</div>
-                  ))}
-                  {user.books.length > 5 && <em>...and more</em>}
+          return (
+            <Marker key={user._id} position={[lat, lon]} icon={blueIcon}>
+              <Popup>
+                <div>
+                  <div className="leaflet-username">{user.username}</div>
+                  <div className="book-preview">
+                    {user.books.slice(0, 5).map((book, idx) => (
+                      <div key={idx}>{book.title}</div>
+                    ))}
+                    {user.books.length > 5 && <em>...and more</em>}
+                  </div>
                 </div>
-              </div>
-            </Popup>
-          </Marker>
-        );
-      })}
-    </MapContainer>
+              </Popup>
+            </Marker>
+          );
+        })}
+      </MapContainer>
+
+      {editLocation && tempPosition && (
+        <button
+          className="save-location-btn"
+          onClick={() => handleSaveLocation(tempPosition)}
+        >
+          ✅ Save Location
+        </button>
+      )}
+    </div>
   );
 }

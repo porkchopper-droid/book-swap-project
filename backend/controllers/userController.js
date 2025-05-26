@@ -18,8 +18,12 @@ export const getCurrentUserInfo = async (req, res) => {
 export const updateUserLocation = async (req, res) => {
   try {
     const { lat, lon } = req.body;
-    if (!lat || !lon) {
-      return res.status(400).json({ message: "Missing lat/lon." });
+
+    if (
+      typeof lat !== "number" ||
+      typeof lon !== "number"
+    ) {
+      return res.status(400).json({ message: "Missing or invalid lat/lon." });
     }
 
     const user = await User.findByIdAndUpdate(
@@ -27,18 +31,24 @@ export const updateUserLocation = async (req, res) => {
       {
         location: {
           type: "Point",
-          coordinates: [lon, lat], // GeoJSON: [lon, lat]
+          coordinates: [lon, lat], // GeoJSON requires [lon, lat]
         },
+        manualLocation: true, // optional: if you want to track this
       },
       { new: true }
     );
 
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
     res.json({ message: "Location updated", location: user.location });
   } catch (err) {
-    console.error(err);
+    console.error("Location update failed:", err);
     res.status(500).json({ message: "Failed to update location." });
   }
 };
+
 
 export const updateUserProfile = async (req, res) => {
   try {

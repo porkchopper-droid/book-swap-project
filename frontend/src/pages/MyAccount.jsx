@@ -8,6 +8,7 @@ export default function MyAccount() {
   const [showModal, setShowModal] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [forceReload, setForceReload] = useState(false);
+  const [editLocation, setEditLocation] = useState(false);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -25,6 +26,19 @@ export default function MyAccount() {
 
     fetchUserInfo();
   }, []);
+
+  const refreshUserInfo = async () => {
+    try {
+      const res = await axios.get("/api/users/me", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setUserInfo(res.data);
+    } catch (err) {
+      console.error("Failed to refresh user info:", err);
+    }
+  };
 
   if (!userInfo) return <p>Loading...</p>;
 
@@ -52,6 +66,10 @@ export default function MyAccount() {
         <div className="my-info">
           <h2>👤 My info</h2>
           <button onClick={() => setShowModal(true)}>✏️ Edit Info</button>
+          <button onClick={() => setEditLocation(true)}>
+            📍 Edit Location
+          </button>
+
           <ul>
             <li>
               <strong>Username:</strong> {userInfo.username}
@@ -69,7 +87,12 @@ export default function MyAccount() {
 
       <main>
         {/* <h2>📍 People Around You</h2> */}
-        <MapComponent forceReload={forceReload}/>
+        <MapComponent
+          forceReload={forceReload}
+          editLocation={editLocation}
+          setEditLocation={setEditLocation}
+          refreshUserInfo={refreshUserInfo}
+        />
       </main>
     </div>
   );

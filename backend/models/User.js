@@ -50,6 +50,10 @@ const userSchema = new mongoose.Schema(
         default: [0, 0],
       },
     },
+    manualLocation: {
+      type: Boolean,
+      default: false,
+    },
     reportedCount: {
       type: Number,
       default: 0,

@@ -1,26 +1,20 @@
 import User from "../models/User.js";
 
-export const getUsersWithAvailableBooks = async (req, res) => {
+export const getMapUsers = async (req, res) => {
   try {
+    const userId = req.user._id;
+
     const users = await User.aggregate([
       {
         $lookup: {
           from: "books",
           localField: "_id",
-          foreignField: "owner",
+          foreignField: "user",
           as: "books",
         },
       },
       {
-        $match: {
-          "books.status": "available",
-        },
-      },
-      {
-        $project: {
-          username: 1,
-          location: 1,
-          profilePicture: 1,
+        $addFields: {
           books: {
             $filter: {
               input: "$books",
@@ -30,26 +24,33 @@ export const getUsersWithAvailableBooks = async (req, res) => {
           },
         },
       },
+      {
+        $match: {
+          $or: [
+            { "books.0": { $exists: true } }, // users with available books
+            { _id: userId }, // OR you (even with 0 books)
+          ],
+        },
+      },
+      {
+        $addFields: {
+          isCurrentUser: { $eq: ["$_id", userId] },
+        },
+      },
+      {
+        $project: {
+          username: 1,
+          location: 1,
+          profilePicture: 1,
+          isCurrentUser: 1,
+          books: 1,
+        },
+      },
     ]);
 
     res.json(users);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch map users." });
-  }
-};
-
-export const getMyLocation = (req, res) => {
-  try {
-    const user = req.user;                   // already populated by your auth middleware
-    const coords = user.location?.coordinates;
-
-    if (!Array.isArray(coords) || coords.length !== 2 || coords.every(n => n === 0)) {
-      return res.status(404).json({ message: "No valid location" });
-    }
-    res.json({ latitude: coords[1], longitude: coords[0] });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Could not fetch your location" });
   }
 };
