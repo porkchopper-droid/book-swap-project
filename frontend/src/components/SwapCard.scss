@@ -8,9 +8,9 @@
   box-shadow: $box-shadow-default;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  text-align: left;
+ justify-content: space-between;
   width: 200px;
+  min-height: 350px;
 
   .swap-status-ribbon {
     position: relative;

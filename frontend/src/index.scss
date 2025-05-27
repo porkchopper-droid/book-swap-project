@@ -19,3 +19,10 @@ body,
   color: $color-text;
   background-color: $color-bg;
 }
+
+.scroll-lock {
+  overflow: hidden !important;
+  height: 100vh !important;
+  position: fixed !important;
+  width: 100%;
+}

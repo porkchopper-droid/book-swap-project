@@ -15,7 +15,12 @@
     color: white;
 
     &.active {
-      background-color: #d4964a;
+      background-color: $color-button-bg;
+      color: black;
+    }
+
+    &:hover {
+      background-color: $color-button-hover;
       color: black;
     }
   }

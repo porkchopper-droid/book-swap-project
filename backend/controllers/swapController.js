@@ -21,6 +21,25 @@ export const createSwapProposal = async (req, res) => {
       fromMessage,
     });
 
+    const existing = await SwapProposal.findOne({
+      status: "pending",
+      $or: [
+        {
+          offeredBook,
+          requestedBook,
+        },
+        {
+          offeredBook: requestedBook,
+          requestedBook: offeredBook,
+        },
+      ],
+    });
+    if (existing) {
+      return res
+        .status(400)
+        .json({ message: "You have already proposed a swap with these books. Patience is a virtue!?" });
+    }
+
     const saved = await newProposal.save();
     res.status(201).json(saved);
   } catch (err) {
@@ -79,8 +98,10 @@ export const respondToSwapProposal = async (req, res) => {
         _id: { $ne: proposal._id },
         status: "pending",
         $or: [
-          { offeredBook: proposal.offeredBook }, // I'm offering this elsewhere
-          { requestedBook: proposal.offeredBook }, // Others trying to grab it
+          { offeredBook: proposal.offeredBook }, // ✅ You're offering it elsewhere (you must own it)
+          { requestedBook: proposal.offeredBook }, // 🔥 Someone else is asking for your book
+          // { offeredBook: proposal.requestedBook },  ❓❓❓ TRASH
+          { requestedBook: proposal.requestedBook }, // ✅ Someone else is trying to get the same book
         ],
       },
       { status: "declined" }

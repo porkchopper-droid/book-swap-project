@@ -17,7 +17,7 @@
     color: white;
 
     &:hover {
-      background-color: #d4964a;
+      background-color: $color-button-hover;
       color: black;
     }
   }
@@ -37,9 +37,14 @@
       color: white;
 
       &.active {
-        background-color: #d4964a;
-        color: black;
-      }
+      background-color: $color-button-bg;
+      color: black;
+    }
+
+    &:hover {
+      background-color: $color-button-hover;
+      color: black;
+    }
     }
   }
 }

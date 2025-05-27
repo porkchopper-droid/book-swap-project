@@ -1,6 +1,7 @@
 import L from "leaflet";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./MapComponent.scss";
 
@@ -11,7 +12,7 @@ export const redIcon = new L.Icon({
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
-  className: "red-pin"
+  className: "red-pin",
 });
 
 export const blueIcon = new L.Icon({
@@ -36,7 +37,7 @@ export default function MapComponent({
   forceReload,
   editLocation,
   setEditLocation,
-  refreshUserInfo
+  refreshUserInfo,
 }) {
   const [mapCenter, setMapCenter] = useState([
     12.891404295324467, 100.87394532173053,
@@ -44,6 +45,7 @@ export default function MapComponent({
   const [zoom, setZoom] = useState(4);
   const [users, setUsers] = useState([]);
   const [tempPosition, setTempPosition] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMapUsers = async () => {
@@ -95,7 +97,7 @@ export default function MapComponent({
     setEditLocation(true);
   };
 
-   const handleCancelEdit = () => {
+  const handleCancelEdit = () => {
     setEditLocation(false);
     setTempPosition(null);
   };
@@ -137,14 +139,19 @@ export default function MapComponent({
           return (
             <Marker key={user._id} position={[lat, lon]} icon={blueIcon}>
               <Popup>
-                <div>
+                <div className="preview-popup">
                   <div className="leaflet-username">{user.username}</div>
                   <div className="book-preview">
                     {user.books.slice(0, 5).map((book, idx) => (
                       <div key={idx}>{book.title}</div>
                     ))}
-                    {user.books.length > 5 && <em>...and more</em>}
+                    {user.books.length > 5 && (
+                      <span className="and-more">...and more</span>
+                    )}
                   </div>
+                  <button onClick={() => navigate(`/swap/${user._id}`)}>
+                    🔄 View All Books & Swap
+                  </button>
                 </div>
               </Popup>
             </Marker>
@@ -153,16 +160,13 @@ export default function MapComponent({
       </MapContainer>
 
       {!editLocation && (
-        <button
-          className="edit-location-btn"
-          onClick={handleStartEdit}
-        >
+        <button className="edit-location-btn" onClick={handleStartEdit}>
           📍 Edit Location
         </button>
       )}
 
-      {editLocation && (
-        tempPosition ? (
+      {editLocation &&
+        (tempPosition ? (
           <button
             className="edit-location-btn"
             onClick={() => handleSaveLocation(tempPosition)}
@@ -170,14 +174,10 @@ export default function MapComponent({
             ✅ Save Location
           </button>
         ) : (
-          <button
-            className="cancel-location-btn"
-            onClick={handleCancelEdit}
-          >
+          <button className="cancel-location-btn" onClick={handleCancelEdit}>
             ❌ Cancel
           </button>
-        )
-      )}
+        ))}
     </div>
   );
 }

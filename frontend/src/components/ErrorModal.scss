@@ -1,0 +1,38 @@
+@use "../styles/variables.scss" as *;
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.modal {
+  background: $color-box-bg;
+  padding: $padding-default;
+  border-radius: $border-radius;
+  text-align: center;
+  border: 0.5px solid $color-text;
+}
+
+.error-modal-button {
+  padding: 8px 30px;
+  background-color: darkred;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  border: 0.5px solid $color-text;
+
+  &:hover {
+    background-color: lighten(darkred, 10%);
+  }
+}

@@ -2,6 +2,7 @@ import axios from "axios";
 
 import Book from "../models/Book.js";
 import User from "../models/User.js";
+import SwapProposal from "../models/SwapProposal.js";
 
 export const createBook = async (req, res) => {
   try {
@@ -104,11 +105,70 @@ export const fetchBookByISBN = async (req, res) => {
 
 export const getMyBooks = async (req, res) => {
   try {
-    const books = await Book.find({ user: req.user._id });
-    res.json(books);
+    const filters = { user: req.user._id };
+
+    if (req.query.status) {
+      filters.status = req.query.status;
+    }
+
+    const books = await Book.find(filters);
+
+    // Get all pending swaps involving this user
+    const pendingProposals = await SwapProposal.find({
+      status: "pending",
+      $or: [{ from: req.user._id }, { to: req.user._id }],
+    });
+
+    const involvedBookIds = new Set();
+    pendingProposals.forEach((proposal) => {
+      involvedBookIds.add(proposal.offeredBook.toString());
+      involvedBookIds.add(proposal.requestedBook.toString());
+    });
+
+    const enrichedBooks = books.map((book) => ({
+      ...book.toObject(),
+      pendingSwap: involvedBookIds.has(book._id.toString()),
+    }));
+
+    res.json(enrichedBooks);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch your books." });
+  }
+};
+
+export const getUserBooks = async (req, res) => {
+  try {
+    const filters = { user: req.params.userId };
+
+    if (req.query.status) {
+      filters.status = req.query.status;
+    }
+
+    const books = await Book.find(filters);
+
+    // Find pending swap proposals where this user is involved
+    const pendingProposals = await SwapProposal.find({
+      status: "pending",
+      $or: [{ from: req.params.userId }, { to: req.params.userId }],
+    });
+
+    const involvedBookIds = new Set();
+    pendingProposals.forEach((proposal) => {
+      involvedBookIds.add(proposal.offeredBook.toString());
+      involvedBookIds.add(proposal.requestedBook.toString());
+    });
+
+    // Enrich books with pendingSwap: true
+    const enrichedBooks = books.map((book) => ({
+      ...book.toObject(),
+      pendingSwap: involvedBookIds.has(book._id.toString()),
+    }));
+
+    res.json(enrichedBooks);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch user's books." });
   }
 };
 

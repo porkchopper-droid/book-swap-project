@@ -8,9 +8,21 @@ export default function BooksPage() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [editingBook, setEditingBook] = useState(null);
+  const [selectedBook, setSelectedBook] = useState(null);
   const [activeTab, setActiveTab] = useState("available");
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+  if (showModal || selectedBook) {
+    document.body.classList.add("scroll-lock");
+  } else {
+    document.body.classList.remove("scroll-lock");
+  }
+
+  return () => {
+    document.body.classList.remove("scroll-lock");
+  };
+}, [showModal, selectedBook]);
 
   const tabOptions = [
     { label: "📚 Available", value: "available" },
@@ -19,25 +31,10 @@ export default function BooksPage() {
     { label: "🚨 Reported", value: "reported" },
   ];
 
-  const filteredBooks = books.filter((book) => {
-    switch (activeTab) {
-      case "available":
-        return book.status === "available";
-      case "booked":
-        return book.status === "booked";
-      case "swapped":
-        return book.status === "swapped";
-      case "reported":
-        return book.status === "reported";
-      default:
-        return true; // fallback, show all
-    }
-  });
-
   const handleEditSave = async (updatedFields) => {
     try {
       const { data: updatedBook } = await axios.patch(
-        `http://localhost:6969/api/books/${editingBook._id}`,
+        `http://localhost:6969/api/books/${selectedBook._id}`,
         updatedFields,
         {
           headers: {
@@ -49,7 +46,7 @@ export default function BooksPage() {
       setBooks((prevBooks) =>
         prevBooks.map((b) => (b._id === updatedBook._id ? updatedBook : b))
       );
-      setEditingBook(null);
+      setSelectedBook(null);
     } catch (err) {
       console.error("Failed to update book:", err);
     }
@@ -68,33 +65,34 @@ export default function BooksPage() {
       );
 
       setBooks((prevBooks) => [...prevBooks, createdBook]);
-      setShowAddModal(false);
+      setShowModal(false);
     } catch (err) {
       console.error("Failed to add book:", err);
     }
   };
 
   const handleDelete = async () => {
-    if (!editingBook || editingBook.status !== "available") return;
+    if (!selectedBook || selectedBook.status !== "available") return;
 
     try {
-      await axios.delete(`http://localhost:6969/api/books/${editingBook._id}`, {
+      await axios.delete(`http://localhost:6969/api/books/${selectedBook._id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
       setBooks((prevBooks) =>
-        prevBooks.filter((b) => b._id !== editingBook._id)
+        prevBooks.filter((b) => b._id !== selectedBook._id)
       );
-      setEditingBook(null);
+      setSelectedBook(null);
     } catch (err) {
       console.error("Failed to delete book:", err);
     }
   };
 
   useEffect(() => {
-    fetch("http://localhost:6969/api/books/mine", {
+    setLoading(true);
+    fetch(`http://localhost:6969/api/books/mine?status=${activeTab}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -109,7 +107,7 @@ export default function BooksPage() {
         setError("Could not load books.");
         setLoading(false);
       });
-  }, []);
+  }, [activeTab]); // 🔥 triggers re-fetch when tab changes
 
   return (
     <>
@@ -120,7 +118,7 @@ export default function BooksPage() {
           <div className="book-header">
             <button
               className="add-book-button"
-              onClick={() => setShowAddModal(true)}
+              onClick={() => setShowModal(true)}
             >
               ✍️ Add Book
             </button>
@@ -141,26 +139,27 @@ export default function BooksPage() {
           <div className="books-container">
             {loading ? (
               <p>Loading books...</p>
-            ) : filteredBooks.length === 0 ? (
+            ) : books.length === 0 ? (
               <p>No books with {activeTab} status.</p>
             ) : (
-              filteredBooks.map((book) => (
+              books.map((book) => (
                 <BookCard
                   key={book._id}
                   book={book}
-                  onEdit={(book) => setEditingBook(book)}
+                  onClick={(book) => setSelectedBook(book)}
                 />
               ))
             )}
           </div>
-          {(editingBook || showAddModal) && (
+
+          {(selectedBook || showModal) && (
             <BookModal
-              book={editingBook} // null if adding
-              onSave={editingBook ? handleEditSave : handleAddSave}
+              book={selectedBook} // null if adding
+              onSave={selectedBook ? handleEditSave : handleAddSave}
               onDelete={handleDelete}
               onClose={() => {
-                setEditingBook(null);
-                setShowAddModal(false);
+                setSelectedBook(null);
+                setShowModal(false);
               }}
             />
           )}

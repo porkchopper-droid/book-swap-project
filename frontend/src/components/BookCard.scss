@@ -44,6 +44,11 @@
         color: #155724;
       }
 
+      &.pending {
+        background-color: #e6f0ff; // light soft blue
+        color: #004085; // bold navy text
+      }
+
       &.booked {
         background-color: #fff3cd;
         color: #856404;
@@ -87,6 +92,14 @@
       font-style: italic;
     }
   }
+}
+
+.book-card.selected-pending {
+  background-color: #797334;
+}
+
+.book-card.selected-confirmed {
+  background-color: #29572d;
 }
 
 @keyframes scroll-title {

@@ -1,0 +1,49 @@
+@use "../styles/variables.scss" as *;
+
+.swap-controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+
+  button {
+    padding: 8px 16px;
+    background: none;
+    border: 0.5px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    // transition: background-color 0.2s ease, color 0.2s ease;
+
+    &.active {
+    //   background-color: #d4964a;
+      color: $color-text;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: $color-button-hover;
+      color: #333;
+    }
+  }
+}
+
+
+.swap-grid {
+  display: flex;
+  gap: 30px;
+
+  .book-column {
+    flex: 1;
+
+    .book-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  }
+}
