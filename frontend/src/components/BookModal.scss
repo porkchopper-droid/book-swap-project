@@ -1,4 +1,5 @@
 @use "../styles/variables.scss" as *;
+@use "sass:color";
 
 .modal-overlay {
   position: fixed;
@@ -71,7 +72,7 @@
         color: white;
 
         &:hover {
-          background-color: darken(#d4964a, 10%);
+          background-color: color.adjust($color-button-bg, $lightness: -10%);
         }
       }
 
@@ -80,7 +81,7 @@
         color: white;
 
         &:hover {
-          background-color: lighten(darkred, 10%);
+          background-color: color.adjust(darkred, $lightness: 10%);
         }
       }
     }

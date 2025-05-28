@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
 import { useAuth } from "../contexts/AuthContext";
 import { io } from "socket.io-client";
+import axios from "axios";
 
 import "./ChatWindow.scss";
 
@@ -21,12 +22,12 @@ export default function ChatWindow({ swapId }) {
 
   useEffect(() => {
     const fetchSwap = async () => {
-      const res = await fetch(`http://localhost:6969/api/swaps/${swapId}`, {
+      const res = await axios.get(`/api/swaps/${swapId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      const data = await res.json();
+      const data = res.data;
       setSwap(data);
     };
 
@@ -41,18 +42,18 @@ export default function ChatWindow({ swapId }) {
   const fetchMessages = async (before = null) => {
     if (!swapId) return;
 
-    let url = `http://localhost:6969/api/chats/${swapId}`;
+    let url = `/api/chats/${swapId}`;
     if (before) {
       scrollingUpRef.current = true;
       url += `?before=${before}`;
     }
 
-    const res = await fetch(url, {
+    const res = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
-    const data = await res.json();
+    const data = res.data;
 
     if (before) {
       const reversed = data.reverse();
@@ -78,7 +79,7 @@ export default function ChatWindow({ swapId }) {
     fetchMessages();
     setHasMore(true);
 
-    socket.current = io("http://localhost:6969");
+    socket.current = io(import.meta.env.VITE_SOCKET_URL || "/");
     socket.current.emit("register", userId);
 
     socket.current.on("newMessage", (msg) => {
@@ -88,6 +89,7 @@ export default function ChatWindow({ swapId }) {
     });
 
     socket.current.on("messageSent", (msg) => {
+       console.log("✅ messageSent received:", msg);
       setMessages((prev) => [...prev, msg]);
       setNewMessage("");
     });
@@ -109,6 +111,8 @@ export default function ChatWindow({ swapId }) {
 
   const handleSend = () => {
     if (!newMessage.trim()) return;
+
+    console.log("📨 SENDING:", newMessage);
 
     socket.current.emit("sendMessage", {
       swapId,

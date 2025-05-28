@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ChatWindow from "../components/ChatWindow.jsx";
+import axios from "axios";
 
 import "./ChatsPage.scss";
 
@@ -16,12 +17,12 @@ export default function ChatsPage() {
 
   useEffect(() => {
     const fetchChats = async () => {
-      const res = await fetch("http://localhost:6969/api/chats/mine", {
+      const res = await axios.get("/api/chats/mine", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      const data = await res.json();
+      const data = res.data;
       setChats(data);
     };
 

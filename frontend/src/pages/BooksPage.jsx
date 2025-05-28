@@ -34,7 +34,7 @@ export default function BooksPage() {
   const handleEditSave = async (updatedFields) => {
     try {
       const { data: updatedBook } = await axios.patch(
-        `http://localhost:6969/api/books/${selectedBook._id}`,
+        `/api/books/${selectedBook._id}`,
         updatedFields,
         {
           headers: {
@@ -55,7 +55,7 @@ export default function BooksPage() {
   const handleAddSave = async (newBook) => {
     try {
       const { data: createdBook } = await axios.post(
-        "http://localhost:6969/api/books",
+        "/api/books",
         newBook,
         {
           headers: {
@@ -75,7 +75,7 @@ export default function BooksPage() {
     if (!selectedBook || selectedBook.status !== "available") return;
 
     try {
-      await axios.delete(`http://localhost:6969/api/books/${selectedBook._id}`, {
+      await axios.delete(`/api/books/${selectedBook._id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -91,23 +91,26 @@ export default function BooksPage() {
   };
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`http://localhost:6969/api/books/mine?status=${activeTab}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setBooks(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch books:", err);
-        setError("Could not load books.");
-        setLoading(false);
+  const fetchBooks = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(`/api/books/mine?status=${activeTab}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
-  }, [activeTab]); // 🔥 triggers re-fetch when tab changes
+      setBooks(data);
+    } catch (err) {
+      console.error("Failed to fetch books:", err);
+      setError("Could not load books.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchBooks();
+}, [activeTab]);
+
 
   return (
     <>

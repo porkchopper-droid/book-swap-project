@@ -12,7 +12,7 @@ export default function BookModal({ book, onSave, onClose, onDelete }) {
     const cleaned = raw.replace(/[-\s]/g, ""); // strip hyphens & internal spaces
     try {
       const { data } = await axios.get(
-        `http://localhost:6969/api/books/isbn/${cleaned}`,
+        `/api/books/isbn/${cleaned}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

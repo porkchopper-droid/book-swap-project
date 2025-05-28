@@ -1,4 +1,5 @@
 @use "../styles/variables.scss" as *;
+@use "sass:color";
 
 .account-layout {
   display: flex;

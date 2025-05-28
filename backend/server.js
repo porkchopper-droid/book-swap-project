@@ -19,7 +19,7 @@ import bookRoutes from "./routes/bookRoutes.js";
 import swapRoutes from "./routes/swapRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import mapRoutes from "./routes/mapRoutes.js"
+import mapRoutes from "./routes/mapRoutes.js";
 
 dotenv.config();
 
@@ -70,9 +70,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendMessage", async ({ swapId, senderId, text }) => {
+    //  console.log("📥 sendMessage received:", { swapId, senderId, text });
     try {
       const swap = await SwapProposal.findById(swapId);
-      if (!swap || swap.status !== "accepted") return;
+      // console.log("🔍 Found swap:", swap);
+      if (!swap || !["accepted", "completed", "reported"].includes(swap.status)) return;
 
       const message = new Message({ swapId, sender: senderId, text });
       const saved = await message.save();
@@ -83,11 +85,11 @@ io.on("connection", (socket) => {
       const receiverSocket = connectedUsers.get(receiverId);
 
       /* ------------------------ DEBUG START ----------------------- */
-      console.log("📡 Emitting newMessage to socket:", receiverSocket);
-      console.log("📨 Message content:", populated);
-      console.log("🗺️ Current connectedUsers map:", connectedUsers);
+      // console.log("📡 Emitting newMessage to socket:", receiverSocket);
+      // console.log("📨 Message content:", populated);
+      // console.log("🗺️ Current connectedUsers map:", connectedUsers);
       /* ------------------------ DEBUG END ------------------------ */
-      
+
       if (receiverSocket) {
         io.to(receiverSocket).emit("newMessage", populated);
       }

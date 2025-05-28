@@ -1,4 +1,5 @@
 @use "../styles/variables.scss" as *;
+@use "sass:color";
 
 .landing-container {
   display: flex;
@@ -66,15 +67,15 @@
       color: $color-text;
 
       &:hover {
-        background-color: darken($color-box-bg, 5%);
+        background-color: color.adjust($color-box-bg, $lightness: -5%);
       }
 
       &.react-select__option--is-focused {
-        background-color: darken($color-box-bg, 10%);
+        background-color: color.adjust($color-box-bg, $lightness: -10%);
       }
 
       &.react-select__option--is-selected {
-        background-color: lighten($color-box-bg, 10%);
+        background-color: color.adjust($color-box-bg, $lightness: 10%);
         color: $color-text;
       }
     }
@@ -103,7 +104,7 @@
         cursor: pointer;
 
         &:hover {
-          background-color: darken($color-button-bg, 10%);
+          background-color: color.adjust($color-button-bg, $lightness: -10%);
         }
       }
     }

@@ -26,23 +26,23 @@ export default function UserInfoModal({ user, onClose, onUpdate }) {
   }, [user?.country, form.country]);
 
   const loadCityOptions = async (inputValue) => {
-    if (!inputValue || !form.country?.value) return [];
-    const geoUser = import.meta.env.VITE_GEONAMES_USER;
+  if (!inputValue || !form.country?.value) return [];
+  const geoUser = import.meta.env.VITE_GEONAMES_USER;
 
-    try {
-      const res = await fetch(
-        `https://secure.geonames.org/searchJSON?q=${inputValue}&country=${form.country.value}&maxRows=5&username=${geoUser}`
-      );
-      const data = await res.json();
-      return data.geonames.map(place => ({
-        label: place.name,
-        value: place.name,
-      }));
-    } catch (err) {
-      console.warn("🌍 Failed to load city options:", err);
-      return [];
-    }
-  };
+  try {
+    const res = await axios.get(
+      `https://secure.geonames.org/searchJSON?q=${inputValue}&country=${form.country.value}&maxRows=5&username=${geoUser}`
+    );
+    const data = res.data;
+    return data.geonames.map((place) => ({
+      label: place.name,
+      value: place.name,
+    }));
+  } catch (err) {
+    console.warn("🌍 Failed to load city options:", err);
+    return [];
+  }
+};
 
   const handleSubmit = async () => {
     try {
