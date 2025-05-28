@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import BookCard from "../components/BookCard";
 import ErrorModal from "../components/ErrorModal";
+import SwapConfirmModal from "../components/SwapConfirmModal";
 import "./SwapProposal.scss";
 
 export default function SwapPage() {
@@ -14,6 +15,9 @@ export default function SwapPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [mySelectedBook, setMySelectedBook] = useState(null);
   const [theirSelectedBook, setTheirSelectedBook] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [swapMessage, setSwapMessage] = useState("");
+
 
   useEffect(() => {
     if (errorMessage) {
@@ -28,32 +32,32 @@ export default function SwapPage() {
   }, [errorMessage]);
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const [mine, theirs] = await Promise.all([
-          axios.get("/api/books/mine?status=available", {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }),
-          axios.get(`/api/books/user/${userId}?status=available`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }),
-        ]);
-        setMyBooks(mine.data);
-        setTheirBooks(theirs.data);
-      } catch (err) {
-        console.error("Failed to load books", err);
-        setError("Could not load books.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBooks();
   }, [userId]);
+
+  const fetchBooks = async () => {
+    try {
+      const [mine, theirs] = await Promise.all([
+        axios.get("/api/books/mine?status=available", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }),
+        axios.get(`/api/books/users/${userId}?status=available`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }),
+      ]);
+      setMyBooks(mine.data);
+      setTheirBooks(theirs.data);
+    } catch (err) {
+      console.error("Failed to load books", err);
+      setError("Could not load books.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return loading || error ? (
     <p style={{ color: error ? "red" : "inherit", textAlign: "center" }}>
@@ -86,6 +90,7 @@ export default function SwapPage() {
               alert("Swap proposed successfully!");
               setMySelectedBook(null);
               setTheirSelectedBook(null);
+              await fetchBooks();
             } catch (err) {
               console.error("Failed to propose swap", err);
               setErrorMessage(

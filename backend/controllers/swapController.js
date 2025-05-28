@@ -37,7 +37,10 @@ export const createSwapProposal = async (req, res) => {
     if (existing) {
       return res
         .status(400)
-        .json({ message: "You have already proposed a swap with these books. Patience is a virtue!?" });
+        .json({
+          message:
+            "You have already proposed a swap with these books. Patience is a virtue!?",
+        });
     }
 
     const saved = await newProposal.save();
@@ -342,5 +345,38 @@ export const reportSwap = async (req, res) => {
   } catch (err) {
     console.error("Error reporting swap:", err);
     res.status(500).json({ message: "Server error reporting swap." });
+  }
+};
+
+export const cancelSwapProposal = async (req, res) => {
+  try {
+    const { swapId } = req.params;
+    const userId = req.user._id;
+
+    const swap = await SwapProposal.findById(swapId);
+    if (!swap) {
+      return res.status(404).json({ message: "Swap not found." });
+    }
+
+    if (String(swap.from) !== String(userId)) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to cancel this swap." });
+    }
+
+    if (swap.status !== "pending") {
+      return res
+        .status(400)
+        .json({ message: "Only pending swaps can be cancelled." });
+    }
+
+    swap.status = "cancelled";
+    swap.cancelledAt = new Date();
+    await swap.save();
+
+    res.json({ message: "Swap proposal cancelled successfully.", swap });
+  } catch (err) {
+    console.error("❌ Cancel failed:", err);
+    res.status(500).json({ message: "Something went wrong." });
   }
 };

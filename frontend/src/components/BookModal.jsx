@@ -2,7 +2,13 @@ import { useState } from "react";
 import axios from "axios";
 import "./BookModal.scss";
 
-export default function BookModal({ book, onSave, onClose, onDelete }) {
+export default function BookModal({
+  book,
+  onSave,
+  onClose,
+  onDelete,
+  onRevert,
+}) {
   const [isbn, setIsbn] = useState(book?.isbn || "");
   const isEdit = Boolean(book);
 
@@ -11,14 +17,11 @@ export default function BookModal({ book, onSave, onClose, onDelete }) {
     if (!raw) return;
     const cleaned = raw.replace(/[-\s]/g, ""); // strip hyphens & internal spaces
     try {
-      const { data } = await axios.get(
-        `/api/books/isbn/${cleaned}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const { data } = await axios.get(`/api/books/isbn/${cleaned}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       setForm((prev) => ({
         ...prev,
         ...data,
@@ -84,6 +87,9 @@ export default function BookModal({ book, onSave, onClose, onDelete }) {
             />
             <button onClick={handleFetchISBN}>Fetch</button>
           </div>
+          {isEdit && book?.status === "swapped" && (
+            <button onClick={() => onRevert(book._id)}>Make Available</button>
+          )}
           <button onClick={handleSubmit}>{isEdit ? "Save" : "Add"}</button>
           {isEdit && book?.status === "available" && (
             <button onClick={onDelete}>Delete</button>

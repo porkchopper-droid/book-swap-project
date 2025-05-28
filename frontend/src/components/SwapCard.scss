@@ -8,7 +8,7 @@
   box-shadow: $box-shadow-default;
   display: flex;
   flex-direction: column;
- justify-content: space-between;
+  justify-content: space-between;
   width: 200px;
   min-height: 350px;
 
@@ -27,7 +27,15 @@
     &.pending {
       color: $color-warning-text;
       background-color: $color-warning-bg;
+      pointer-events: auto;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $color-danger-bg;
+        color: $color-danger-text;
+      }
     }
+
     &.accepted {
       color: $color-success-text;
       background-color: $color-success-bg;
@@ -35,6 +43,10 @@
     &.declined {
       color: $color-danger-text;
       background-color: $color-danger-bg;
+    }
+    &.cancelled {
+      background-color: #e53935;
+      color: $color-text;
     }
     &.waiting {
       background-color: $color-warning-bg;

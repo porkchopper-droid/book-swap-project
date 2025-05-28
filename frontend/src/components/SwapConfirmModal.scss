@@ -1,0 +1,101 @@
+@use "../styles/variables.scss" as *;
+
+.swap-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  .swap-modal {
+    background: $color-card-bg;
+    color: $color-text;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: modalFadeIn 0.2s ease-out;
+
+    .book-preview {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+
+      img {
+        max-height: 100px;
+        object-fit: contain;
+        border-radius: 6px;
+      }
+
+      .swap-arrow {
+        font-size: 2rem;
+        // color: $color-accent;
+      }
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      resize: vertical;
+      padding: 10px;
+      font-size: 1rem;
+    //   border: 1px solid $color-border;
+      border-radius: 8px;
+    //   background-color: $color-bg-light;
+      color: $color-text;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+
+      button {
+        padding: 8px 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+
+        &:first-child {
+        //   background-color: $color-button;
+          color: white;
+
+          &:hover {
+            // background-color: darken($color-button, 10%);
+          }
+        }
+
+        &:last-child {
+          background-color: #aaa;
+          color: white;
+
+          &:hover {
+            background-color: #888;
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

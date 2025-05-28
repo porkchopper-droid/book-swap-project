@@ -174,7 +174,7 @@ export const getUserBooks = async (req, res) => {
 
 export const updateBook = async (req, res) => {
   try {
-    const updated = await Book.findByIdAndUpdate(req.params.id, req.body, {
+    const updated = await Book.findByIdAndUpdate(req.params.bookId, req.body, {
       new: true,
     });
     res.json(updated);
@@ -186,7 +186,7 @@ export const updateBook = async (req, res) => {
 
 export const deleteBook = async (req, res) => {
   try {
-    const book = await Book.findById(req.params.id);
+    const book = await Book.findById(req.params.bookId);
 
     if (!book) {
       return res.status(404).json({ message: "Book not found." });
@@ -203,5 +203,32 @@ export const deleteBook = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to delete book." });
+  }
+};
+
+export const revertBookToAvailable = async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.bookId);
+
+    if (!book) {
+      return res.status(404).json({ message: "Book not found." });
+    }
+
+    if (!book.user.equals(req.user._id)) {
+      return res.status(403).json({ message: "Not authorized." });
+    }
+
+    // Optional check: only allow if book is currently swapped
+    if (book.status !== "swapped") {
+      return res.status(400).json({ message: "Book is not in swapped status." });
+    }
+
+    book.status = "available";
+    await book.save();
+
+    res.json({ message: "Book reverted to available.", book });
+  } catch (err) {
+    console.error("Failed to revert book:", err);
+    res.status(500).json({ message: "Server error." });
   }
 };

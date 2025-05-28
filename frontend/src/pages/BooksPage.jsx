@@ -12,24 +12,45 @@ export default function BooksPage() {
   const [activeTab, setActiveTab] = useState("available");
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-  if (showModal || selectedBook) {
-    document.body.classList.add("scroll-lock");
-  } else {
-    document.body.classList.remove("scroll-lock");
-  }
-
-  return () => {
-    document.body.classList.remove("scroll-lock");
-  };
-}, [showModal, selectedBook]);
-
   const tabOptions = [
     { label: "📚 Available", value: "available" },
     { label: "📖 Booked", value: "booked" },
     { label: "🔁 Swapped", value: "swapped" },
     { label: "🚨 Reported", value: "reported" },
   ];
+
+  useEffect(() => {
+    if (showModal || selectedBook) {
+      document.body.classList.add("scroll-lock");
+    } else {
+      document.body.classList.remove("scroll-lock");
+    }
+
+    return () => {
+      document.body.classList.remove("scroll-lock");
+    };
+  }, [showModal, selectedBook]);
+
+  const fetchBooks = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(`/api/books/mine?status=${activeTab}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setBooks(data);
+    } catch (err) {
+      console.error("Failed to fetch books:", err);
+      setError("Could not load books.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBooks();
+  }, [activeTab]);
 
   const handleEditSave = async (updatedFields) => {
     try {
@@ -54,15 +75,11 @@ export default function BooksPage() {
 
   const handleAddSave = async (newBook) => {
     try {
-      const { data: createdBook } = await axios.post(
-        "/api/books",
-        newBook,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const { data: createdBook } = await axios.post("/api/books", newBook, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
       setBooks((prevBooks) => [...prevBooks, createdBook]);
       setShowModal(false);
@@ -72,6 +89,11 @@ export default function BooksPage() {
   };
 
   const handleDelete = async () => {
+    const confirm = window.confirm(
+      "Are you sure you want to delete this book?"
+    );
+    if (!confirm) return;
+    
     if (!selectedBook || selectedBook.status !== "available") return;
 
     try {
@@ -90,27 +112,27 @@ export default function BooksPage() {
     }
   };
 
-  useEffect(() => {
-  const fetchBooks = async () => {
+  const handleRevertToAvailable = async (bookId) => {
     try {
-      setLoading(true);
-      const { data } = await axios.get(`/api/books/mine?status=${activeTab}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      setBooks(data);
+      const { data } = await axios.patch(
+        `/api/books/${bookId}/available`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      setBooks((prevBooks) =>
+        prevBooks.map((b) => (b._id === bookId ? data.book : b))
+      );
+      setSelectedBook(null);
+      await fetchBooks(); // 🔁 pull fresh list for activeTab
     } catch (err) {
-      console.error("Failed to fetch books:", err);
-      setError("Could not load books.");
-    } finally {
-      setLoading(false);
+      console.error("Failed to revert book to available:", err);
     }
   };
-
-  fetchBooks();
-}, [activeTab]);
-
 
   return (
     <>
@@ -160,6 +182,7 @@ export default function BooksPage() {
               book={selectedBook} // null if adding
               onSave={selectedBook ? handleEditSave : handleAddSave}
               onDelete={handleDelete}
+              onRevert={handleRevertToAvailable}
               onClose={() => {
                 setSelectedBook(null);
                 setShowModal(false);

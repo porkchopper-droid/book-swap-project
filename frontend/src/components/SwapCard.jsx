@@ -12,6 +12,7 @@ export default function SwapCard({
   handleArchive,
   handleUnarchive,
   handleReport,
+  handleCancelSwap,
 }) {
   const [hoveringRibbon, setHoveringRibbon] = useState(false);
   const navigate = useNavigate();
@@ -29,6 +30,8 @@ export default function SwapCard({
     swap.status !== "completed" &&
     !hasUserMarkedCompleted &&
     (isUserFrom ? swap.toCompleted : swap.fromCompleted);
+
+  const showCancel = swap.status === "pending" && user._id === swap.from._id;
 
   let ribbonText = swap.status.toUpperCase();
   let ribbonClass = swap.status;
@@ -56,6 +59,11 @@ export default function SwapCard({
     ribbonClass = "expired";
   }
 
+  if (swap.status === "cancelled") {
+    ribbonText = "CANCELLED";
+    ribbonClass = "cancelled";
+  }
+
   return (
     <div className={`swap-card ${hasUserArchived ? "greyscale" : ""}`}>
       <p>
@@ -71,14 +79,22 @@ export default function SwapCard({
         onMouseEnter={() => setHoveringRibbon(true)}
         onMouseLeave={() => setHoveringRibbon(false)}
         onClick={() => {
-          if (showReport) {
-            // show confirmation / send report
+          if (showCancel) {
+            handleCancelSwap(swap._id);
+          } else if (showReport) {
+            // TODO: show confirmation / send report
             handleReport(swap._id);
           }
         }}
-        style={{ cursor: showReport ? "pointer" : "default" }}
+        style={{
+          cursor: showCancel || showReport ? "pointer" : "default",
+        }}
       >
-        {showReport && hoveringRibbon ? "REPORT" : ribbonText}
+        {hoveringRibbon && (showCancel || showReport)
+          ? showCancel
+            ? "CANCEL"
+            : "REPORT"
+          : ribbonText}
       </div>
 
       {swap.fromMessage && (
@@ -89,7 +105,8 @@ export default function SwapCard({
       {!hasUserArchived &&
         swap.status !== "declined" &&
         swap.status !== "pending" &&
-        swap.status !== "expired" && (
+        swap.status !== "expired" && 
+        swap.status !== "cancelled" && (
           <button onClick={() => navigate(`/chats/${swap._id}`)}>
             Go to Chat
           </button>

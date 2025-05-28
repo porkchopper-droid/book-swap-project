@@ -32,7 +32,7 @@ const swapProposalSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "accepted", "declined", "completed", "expired", "reported"],
+      enum: ["pending", "accepted", "declined", "completed", "expired", "reported", "cancelled"],
       default: "pending",
     },
     fromCompleted: { type: Boolean, default: false },
@@ -43,6 +43,7 @@ const swapProposalSchema = new mongoose.Schema(
     completedAt: { type: Date, default: null },
     expiredAt: { type: Date, default: null },
     reportedAt: {type: Date, default: null},
+    cancelledAt: { type: Date, default: null },
     fromMessage: { type: String, trim: true },
     toMessage: { type: String, trim: true },
   },

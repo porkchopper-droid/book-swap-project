@@ -8,6 +8,7 @@ import {
   markSwapAsArchived,
   unarchiveSwap,
   reportSwap,
+  cancelSwapProposal
 } from "../controllers/swapController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 
@@ -21,5 +22,6 @@ router.patch("/:swapId/complete", protect, markSwapAsCompleted);
 router.patch("/:swapId/archive", protect, markSwapAsArchived);
 router.patch("/:swapId/unarchive", protect, unarchiveSwap);
 router.patch("/:swapId/report", protect, reportSwap);
+router.patch("/:swapId/cancel", protect, cancelSwapProposal)
 
 export default router;

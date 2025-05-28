@@ -19,6 +19,7 @@ export default function SwapsPage() {
     { label: "📦 Archived", value: "archived" },
     { label: "⏳ Expired", value: "expired" },
     { label: "🚨 Reported", value: "reported" },
+    { label: "🚫 Cancelled", value: "cancelled" },
   ];
 
   const filteredSwaps = swaps.filter((swap) => {
@@ -38,6 +39,8 @@ export default function SwapsPage() {
         return swap.status === "expired";
       case "reported":
         return swap.status === "reported";
+      case "cancelled":
+        return swap.status === "cancelled";
       default:
         return true; // fallback
     }
@@ -142,6 +145,11 @@ export default function SwapsPage() {
   };
 
   const handleReport = async (swapId) => {
+    const confirm = window.confirm(
+      "Are you sure you want to report this swap?"
+    );
+    if (!confirm) return;
+
     try {
       await axios.patch(`/api/swaps/${swapId}/report`, null, {
         headers: {
@@ -150,6 +158,27 @@ export default function SwapsPage() {
       });
       fetchSwaps();
     } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleCancelSwap = async (swapId) => {
+    const confirm = window.confirm(
+      "Are you sure you want to cancel this swap?"
+    );
+    if (!confirm) return;
+
+    try {
+      await axios.patch(`/api/swaps/${swapId}/cancel`, null, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      // Remove or update swap in UI
+      setSwaps((prev) => prev.filter((s) => s._id !== swapId));
+    } catch (err) {
+      alert("Failed to cancel swap.");
       console.error(err);
     }
   };
@@ -188,6 +217,7 @@ export default function SwapsPage() {
                   handleArchive={handleArchive}
                   handleUnarchive={handleUnarchive}
                   handleReport={handleReport}
+                  handleCancelSwap={handleCancelSwap}
                 />
               ))
             )}
