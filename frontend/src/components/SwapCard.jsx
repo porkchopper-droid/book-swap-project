@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import SwapModal from "./SwapModal";
 
 import "./SwapCard.scss";
 
@@ -17,6 +18,10 @@ export default function SwapCard({
   const [hoveringRibbon, setHoveringRibbon] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  const [showResolveModal, setShowResolveModal] = useState(false);
+  const [activeSwap, setActiveSwap] = useState(null);
+  const [resolveMessage, setResolveMessage] = useState("");
 
   // testing who is who during the swap
   const isUserFrom = user._id === swap.from._id;
@@ -105,7 +110,7 @@ export default function SwapCard({
       {!hasUserArchived &&
         swap.status !== "declined" &&
         swap.status !== "pending" &&
-        swap.status !== "expired" && 
+        swap.status !== "expired" &&
         swap.status !== "cancelled" && (
           <button onClick={() => navigate(`/chats/${swap._id}`)}>
             Go to Chat
@@ -113,8 +118,16 @@ export default function SwapCard({
         )}
       {swap.status === "pending" && user?._id === swap.to._id && (
         <>
-          <button onClick={() => handleAccept(swap._id)}>Accept</button>
-          <button onClick={() => handleDecline(swap._id)}>Decline</button>
+          <button
+            className="resolve-button"
+            onClick={() => {
+              setActiveSwap(swap); // full swap object
+              setResolveMessage(""); // reset message
+              setShowResolveModal(true);
+            }}
+          >
+            Resolve
+          </button>
         </>
       )}
 
@@ -130,6 +143,22 @@ export default function SwapCard({
 
       {swap.status === "completed" && hasUserArchived && (
         <button onClick={() => handleUnarchive(swap._id)}>Unarchive</button>
+      )}
+      {showResolveModal && activeSwap && (
+        <SwapModal
+          myBook={activeSwap.requestedBook}
+          theirBook={activeSwap.offeredBook}
+          onClose={() => setShowResolveModal(false)}
+          onAccept={() =>
+            handleAccept(activeSwap._id)
+          }
+          onDecline={() =>
+            handleDecline(activeSwap._id)
+          }
+          message={resolveMessage}
+          setMessage={setResolveMessage}
+            mode="resolve"
+        />
       )}
     </div>
   );

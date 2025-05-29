@@ -106,10 +106,6 @@
     &:hover {
       background-color: $color-button-hover;
     }
-
-    &:not(:last-child) {
-      margin-bottom: 5px;
-    }
   }
 }
 

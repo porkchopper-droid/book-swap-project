@@ -2,8 +2,8 @@
 @use "sass:color";
 
 .book-card {
-  background: grey;
-  border: 1px solid #ccc;
+  background-color: $color-book-card;
+  border: 0.5px solid #ccc;
   border-radius: $border-radius;
   width: 200px;
   padding: $padding-mini;
@@ -20,13 +20,14 @@
     .book-cover {
       width: 100%;
       height: auto;
-      border-radius: $border-radius-mini;
+      border-top-left-radius: $border-radius-mini;
+      border-top-right-radius: $border-radius-mini;
       object-fit: cover;
       display: block;
     }
 
-    .swap-status-ribbon {
-      position: absolute;
+    .book-status-ribbon {
+      position: relative;
       bottom: 0px;
       width: 100%;
       text-align: center;
@@ -35,7 +36,6 @@
       z-index: 2;
       pointer-events: none;
       letter-spacing: 1px;
-      opacity: 1;
       border-bottom-left-radius: $border-radius-mini;
       border-bottom-right-radius: $border-radius-mini;
       backdrop-filter: blur(4px); // nice glass effect ✨
@@ -103,6 +103,15 @@
   background-color: #29572d;
 }
 
+.book-card.read-only {
+  cursor: default;
+
+  &:hover {
+    box-shadow: none;
+    background-color: inherit;
+  }
+}
+
 @keyframes scroll-title {
   0% {
     transform: translateX(0);
@@ -111,3 +120,4 @@
     transform: translateX(-100%);
   }
 }
+

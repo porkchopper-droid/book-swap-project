@@ -1,9 +1,12 @@
+@use "sass:color";
+
 /* ------------------- COLORS ------------------- */
 $color-bg: #474747;
 $color-text: rgba(255, 255, 255, 0.87);
-$color-heading: #fefefe;
+$color-heading: white;
 $color-border: #ccc;
-$color-placeholder: white;
+$color-placeholder: $color-text;
+$color-book-card: grey;
 
 $color-card-bg: #595959;
 $color-box-bg: #646464;
@@ -27,6 +30,9 @@ $color-avatar-fallback: #888; // CHECKED
 $color-button-bg: #d4964a;
 $color-button-hover: #f0c14b;
 
+$color-textarea: color.adjust($color-box-bg, $lightness: 30%);
+$color-textarea-text: color.adjust($color-box-bg, $lightness: -20%);
+
 /* ------------------- SPACING ------------------- */
 $gap-mini: 10px;
 $gap-default: 20px;
@@ -35,7 +41,7 @@ $padding-default: 20px;
 $margin-default: 20px;
 $margin-mini: 10px;
 $border-radius: 15px;
-$border-radius-mini: 5px;
+$border-radius-mini: 6px;
 
 /* ------------------- FONT ------------------- */
 $font-family-default: system-ui, Avenir, Helvetica, Arial, sans-serif;

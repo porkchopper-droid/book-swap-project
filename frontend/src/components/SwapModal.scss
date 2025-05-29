@@ -1,0 +1,102 @@
+@use "../styles/variables.scss" as *;
+@use "sass:color";
+
+.swap-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  .swap-modal {
+    background: $color-card-bg;
+    color: $color-text;
+    border: 0.5px solid $color-border;
+    padding: $padding-default;
+    border-radius: $border-radius;
+    display: flex;
+    flex-direction: column;
+    gap: $gap-default;
+    animation: modalFadeIn 0.2s ease-out;
+
+    .book-preview {
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+
+      .swap-arrow {
+        font-size: calc($font-size-base * 4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    textarea {
+      width: 500px;
+      min-height: 100px;
+      resize: vertical;
+      padding: $padding-mini;
+      font-size: $font-size-base;
+      border-radius: $border-radius-mini;
+      background-color: $color-book-card;
+      color: $color-text;
+
+      &::placeholder {
+        color: $color-placeholder;
+        opacity: 1;
+      }
+
+      &:focus {
+        outline: none;
+        border: 0.5px solid $color-border;
+        box-shadow: none;
+      }
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: space-around;
+
+      button {
+        padding: 8px 16px;
+        background-color: inherit;
+        color: $color-text;
+        border: 0.5px solid $color-border;
+        font-weight: bold;
+        border-radius: $border-radius-mini;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .button-accept:hover {
+        background-color: $color-button-bg;
+      }
+
+      .button-decline:hover {
+        background-color: $color-danger-text;
+        color: $color-danger-bg;
+      }
+
+      .button-cancel:hover {
+        background-color: $color-box-bg;
+      }
+    }
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

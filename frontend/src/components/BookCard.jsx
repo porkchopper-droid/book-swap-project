@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import "./BookCard.scss";
 
-export default function BookCard({ book, onClick, selected, confirmed }) {
+export default function BookCard({
+  book,
+  onClick,
+  selected,
+  confirmed,
+  readOnly = false,
+}) {
   const titleRef = useRef();
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -14,11 +20,11 @@ export default function BookCard({ book, onClick, selected, confirmed }) {
   }, [book.title]);
 
   return (
-    <div
+    <div // CRAZY 🤪
       className={`book-card ${
         selected ? (confirmed ? "selected-confirmed" : "selected-pending") : ""
-      }`}
-      onClick={() => onClick(book)}
+      } ${readOnly ? "read-only" : ""}`}
+      onClick={!readOnly && onClick ? () => onClick(book) : undefined}
     >
       <div className="image-wrapper">
         <img
@@ -31,7 +37,7 @@ export default function BookCard({ book, onClick, selected, confirmed }) {
         {/* 💡 Only show the ribbon after image has loaded */}
         {isImageLoaded && (
           <div
-            className={`swap-status-ribbon ${
+            className={`book-status-ribbon ${
               book.pendingSwap ? "pending" : book.status
             }`}
           >

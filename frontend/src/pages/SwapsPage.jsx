@@ -9,6 +9,8 @@ export default function SwapsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("active");
+  const [selectedSwap, setSelectedSwap] = useState(null); // for modal
+
 
   const { user } = useAuth();
 
@@ -66,6 +68,11 @@ export default function SwapsPage() {
       setLoading(false);
     }
   };
+
+  const handleResolve = (swapId) => {
+  const swap = swaps.find((s) => s._id === swapId);
+  if (swap) setSelectedSwap(swap);
+};
 
   const handleAccept = async (swapId) => {
     try {
@@ -213,6 +220,7 @@ export default function SwapsPage() {
                   swap={swap}
                   handleAccept={handleAccept}
                   handleDecline={handleDecline}
+                  handleResolve={handleResolve}
                   handleMarkCompleted={handleMarkCompleted}
                   handleArchive={handleArchive}
                   handleUnarchive={handleUnarchive}

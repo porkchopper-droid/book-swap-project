@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import BookCard from "../components/BookCard";
 import ErrorModal from "../components/ErrorModal";
-import SwapConfirmModal from "../components/SwapConfirmModal";
+import SwapConfirmModal from "../components/SwapModal";
 import "./SwapProposal.scss";
 
 export default function SwapPage() {
@@ -17,7 +17,6 @@ export default function SwapPage() {
   const [theirSelectedBook, setTheirSelectedBook] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [swapMessage, setSwapMessage] = useState("");
-
 
   useEffect(() => {
     if (errorMessage) {
@@ -59,6 +58,36 @@ export default function SwapPage() {
     }
   };
 
+  const handleConfirmProposal = async () => {
+    try {
+      const res = await axios.post(
+        "/api/swaps",
+        {
+          to: userId,
+          offeredBook: mySelectedBook._id,
+          requestedBook: theirSelectedBook._id,
+          fromMessage: swapMessage,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      alert("Swap proposed successfully!");
+      setMySelectedBook(null);
+      setTheirSelectedBook(null);
+      setSwapMessage("");
+      setShowModal(false);
+      await fetchBooks();
+    } catch (err) {
+      console.error("Failed to propose swap", err);
+      setErrorMessage(err.response?.data?.message || "Something went wrong.");
+      setShowModal(false);
+    }
+  };
+
   return loading || error ? (
     <p style={{ color: error ? "red" : "inherit", textAlign: "center" }}>
       {error || "Loading swap candidates..."}
@@ -70,35 +99,8 @@ export default function SwapPage() {
       <div className="swap-controls">
         <button
           className={mySelectedBook && theirSelectedBook ? "active" : ""}
-          onClick={async () => {
-            try {
-              const res = await axios.post(
-                "/api/swaps",
-                {
-                  to: userId,
-                  offeredBook: mySelectedBook._id,
-                  requestedBook: theirSelectedBook._id,
-                  fromMessage: "", // add a message UI !!!!!!!!!!
-                },
-                {
-                  headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  },
-                }
-              );
-
-              alert("Swap proposed successfully!");
-              setMySelectedBook(null);
-              setTheirSelectedBook(null);
-              await fetchBooks();
-            } catch (err) {
-              console.error("Failed to propose swap", err);
-              setErrorMessage(
-                err.response?.data?.message || "Something went wrong."
-              );
-            }
-          }}
           disabled={!mySelectedBook || !theirSelectedBook}
+          onClick={() => setShowModal(true)}
         >
           🔄 Propose Swap
         </button>
@@ -158,6 +160,16 @@ export default function SwapPage() {
         <ErrorModal
           message={errorMessage}
           onClose={() => setErrorMessage("")}
+        />
+      )}
+      {showModal && (
+        <SwapConfirmModal
+          myBook={mySelectedBook}
+          theirBook={theirSelectedBook}
+          message={swapMessage}
+          setMessage={setSwapMessage}
+          onClose={() => setShowModal(false)}
+          onConfirm={handleConfirmProposal}
         />
       )}
     </>

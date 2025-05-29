@@ -4,7 +4,6 @@
 .swap-controls {
   display: flex;
   gap: 15px;
-  margin-bottom: 25px;
 
   button {
     padding: 8px 16px;
@@ -14,12 +13,7 @@
     cursor: pointer;
     font-weight: bold;
     color: white;
-    // transition: background-color 0.2s ease, color 0.2s ease;
-
-    &.active {
-    //   background-color: #d4964a;
-      color: $color-text;
-    }
+    transition: background-color 0.2s ease, color 0.2s ease;
 
     &:disabled {
       opacity: 0.4;
