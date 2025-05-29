@@ -12,6 +12,29 @@
   width: 200px;
   min-height: 350px;
 
+  .swap-titles {
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .swap-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: $gap-mini;
+  }
+
+  &.greyscale {
+    filter: grayscale(100%);
+    opacity: 0.6;
+
+    .unarchive-button {
+      filter: none !important;
+      opacity: 1 !important;
+      isolation: isolate;
+      z-index: 1;
+    }
+  }
+
   .swap-status-ribbon {
     position: relative;
     top: 0;
@@ -92,6 +115,9 @@
   .swap-message {
     font-size: small;
     font-style: italic;
+    word-break: break-word; // allows breaking long words
+    white-space: pre-wrap; //  respects line breaks and wraps long content
+    overflow-wrap: anywhere; // breaks even long strings without spaces
   }
 
   button {
@@ -106,17 +132,5 @@
     &:hover {
       background-color: $color-button-hover;
     }
-  }
-}
-
-.swap-card.greyscale {
-  filter: grayscale(100%);
-  opacity: 0.6;
-
-  .unarchive-button {
-    filter: none !important;
-    opacity: 1 !important;
-    isolation: isolate;
-    z-index: 1;
   }
 }

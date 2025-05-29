@@ -35,12 +35,10 @@ export const createSwapProposal = async (req, res) => {
       ],
     });
     if (existing) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "You have already proposed a swap with these books. Patience is a virtue!?",
-        });
+      return res.status(400).json({
+        message:
+          "You have already proposed a swap with these books. Patience is a virtue!?",
+      });
     }
 
     const saved = await newProposal.save();
@@ -52,10 +50,12 @@ export const createSwapProposal = async (req, res) => {
 };
 
 export const respondToSwapProposal = async (req, res) => {
+    console.log("Request body:", req.body);
+   console.log("Swap ID from params:", req.params.swapId, typeof req.params.swapId);
   try {
     const { swapId } = req.params;
     const { response, toMessage } = req.body; // response = "accept" or "decline"
-
+    console.log("swapId being passed:", swapId, typeof swapId);
     if (!["accept", "decline"].includes(response)) {
       return res.status(400).json({ message: "Invalid response." });
     }
@@ -77,6 +77,10 @@ export const respondToSwapProposal = async (req, res) => {
 
     if (response === "decline") {
       proposal.status = "declined";
+      console.log("Attached toMessage:", toMessage);
+      if (toMessage) {
+        proposal.toMessage = toMessage;
+      }
       await proposal.save();
       return res.json({ message: "Proposal declined.", proposal });
     }

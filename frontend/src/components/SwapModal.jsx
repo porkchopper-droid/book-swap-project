@@ -2,7 +2,10 @@ import { useEffect } from "react";
 import BookCard from "./BookCard.jsx";
 import "./SwapModal.scss";
 
+
+
 export default function SwapModal({
+  
   myBook,
   theirBook,
   onClose,
@@ -13,6 +16,8 @@ export default function SwapModal({
   setMessage,
   mode = "propose",
 }) {
+
+  
   useEffect(() => {
     document.body.classList.add("scroll-lock");
     return () => {
@@ -33,7 +38,7 @@ export default function SwapModal({
           placeholder="Add a message (optional)..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          maxLength={300}
+          maxLength={100}
         />
 
         <div className="modal-actions">

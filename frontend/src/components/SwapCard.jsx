@@ -7,8 +7,7 @@ import "./SwapCard.scss";
 
 export default function SwapCard({
   swap,
-  handleAccept,
-  handleDecline,
+  onResolve,
   handleMarkCompleted,
   handleArchive,
   handleUnarchive,
@@ -18,10 +17,6 @@ export default function SwapCard({
   const [hoveringRibbon, setHoveringRibbon] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
-
-  const [showResolveModal, setShowResolveModal] = useState(false);
-  const [activeSwap, setActiveSwap] = useState(null);
-  const [resolveMessage, setResolveMessage] = useState("");
 
   // testing who is who during the swap
   const isUserFrom = user._id === swap.from._id;
@@ -71,9 +66,8 @@ export default function SwapCard({
 
   return (
     <div className={`swap-card ${hasUserArchived ? "greyscale" : ""}`}>
-      <p>
-        <strong>{swap.offeredBook.title}</strong> ⇄{" "}
-        <strong>{swap.requestedBook.title}</strong>
+      <p className="swap-titles">
+        {swap.offeredBook.title} ⇄ {swap.requestedBook.title}
       </p>
       {/* <p>
         {swap.from.username} ⇄ {swap.to.username}
@@ -101,64 +95,48 @@ export default function SwapCard({
             : "REPORT"
           : ribbonText}
       </div>
-
-      {swap.fromMessage && (
-        <p className="swap-message">💬 {swap.fromMessage}</p>
-      )}
-      {swap.toMessage && <p className="swap-message">💬 {swap.toMessage}</p>}
-
-      {!hasUserArchived &&
-        swap.status !== "declined" &&
-        swap.status !== "pending" &&
-        swap.status !== "expired" &&
-        swap.status !== "cancelled" && (
-          <button onClick={() => navigate(`/chats/${swap._id}`)}>
-            Go to Chat
-          </button>
+      <div className="swap-messages">
+        {swap.fromMessage && (
+          <p className="swap-message">💬 {swap.fromMessage}</p>
         )}
-      {swap.status === "pending" && user?._id === swap.to._id && (
-        <>
-          <button
-            className="resolve-button"
-            onClick={() => {
-              setActiveSwap(swap); // full swap object
-              setResolveMessage(""); // reset message
-              setShowResolveModal(true);
-            }}
-          >
-            Resolve
-          </button>
-        </>
-      )}
+        {swap.toMessage && <p className="swap-message">💬 {swap.toMessage}</p>}
+      </div>
+      {swap.status !== "declined" && swap.status !== "cancelled" && (
+        <div className="swap-buttons">
+          {!hasUserArchived &&
+            swap.status !== "declined" &&
+            swap.status !== "pending" &&
+            swap.status !== "expired" &&
+            swap.status !== "cancelled" && (
+              <button onClick={() => navigate(`/chats/${swap._id}`)}>
+                Go to Chat
+              </button>
+            )}
+          {swap.status === "pending" && user?._id === swap.to._id && (
+            <>
+              <button
+                className="resolve-button"
+                onClick={() => onResolve(swap._id)}
+              >
+                Resolve
+              </button>
+            </>
+          )}
 
-      {swap.status === "accepted" && !hasUserMarkedCompleted && (
-        <button onClick={() => handleMarkCompleted(swap._id)}>
-          Mark as Completed
-        </button>
-      )}
+          {swap.status === "accepted" && !hasUserMarkedCompleted && (
+            <button onClick={() => handleMarkCompleted(swap._id)}>
+              Mark as Completed
+            </button>
+          )}
 
-      {swap.status === "completed" && !hasUserArchived && (
-        <button onClick={() => handleArchive(swap._id)}>Archive</button>
-      )}
+          {swap.status === "completed" && !hasUserArchived && (
+            <button onClick={() => handleArchive(swap._id)}>Archive</button>
+          )}
 
-      {swap.status === "completed" && hasUserArchived && (
-        <button onClick={() => handleUnarchive(swap._id)}>Unarchive</button>
-      )}
-      {showResolveModal && activeSwap && (
-        <SwapModal
-          myBook={activeSwap.requestedBook}
-          theirBook={activeSwap.offeredBook}
-          onClose={() => setShowResolveModal(false)}
-          onAccept={() =>
-            handleAccept(activeSwap._id)
-          }
-          onDecline={() =>
-            handleDecline(activeSwap._id)
-          }
-          message={resolveMessage}
-          setMessage={setResolveMessage}
-            mode="resolve"
-        />
+          {swap.status === "completed" && hasUserArchived && (
+            <button onClick={() => handleUnarchive(swap._id)}>Unarchive</button>
+          )}
+        </div>
       )}
     </div>
   );

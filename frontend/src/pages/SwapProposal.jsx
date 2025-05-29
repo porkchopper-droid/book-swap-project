@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import BookCard from "../components/BookCard";
 import ErrorModal from "../components/ErrorModal";
-import SwapConfirmModal from "../components/SwapModal";
+import SwapModal from "../components/SwapModal";
 import "./SwapProposal.scss";
 
 export default function SwapPage() {
@@ -60,7 +60,7 @@ export default function SwapPage() {
 
   const handleConfirmProposal = async () => {
     try {
-      const res = await axios.post(
+      await axios.post(
         "/api/swaps",
         {
           to: userId,
@@ -163,7 +163,7 @@ export default function SwapPage() {
         />
       )}
       {showModal && (
-        <SwapConfirmModal
+        <SwapModal
           myBook={mySelectedBook}
           theirBook={theirSelectedBook}
           message={swapMessage}

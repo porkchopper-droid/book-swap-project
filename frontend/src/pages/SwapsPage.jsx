@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import SwapCard from "../components/SwapCard";
+import SwapModal from "../components/SwapModal";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import "./SwapsPage.scss";
@@ -10,7 +11,7 @@ export default function SwapsPage() {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("active");
   const [selectedSwap, setSelectedSwap] = useState(null); // for modal
-
+  const [swapResponseMessage, setSwapResponseMessage] = useState("");
 
   const { user } = useAuth();
 
@@ -23,6 +24,10 @@ export default function SwapsPage() {
     { label: "🚨 Reported", value: "reported" },
     { label: "🚫 Cancelled", value: "cancelled" },
   ];
+
+  const swapId = selectedSwap?._id;
+  const myBook = selectedSwap?.requestedBook;
+  const theirBook = selectedSwap?.offeredBook;
 
   const filteredSwaps = swaps.filter((swap) => {
     const isUserFrom = user._id === swap.from._id;
@@ -70,9 +75,9 @@ export default function SwapsPage() {
   };
 
   const handleResolve = (swapId) => {
-  const swap = swaps.find((s) => s._id === swapId);
-  if (swap) setSelectedSwap(swap);
-};
+    const swap = swaps.find((s) => s._id === swapId);
+    if (swap) setSelectedSwap(swap);
+  };
 
   const handleAccept = async (swapId) => {
     try {
@@ -80,6 +85,7 @@ export default function SwapsPage() {
         `/api/swaps/${swapId}/respond`,
         {
           response: "accept",
+          toMessage: swapResponseMessage,
         },
         {
           headers: {
@@ -88,6 +94,8 @@ export default function SwapsPage() {
         }
       );
       fetchSwaps();
+      setSelectedSwap(null);
+      setSwapResponseMessage("");
     } catch (err) {
       console.error(err);
     }
@@ -99,6 +107,7 @@ export default function SwapsPage() {
         `/api/swaps/${swapId}/respond`,
         {
           response: "decline",
+          toMessage: swapResponseMessage,
         },
         {
           headers: {
@@ -107,6 +116,8 @@ export default function SwapsPage() {
         }
       );
       fetchSwaps();
+      setSelectedSwap(null);
+      setSwapResponseMessage("");
     } catch (err) {
       console.error(err);
     }
@@ -218,9 +229,7 @@ export default function SwapsPage() {
                 <SwapCard
                   key={swap._id}
                   swap={swap}
-                  handleAccept={handleAccept}
-                  handleDecline={handleDecline}
-                  handleResolve={handleResolve}
+                  onResolve={handleResolve}
                   handleMarkCompleted={handleMarkCompleted}
                   handleArchive={handleArchive}
                   handleUnarchive={handleUnarchive}
@@ -230,6 +239,22 @@ export default function SwapsPage() {
               ))
             )}
           </div>
+        </>
+      )}
+
+      {selectedSwap && (
+        <>
+          <SwapModal
+            swap={selectedSwap}
+            myBook={myBook}
+            theirBook={theirBook}
+            message={swapResponseMessage}
+            setMessage={setSwapResponseMessage}
+            onAccept={() => handleAccept(swapId)}
+            onDecline={() => handleDecline(swapId)}
+            onClose={() => setSelectedSwap(null)}
+            mode="resolve"
+          />
         </>
       )}
     </>
