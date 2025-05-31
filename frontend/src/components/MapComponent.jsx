@@ -46,6 +46,16 @@ export default function MapComponent({
   const [users, setUsers] = useState([]);
   const [tempPosition, setTempPosition] = useState(null);
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const filteredUsers = searchTerm
+    ? users.filter((user) =>
+        user.books.some(
+          (book) =>
+            book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            book.author.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      )
+    : users;
 
   useEffect(() => {
     const fetchMapUsers = async () => {
@@ -109,11 +119,10 @@ export default function MapComponent({
         center={mapCenter}
         zoom={zoom}
         scrollWheelZoom
+        zoomControl={false}
+        attributionControl={false}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <RecenterMap center={mapCenter} zoom={zoom} />
         <Marker
           icon={redIcon}
@@ -131,7 +140,7 @@ export default function MapComponent({
               : {}
           }
         />
-        {users.map((user) => {
+        {filteredUsers.map((user) => {
           const [lon, lat] = user.location.coordinates;
 
           if (user.isCurrentUser) return null;
@@ -149,8 +158,8 @@ export default function MapComponent({
                       <span className="and-more">...and more</span>
                     )}
                   </div>
-                  <button onClick={() => navigate(`/swap/${user._id}`)}>
-                    🔄 View All Books & Swap
+                  <button className="preview-popup-button" onClick={() => navigate(`/swap/${user._id}`)}>
+                    🔄 View All Books
                   </button>
                 </div>
               </Popup>
@@ -158,6 +167,9 @@ export default function MapComponent({
           );
         })}
       </MapContainer>
+      <div className="custom-attribution">
+        © <a href="https://www.openstreetmap.org/">OpenStreetMap</a>
+      </div>
 
       {!editLocation && (
         <button className="edit-location-btn" onClick={handleStartEdit}>
@@ -178,6 +190,12 @@ export default function MapComponent({
             ❌ Cancel
           </button>
         ))}
+      <input
+        type="text"
+        placeholder="🔍 Search by book title or author..."
+        className="map-search-bar"
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
     </div>
   );
 }

@@ -111,14 +111,20 @@
       opacity: 0.4;
     }
   }
-
-  .swap-message {
+.swap-messages {
+  display: flex;
+  flex-direction: column;
+  gap: $gap-mini;
+  
+.swap-message {
     font-size: small;
     font-style: italic;
     word-break: break-word; // allows breaking long words
     white-space: pre-wrap; //  respects line breaks and wraps long content
     overflow-wrap: anywhere; // breaks even long strings without spaces
   }
+}
+  
 
   button {
     padding: 6px 12px;

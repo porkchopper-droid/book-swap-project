@@ -19,6 +19,7 @@ export const createSwapProposal = async (req, res) => {
       toAccepted: false,
       status: "pending", // BY DEFAULT, DUH!!
       fromMessage,
+      fromMessageCreatedAt: new Date(),
     });
 
     const existing = await SwapProposal.findOne({
@@ -50,8 +51,12 @@ export const createSwapProposal = async (req, res) => {
 };
 
 export const respondToSwapProposal = async (req, res) => {
-    console.log("Request body:", req.body);
-   console.log("Swap ID from params:", req.params.swapId, typeof req.params.swapId);
+  console.log("Request body:", req.body);
+  console.log(
+    "Swap ID from params:",
+    req.params.swapId,
+    typeof req.params.swapId
+  );
   try {
     const { swapId } = req.params;
     const { response, toMessage } = req.body; // response = "accept" or "decline"
@@ -80,6 +85,7 @@ export const respondToSwapProposal = async (req, res) => {
       console.log("Attached toMessage:", toMessage);
       if (toMessage) {
         proposal.toMessage = toMessage;
+        proposal.toMessageCreatedAt = new Date();
       }
       await proposal.save();
       return res.json({ message: "Proposal declined.", proposal });
@@ -91,6 +97,7 @@ export const respondToSwapProposal = async (req, res) => {
     proposal.acceptedAt = new Date(); // timestamp locked
     if (toMessage) {
       proposal.toMessage = toMessage;
+      proposal.toMessageCreatedAt = new Date();
     }
 
     await proposal.save();

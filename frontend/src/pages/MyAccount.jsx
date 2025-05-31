@@ -7,6 +7,7 @@ import "./MyAccount.scss";
 export default function MyAccount() {
   const [showModal, setShowModal] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
+  const [stats, setStats] = useState(null);
   const [forceReload, setForceReload] = useState(false);
   const [editLocation, setEditLocation] = useState(false);
 
@@ -40,6 +41,23 @@ export default function MyAccount() {
     }
   };
 
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      try {
+        const res = await axios.get("/api/users/me/stats", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setStats(res.data);
+      } catch (err) {
+        console.error("Failed to fetch user stats:", err);
+      }
+    };
+
+    fetchUserStats();
+  }, []);
+
   if (!userInfo) return <p>Loading...</p>;
 
   return (
@@ -58,15 +76,44 @@ export default function MyAccount() {
         <div className="my-stats">
           <h2>📊 My Stats</h2>
           <ul>
-            <li>Books available: 12</li>
-            <li>Swaps made: 5</li>
-            <li>Distance traveled: 834 km</li>
+            <li>Books available: {stats ? stats.booksCount : "Loading..."}</li>
+            <li>
+              Swaps made: {stats ? stats.totalBooksExchanged : "Loading..."}
+            </li>
+            <li>Favorite genre: {stats?.favoriteGenre || "N/A"}</li>
+            <li>
+              Oldest book:{" "}
+              {stats?.oldestBook
+                ? `${stats.oldestBook.title} (${stats.oldestBook.year})`
+                : "N/A"}
+            </li>
+            <li>
+              Most popular book:{" "}
+              {stats?.mostPopularBook
+                ? `${stats.mostPopularBook.title} (${stats.mostPopularBook.swapCount} swaps)`
+                : "N/A"}
+            </li>
+            <li>
+              Last swap date:{" "}
+              {stats?.lastSwapDate
+                ? new Date(stats.lastSwapDate).toLocaleDateString()
+                : "N/A"}
+            </li>
           </ul>
         </div>
-        <div className="my-info">
-          <h2>👤 My info</h2>
-          <button onClick={() => setShowModal(true)}>✏️ Edit Info</button>
 
+        <div className="my-info">
+          <div className="my-info-edit">
+            <h2>👤 My info</h2>
+            <button
+              aria-label="Edit Info"
+              title="Edit Info"
+              className="my-info-edit-button"
+              onClick={() => setShowModal(true)}
+            >
+              ✏️
+            </button>
+          </div>
           <ul>
             <li>
               <strong>Username:</strong> {userInfo.username}
@@ -79,6 +126,20 @@ export default function MyAccount() {
               {userInfo.location.coordinates.join(", ")}
             </li>
           </ul>
+        </div>
+        <div className="badges-container">
+          <h2>🏅 Achievements</h2>
+          <div className="badges">
+            {stats?.badges.map((badge, idx) => (
+              <div
+                key={idx}
+                className={`badge ${badge.achieved ? "achieved" : "locked"}`}
+                title={badge.name}
+              >
+                {badge.name.slice(-2)}
+              </div>
+            ))}
+          </div>
         </div>
       </aside>
 

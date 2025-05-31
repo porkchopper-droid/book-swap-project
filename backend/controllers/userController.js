@@ -1,4 +1,7 @@
 import User from "../models/User.js";
+import Book from "../models/Book.js";
+import SwapProposal from "../models/SwapProposal.js";
+import bcrypt from "bcrypt";
 
 export const getCurrentUserInfo = async (req, res) => {
   try {
@@ -19,10 +22,7 @@ export const updateUserLocation = async (req, res) => {
   try {
     const { lat, lon } = req.body;
 
-    if (
-      typeof lat !== "number" ||
-      typeof lon !== "number"
-    ) {
+    if (typeof lat !== "number" || typeof lon !== "number") {
       return res.status(400).json({ message: "Missing or invalid lat/lon." });
     }
 
@@ -48,7 +48,6 @@ export const updateUserLocation = async (req, res) => {
     res.status(500).json({ message: "Failed to update location." });
   }
 };
-
 
 export const updateUserProfile = async (req, res) => {
   try {
@@ -94,9 +93,103 @@ export const updateUserProfile = async (req, res) => {
     }).select("username email city country location");
 
     res.json(user);
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to update profile" });
+  }
+};
+
+export const getUserStats = async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    // Last Swap Date
+    const lastCompletedSwap = await SwapProposal.findOne({
+      $or: [{ from: userId }, { to: userId }],
+      status: "completed",
+    })
+      .sort({ completedAt: -1 })
+      .limit(1);
+
+    const lastSwapDate = lastCompletedSwap?.completedAt || null;
+
+    // Total Books Exchanged
+    const totalBooksExchanged = await SwapProposal.countDocuments({
+      $or: [{ from: userId }, { to: userId }],
+      status: "completed",
+    });
+
+    // Most Popular Book
+    const popularBooks = await SwapProposal.aggregate([
+      { $match: { from: userId } },
+      { $group: { _id: "$offeredBook", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 1 },
+      {
+        $lookup: {
+          from: "books",
+          localField: "_id",
+          foreignField: "_id",
+          as: "book",
+        },
+      },
+      { $unwind: "$book" },
+      {
+        $project: {
+          title: "$book.title",
+          swapCount: "$count",
+        },
+      },
+    ]);
+
+    const mostPopularBook = popularBooks[0] || null;
+
+    // Badges
+    const badges = [
+      { name: "Bronze Medal 🥉", achieved: totalBooksExchanged >= 1 },
+      { name: "Silver Medal 🥈", achieved: totalBooksExchanged >= 5 },
+      { name: "Gold Medal 🥇", achieved: totalBooksExchanged >= 10 },
+    ];
+
+    // Favorite Genre
+    const genreStats = await Book.aggregate([
+      { $match: { user: userId } },
+      { $group: { _id: "$genre", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 1 },
+    ]);
+
+    const favoriteGenre = genreStats[0]?._id || null;
+
+    // Oldest Book
+    const oldestBookDoc = await Book.findOne({ user: userId })
+      .sort({ year: 1 })
+      .limit(1)
+      .select("title year");
+
+    const oldestBook = oldestBookDoc
+      ? { title: oldestBookDoc.title, year: oldestBookDoc.year }
+      : null;
+
+    // Add booksCount
+    const booksCount = await Book.countDocuments({ user: userId });
+
+    // Final Stats
+    const userStats = {
+      lastSwapDate,
+      totalBooksExchanged,
+      mostPopularBook,
+      badges,
+      favoriteGenre,
+      oldestBook,
+      booksCount,
+    };
+
+    res.json(userStats);
+  } catch (err) {
+    console.error("Error generating user stats:", err);
+    res
+      .status(500)
+      .json({ message: "Server error while generating user stats." });
   }
 };

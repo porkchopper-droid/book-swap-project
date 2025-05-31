@@ -8,18 +8,73 @@
 }
 
 aside {
+  padding: $padding-default;
   width: 25%;
   background-color: $color-box-bg;
   color: $color-text;
+  display: flex;
+  flex-direction: column;
+  gap: $gap-default;
 
   .my-stats {
+    h2 {
+      text-align: center;
+    }
+    display: flex;
+    flex-direction: column;
+    gap: $gap-mini;
     ul {
       list-style: none;
     }
   }
   .my-info {
+    .my-info-edit {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      h2 {
+        text-align: center;
+      }
+      .my-info-edit-button {
+        width: calc($font-size-base * 2);
+        height: calc($font-size-base * 2);
+        border-radius: 50%;
+        padding: 2px;
+        background-color: $color-box-bg;
+        border: 0.5px solid $color-text;
+
+        &:hover {
+          background-color: $color-button-bg;
+        }
+      }
+    }
+
+    display: flex;
+    flex-direction: column;
+    gap: $gap-mini;
     ul {
       list-style: none;
+    }
+  }
+  .badges-container {
+    display: flex;
+    flex-direction: column;
+    gap: $gap-mini;
+    align-items: center;
+
+    .badges {
+      display: flex;
+      gap: $gap-default;
+    }
+
+    .badge {
+      font-size: calc($font-size-base * 3); // make those medals nice & big!
+      opacity: 0.3; // default to greyed out
+      transition: opacity 0.3s ease;
+
+      &.achieved {
+        opacity: 1; // full color once achieved
+      }
     }
   }
 }
