@@ -17,6 +17,10 @@ export const handleStaleSwaps = async (staleSwaps) => {
       await SwapProposal.findByIdAndDelete(_id);
 
       log(`🗑️ Deleted reported swap ${_id}`);
+    } else if (status === "cancelled") {
+      log(`🗑️ Deleting cancelled swap ${_id} (older than 7 days)`);
+      await SwapProposal.findByIdAndDelete(_id);
+      log(`✅ Deleted cancelled swap ${_id}`);
     } else {
       log(`⌛ Expiring ${status} swap ${_id}`);
 

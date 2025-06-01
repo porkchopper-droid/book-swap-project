@@ -28,7 +28,7 @@
     position: absolute;
     top: 20px; // adjust to match your edit-location button
     left: 20px; // align to the left side
-    z-index: 1000; // above the map
+    z-index: 1; // above the map
     width: 300px;
     padding: 8px 12px;
     border-radius: 6px;
@@ -67,7 +67,7 @@
 }
 
 .leaflet-marker-icon.red-pin {
-  z-index: 1000 !important;
+  z-index: 1 !important;
 }
 
 .save-location-btn,
@@ -84,7 +84,7 @@
   box-shadow: 0 0 15px black;
   cursor: pointer;
   font-weight: bold;
-  z-index: 1000;
+  z-index: 1;
 
   &:hover {
     background: color.adjust(rgba(62, 159, 212, 0.79), $lightness: 10%);

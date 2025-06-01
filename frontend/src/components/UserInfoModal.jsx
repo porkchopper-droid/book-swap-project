@@ -13,36 +13,38 @@ export default function UserInfoModal({ user, onClose, onUpdate }) {
     email: user?.email || "",
     city: { label: user?.city || "", value: user?.city || "" },
     country: null,
+    currentPassword: "", // re-entered for verification
+    newPassword: "", // only if they want to change it
   });
 
   // Hydrate country if stored as ISO code (e.g., "DE")
   useEffect(() => {
     if (!form.country && user?.country) {
-      const match = countryOptions.find(opt => opt.value === user.country);
+      const match = countryOptions.find((opt) => opt.value === user.country);
       if (match) {
-        setForm(prev => ({ ...prev, country: match }));
+        setForm((prev) => ({ ...prev, country: match }));
       }
     }
   }, [user?.country, form.country]);
 
   const loadCityOptions = async (inputValue) => {
-  if (!inputValue || !form.country?.value) return [];
-  const geoUser = import.meta.env.VITE_GEONAMES_USER;
+    if (!inputValue || !form.country?.value) return [];
+    const geoUser = import.meta.env.VITE_GEONAMES_USER;
 
-  try {
-    const res = await axios.get(
-      `https://secure.geonames.org/searchJSON?q=${inputValue}&country=${form.country.value}&maxRows=5&username=${geoUser}`
-    );
-    const data = res.data;
-    return data.geonames.map((place) => ({
-      label: place.name,
-      value: place.name,
-    }));
-  } catch (err) {
-    console.warn("🌍 Failed to load city options:", err);
-    return [];
-  }
-};
+    try {
+      const res = await axios.get(
+        `https://secure.geonames.org/searchJSON?q=${inputValue}&country=${form.country.value}&maxRows=5&username=${geoUser}`
+      );
+      const data = res.data;
+      return data.geonames.map((place) => ({
+        label: place.name,
+        value: place.name,
+      }));
+    } catch (err) {
+      console.warn("🌍 Failed to load city options:", err);
+      return [];
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -51,6 +53,8 @@ export default function UserInfoModal({ user, onClose, onUpdate }) {
         email: form.email,
         city: form.city?.value || "",
         country: form.country?.value || "",
+        currentPassword: form.currentPassword, // always sent
+        newPassword: form.newPassword || "", // optional
       };
 
       const { data } = await axios.patch("/api/users/me", payload, {
@@ -71,7 +75,12 @@ export default function UserInfoModal({ user, onClose, onUpdate }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h3>Edit Your Info</h3>
-        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
           {["username", "email"].map((field) => (
             <input
               key={field}
@@ -99,7 +108,24 @@ export default function UserInfoModal({ user, onClose, onUpdate }) {
             isDisabled={!form.country}
             placeholder="Start typing new city"
           />
+          <input
+            type="password"
+            name="currentPassword"
+            placeholder="Current Password (required for any change)"
+            value={form.currentPassword}
+            onChange={(e) =>
+              setForm({ ...form, currentPassword: e.target.value })
+            }
+            required
+          />
 
+          <input
+            type="password"
+            name="newPassword"
+            placeholder="New Password (leave blank if no change)"
+            value={form.newPassword}
+            onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
+          />
           <div className="modal-buttons">
             <button type="submit">Save</button>
           </div>

@@ -51,12 +51,35 @@ export const updateUserLocation = async (req, res) => {
 
 export const updateUserProfile = async (req, res) => {
   try {
-    const { username, email, city, country } = req.body;
+    const { username, email, city, country, currentPassword, newPassword } =
+      req.body;
 
-    // Step 1: Base update object
-    const updates = { username, email, city, country };
+    //  Fetch the user (with password field)
+    const user = await User.findById(req.user._id).select("+password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
 
-    // Step 2: If both city & country are present, geocode them
+    // Check that the current password is provided and correct
+    if (!currentPassword || !(await user.comparePassword(currentPassword))) {
+      return res
+        .status(401)
+        .json({ message: "Current password is incorrect or missing." });
+    }
+
+    // Update basic info
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (city) user.city = city;
+    if (country) user.country = country;
+
+    // If new password is provided, update it
+    if (newPassword) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    // If both city & country are present, geocode them
     if (city && country) {
       try {
         const url = `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(
@@ -71,7 +94,7 @@ export const updateUserProfile = async (req, res) => {
 
         if (geo) {
           const jitter = () => (Math.random() - 0.5) * 0.02; // jittering users' location on country/city change
-          updates.location = {
+          user.location = {
             type: "Point",
             coordinates: [
               parseFloat(geo.lng) + jitter(),
@@ -86,16 +109,13 @@ export const updateUserProfile = async (req, res) => {
       }
     }
 
-    // Step 3: Update user
-    const user = await User.findByIdAndUpdate(req.user._id, updates, {
-      new: true,
-      runValidators: true,
-    }).select("username email city country location");
-
-    res.json(user);
+    await user.save();
+    // Respond with updated user info (excluding password!)
+    const { password, ...safeUser } = user.toObject();
+    res.json(safeUser);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to update profile" });
+    console.error("Failed to update profile:", err);
+    res.status(500).json({ message: "Server error while updating profile." });
   }
 };
 

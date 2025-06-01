@@ -21,16 +21,6 @@ export const createBook = async (req, res) => {
   }
 };
 
-export const getBooks = async (req, res) => {
-  try {
-    const books = await Book.find().populate("user", "username city country");
-    res.json(books);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch books." });
-  }
-};
-
 export const getNearbyBooks = async (req, res) => {
   try {
     const { lat, lon, radius } = req.query;
@@ -174,12 +164,37 @@ export const getUserBooks = async (req, res) => {
 
 export const updateBook = async (req, res) => {
   try {
-    const updated = await Book.findByIdAndUpdate(req.params.bookId, req.body, {
-      new: true,
-    });
-    res.json(updated);
+    // Find the book by ID
+    const book = await Book.findById(req.params.bookId);
+
+    if (!book) {
+      return res.status(404).json({ message: "Book not found." });
+    }
+
+    // Check ownership
+    if (!book.user.equals(req.user._id)) {
+      return res.status(403).json({ message: "Not authorized to edit this book." });
+    }
+
+    // Optional: prevent editing reported/booked/swapped books
+    if (["reported", "booked"].includes(book.status)) {
+      return res.status(400).json({ message: "Cannot edit a book that is reported or booked." });
+    }
+
+    // Actually update the book fields
+    // Only allow specific fields to be updated
+    const allowedFields = ["title", "author", "year", "description", "genre", "imageUrl", "isbn"];
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        book[field] = req.body[field];
+      }
+    }
+
+    await book.save();
+
+    res.json(book);
   } catch (err) {
-    console.error(err);
+    console.error("Failed to update book:", err);
     res.status(500).json({ message: "Failed to update book." });
   }
 };

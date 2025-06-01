@@ -2,10 +2,7 @@ import { useEffect } from "react";
 import BookCard from "./BookCard.jsx";
 import "./SwapModal.scss";
 
-
-
 export default function SwapModal({
-  
   myBook,
   theirBook,
   onClose,
@@ -16,8 +13,6 @@ export default function SwapModal({
   setMessage,
   mode = "propose",
 }) {
-
-  
   useEffect(() => {
     document.body.classList.add("scroll-lock");
     return () => {
@@ -26,8 +21,8 @@ export default function SwapModal({
   }, []);
 
   return (
-    <div className="swap-modal-overlay">
-      <div className="swap-modal">
+    <div className="swap-modal-overlay" onClick={onClose}>
+      <div className="swap-modal" onClick={(e) => e.stopPropagation()}>
         <div className="book-preview">
           <BookCard book={myBook} readOnly />
           <span className="swap-arrow">⇄</span>

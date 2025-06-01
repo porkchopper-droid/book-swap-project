@@ -17,6 +17,7 @@
     background: $color-card-bg;
     border-radius: $border-radius;
     padding: $padding-default;
+    min-width: 400px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -72,17 +73,24 @@
         color: white;
         transition: background-color 0.2s ease, color 0.2s ease;
 
+        &:disabled {
+          opacity: 0.4; // visually greyed out
+          cursor: not-allowed; // no pointer hand
+          background-color: grey !important; // ensure consistent
+          color: #ccc !important;
+          box-shadow: none !important;
+        }
+
         &:hover {
           background-color: color.adjust($color-button-bg, $lightness: -10%);
         }
-      }
+        &:last-child {
+          background-color: darkred;
+          color: white;
 
-      button:last-child {
-        background-color: darkred;
-        color: white;
-
-        &:hover {
-          background-color: color.adjust(darkred, $lightness: 10%);
+          &:hover {
+            background-color: color.adjust(darkred, $lightness: 10%);
+          }
         }
       }
     }

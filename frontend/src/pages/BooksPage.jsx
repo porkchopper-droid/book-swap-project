@@ -75,14 +75,13 @@ export default function BooksPage() {
 
   const handleAddSave = async (newBook) => {
     try {
-      const { data: createdBook } = await axios.post("/api/books", newBook, {
+      await axios.post("/api/books", newBook, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-
-      setBooks((prevBooks) => [...prevBooks, createdBook]);
       setShowModal(false);
+      fetchBooks();
     } catch (err) {
       console.error("Failed to add book:", err);
     }
@@ -93,7 +92,7 @@ export default function BooksPage() {
       "Are you sure you want to delete this book?"
     );
     if (!confirm) return;
-    
+
     if (!selectedBook || selectedBook.status !== "available") return;
 
     try {

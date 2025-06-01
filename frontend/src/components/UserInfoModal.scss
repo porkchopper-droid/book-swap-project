@@ -11,7 +11,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 5;
+  z-index: 100;
 
   .modal {
     background: $color-card-bg;
@@ -37,6 +37,11 @@
     input[type="password"],
     input[type="text"] {
       color: $color-text !important;
+
+      &::placeholder {
+        color: color.adjust($color-text, $lightness: -30%)
+      }
+      
 
       // Override any browser autofill styles
       &:-webkit-autofill,

@@ -66,6 +66,7 @@ export default function BookModal({
             value={form[field]}
             onChange={(e) => setForm({ ...form, [field]: e.target.value })}
             className="modal-input"
+            disabled={book?.status === "reported" || book?.status === "booked"}
           />
         ))}
 
@@ -75,6 +76,7 @@ export default function BookModal({
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           className="modal-textarea"
+          disabled={book?.status === "reported" || book?.status === "booked"}
         />
         <div className="modal-buttons">
           <div className="isbn-fetch">
@@ -84,15 +86,44 @@ export default function BookModal({
               placeholder="Enter ISBN"
               value={isbn}
               onChange={(e) => setIsbn(e.target.value)}
+              disabled={
+                book?.status === "reported" || book?.status === "booked"
+              }
             />
-            <button onClick={handleFetchISBN}>Fetch</button>
+            <button
+              onClick={handleFetchISBN}
+              disabled={
+                book?.status === "reported" || book?.status === "booked"
+              }
+            >
+              Fetch
+            </button>
           </div>
           {isEdit && book?.status === "swapped" && (
-            <button onClick={() => onRevert(book._id)}>Make Available</button>
+            <button
+              onClick={() => onRevert(book._id)}
+              disabled={
+                book?.status === "reported" || book?.status === "booked"
+              }
+            >
+              Make Available
+            </button>
           )}
-          <button onClick={handleSubmit}>{isEdit ? "Save" : "Add"}</button>
+          <button
+            onClick={handleSubmit}
+            disabled={book?.status === "reported" || book?.status === "booked"}
+          >
+            {isEdit ? "Save" : "Add"}
+          </button>
           {isEdit && book?.status === "available" && (
-            <button onClick={onDelete}>Delete</button>
+            <button
+              onClick={onDelete}
+              disabled={
+                book?.status === "reported" || book?.status === "booked"
+              }
+            >
+              Delete
+            </button>
           )}
         </div>
       </div>
