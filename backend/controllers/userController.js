@@ -3,6 +3,7 @@ import Book from "../models/Book.js";
 import SwapProposal from "../models/SwapProposal.js";
 import bcrypt from "bcrypt";
 
+
 export const getCurrentUserInfo = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select(
@@ -11,6 +12,19 @@ export const getCurrentUserInfo = async (req, res) => {
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch user info" });
+  }
+};
+
+export const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select(
+      "username email country city location"
+    );
+    if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (err) {
     console.error(err);

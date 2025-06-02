@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import SwapModal from "./SwapModal";
 
 import "./SwapCard.scss";
 
@@ -74,14 +73,19 @@ export default function SwapCard({
       </p> */}
 
       <div
-        className={`swap-status-ribbon ${ribbonClass}`}
-        onMouseEnter={() => setHoveringRibbon(true)}
-        onMouseLeave={() => setHoveringRibbon(false)}
+        className={`swap-status-ribbon ${ribbonClass} ${
+          showCancel || showReport ? "hoverable" : ""
+        }`}
+        onMouseEnter={() => {
+          if (showCancel || showReport) setHoveringRibbon(true);
+        }}
+        onMouseLeave={() => {
+          if (showCancel || showReport) setHoveringRibbon(false);
+        }}
         onClick={() => {
           if (showCancel) {
             handleCancelSwap(swap._id);
           } else if (showReport) {
-            // TODO: show confirmation / send report
             handleReport(swap._id);
           }
         }}
@@ -95,6 +99,7 @@ export default function SwapCard({
             : "REPORT"
           : ribbonText}
       </div>
+
       <div className="swap-messages">
         {swap.fromMessage && (
           <p className="swap-message">💬 {swap.fromMessage}</p>

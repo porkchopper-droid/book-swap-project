@@ -3,13 +3,19 @@
 
 .swap-controls {
   display: flex;
-  gap: 15px;
+  gap: calc($gap-default*2);
+  justify-content: center;
+  position: sticky;
+  top: 0;
+  background-color: #474747d2;
+  
+  z-index: 5;
 
   button {
     padding: 8px 16px;
     background: none;
     border: 0.5px solid #ccc;
-    border-radius: 6px;
+    border-radius: $border-radius-mini;
     cursor: pointer;
     font-weight: bold;
     color: white;
@@ -34,6 +40,9 @@
 
   .book-column {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: $gap-mini;
 
     .book-list {
       display: flex;

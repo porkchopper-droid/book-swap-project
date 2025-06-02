@@ -37,6 +37,14 @@ const userSchema = new mongoose.Schema(
       trim: true,
       maxlength: 100,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      default: "",
+    },
     location: {
       type: {
         type: String,

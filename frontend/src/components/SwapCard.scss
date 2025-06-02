@@ -39,66 +39,66 @@
     position: relative;
     top: 0;
     left: -15px;
-    width: calc(100% + 30px); // overshoot to ignore padding
+    width: calc(100% + 30px);
     text-align: center;
     font-weight: bold;
     padding: 6px 0;
     z-index: 1;
-    pointer-events: none;
     letter-spacing: 1px;
+    pointer-events: none;
 
     &.pending {
       color: $color-warning-text;
       background-color: $color-warning-bg;
-      pointer-events: auto;
-      cursor: pointer;
-
-      &:hover {
-        background-color: $color-danger-bg;
-        color: $color-danger-text;
-      }
     }
 
     &.accepted {
       color: $color-success-text;
       background-color: $color-success-bg;
     }
+
     &.declined {
       color: $color-danger-text;
       background-color: $color-danger-bg;
     }
+
     &.cancelled {
       background-color: #e53935;
       color: $color-text;
     }
+
     &.waiting {
       background-color: $color-warning-bg;
       color: $color-warning-text;
       animation: blink 1s linear infinite;
-      pointer-events: auto;
       height: 65px;
-
-      &:hover {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: $color-danger-bg;
-        color: $color-danger-text;
-        animation: none;
-        cursor: pointer;
-      }
     }
+
     &.completed {
       background-color: rgb(30, 128, 64);
       color: rgb(158, 255, 202);
     }
+
     &.expired {
       background-color: #000000;
       color: $color-text;
     }
+
     &.reported {
       background-color: $color-danger-text;
       color: $color-danger-bg;
+    }
+
+    // The actual hoverable state
+    &.hoverable {
+      pointer-events: auto;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $color-danger-bg;
+        color: $color-danger-text;
+        animation: none;
+      }
     }
   }
 
@@ -111,20 +111,20 @@
       opacity: 0.4;
     }
   }
-.swap-messages {
-  display: flex;
-  flex-direction: column;
-  gap: $gap-mini;
-  
-.swap-message {
-    font-size: small;
-    font-style: italic;
-    word-break: break-word; // allows breaking long words
-    white-space: pre-wrap; //  respects line breaks and wraps long content
-    overflow-wrap: anywhere; // breaks even long strings without spaces
+
+  .swap-messages {
+    display: flex;
+    flex-direction: column;
+    gap: $gap-mini;
+
+    .swap-message {
+      font-size: small;
+      font-style: italic;
+      word-break: break-word;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
   }
-}
-  
 
   button {
     padding: 6px 12px;

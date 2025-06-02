@@ -10,6 +10,7 @@ export default function SwapPage() {
   const { userId } = useParams();
   const [myBooks, setMyBooks] = useState([]);
   const [theirBooks, setTheirBooks] = useState([]);
+  const [theirName, setTheirName] = useState("Unknown");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -29,6 +30,17 @@ export default function SwapPage() {
       document.body.classList.remove("scroll-lock");
     };
   }, [errorMessage]);
+
+  useEffect(() => {
+    if (userId) {
+      axios
+        .get(`/api/users/${userId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        })
+        .then((res) => setTheirName(res.data.username || "Unknown"))
+        .catch((err) => console.error("Failed to load user info", err));
+    }
+  }, [userId]);
 
   useEffect(() => {
     fetchBooks();
@@ -94,7 +106,7 @@ export default function SwapPage() {
     </p>
   ) : (
     <>
-      <h2>🔄 Swap with user {userId}</h2>
+      <h2>🔄 Swap with {theirName}</h2>
 
       <div className="swap-controls">
         <button

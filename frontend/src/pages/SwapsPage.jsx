@@ -195,6 +195,7 @@ export default function SwapsPage() {
 
       // Remove or update swap in UI
       setSwaps((prev) => prev.filter((s) => s._id !== swapId));
+      fetchSwaps();
     } catch (err) {
       alert("Failed to cancel swap.");
       console.error(err);
