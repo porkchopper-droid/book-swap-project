@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { sendVerificationEmail } from "../utils/emailService.js";
 
 /* ------------------------- JWT ------------------------ */
 
@@ -56,6 +57,10 @@ export const registerUser = async (req, res) => {
       }
     }
 
+    // Generate secure random token for verification
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    // Create new user with token & isVerified: false
     const newUser = new User({
       username,
       email,
@@ -63,10 +68,16 @@ export const registerUser = async (req, res) => {
       city,
       country,
       location, // 🧭 uses geocoded location
+      verificationToken,
+      isVerified: false,
     });
 
     await newUser.save();
 
+    // Send verification email
+    await sendVerificationEmail(email, verificationToken);
+
+    // Create login token for immediate session (optional)
     const token = generateToken(newUser._id);
 
     res.status(201).json({
@@ -76,10 +87,46 @@ export const registerUser = async (req, res) => {
         username: newUser.username,
         email: newUser.email,
       },
+      message: "Registration successful! Please verify your email.",
     });
   } catch (err) {
     console.error("❌ Registration failed:", err);
     res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+/* -------------------- VERIFY EMAIL -------------------- */
+export const verifyEmail = async (req, res) => {
+  const { token } = req.params;
+
+  console.log(
+    "💡 Received verification request for token:",
+    token,
+    new Date().toISOString()
+  );
+
+  try {
+    const user = await User.findOne({ verificationToken: token });
+
+    if (!user) {
+      console.log("👀 No user found — maybe already verified or invalid.");
+      // return a 200 with a message clarifying
+      return res
+        .status(200)
+        .json({ message: "Email already verified or link expired!" });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = ""; // clear the token!
+    await user.save();
+
+    res.status(200).json({
+      message: "Email verified successfully! You can now log in.",
+    });
+    console.log("✅ User found and verified:", user.email);
+  } catch (err) {
+    console.error("❌ Email verification failed:", err);
+    res.status(500).json({ message: "Server error during verification." });
   }
 };
 

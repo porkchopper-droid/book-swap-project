@@ -96,12 +96,16 @@
         font-weight: bold;
         border-radius: $border-radius-mini;
         border: none;
-        background-color: $color-button-bg;
+        background: none;
+        // background-color: $color-button-bg;
+        border: 0.5px solid $color-border;
         color: $color-text;
         cursor: pointer;
+        transition: 0.2s ease;
 
         &:hover {
-          background-color: color.adjust($color-button-bg, $lightness: -10%);
+          background-color: $color-button-bg;
+          color: black;
         }
       }
     }

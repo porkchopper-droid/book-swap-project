@@ -27,8 +27,8 @@ $color-chat-own: #6586aa; // CHECKED
 $color-chat-incoming: #ddd; // CHECKED
 $color-avatar-fallback: #888; // CHECKED
 
-$color-button-bg: #d4964a;
-$color-button-hover: #f0c14b;
+$color-button-bg: #fa971d;
+$color-button-hover: color.adjust($color-button-bg, $lightness: 10%);
 
 $color-textarea: color.adjust($color-box-bg, $lightness: 30%);
 $color-textarea-text: color.adjust($color-box-bg, $lightness: -20%);

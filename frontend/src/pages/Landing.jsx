@@ -54,12 +54,18 @@ export default function Landing() {
         country: country?.value,
       });
 
-      if (data.token && data.user) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        setUser(data.user);
-        setStatus("✅ Account created & logged in!");
-        navigate("/my-account");
+      // if (data.token && data.user) {
+      //   localStorage.setItem("token", data.token);
+      //   localStorage.setItem("user", JSON.stringify(data.user));
+      //   setUser(data.user);
+      //   setStatus("✅ Account created & logged in!");
+      //   navigate("/my-account");
+      //
+      if (data.user && data.message?.includes("verify")) {
+        setStatus(
+          "✅ Account created! Please check your email to verify your account before logging in."
+        );
+        setShowSignup(false);
       } else {
         setStatus("❌ Signup failed: " + (data.message || "Unknown error"));
       }

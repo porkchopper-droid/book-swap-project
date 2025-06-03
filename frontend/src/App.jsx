@@ -8,6 +8,7 @@ import Landing from "./pages/Landing";
 import Logout from "./pages/Logout";
 import SetLocation from "./pages/SetLocation";
 import MapComponent from "./components/MapComponent";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 import ProtectedRoutes from "./routes/ProtectedRoutes";
 
@@ -17,6 +18,8 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
+        <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoutes />}>

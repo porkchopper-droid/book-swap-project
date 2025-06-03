@@ -3,7 +3,6 @@ import Book from "../models/Book.js";
 import SwapProposal from "../models/SwapProposal.js";
 import bcrypt from "bcrypt";
 
-
 export const getCurrentUserInfo = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select(
