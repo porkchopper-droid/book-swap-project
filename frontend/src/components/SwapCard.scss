@@ -1,7 +1,7 @@
 @use "../styles/variables.scss" as *;
 
 .swap-card {
-  background-color: $color-box-bg;
+  background-color: $color-card-bg;
   border: 0.5px solid $color-border;
   border-radius: $border-radius;
   padding: $padding-mini;
@@ -131,15 +131,18 @@
 
   button {
     padding: 6px 12px;
-    border: none;
+    border: 0.5px solid $color-border;
     border-radius: 5px;
-    background-color: $color-button-bg;
-    color: white;
+    background: $color-box-bg;
+    color: whitesmoke;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background-color 0.1s ease;
+    font-weight: bold;
 
     &:hover {
-      background-color: $color-button-hover;
+      background-color: $color-button-bg;   
+      color: #313131; 
+
     }
   }
 }

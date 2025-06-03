@@ -29,7 +29,7 @@ export default function BookCard({
       <div className="image-wrapper">
         <img
           className="book-cover"
-          src={book.imageUrl?.trim() || "/no-cover.png"}
+          src={book.imageUrl?.trim() || "/images/no-cover.png"}
           alt={`Cover of ${book.title}`}
           onLoad={() => setIsImageLoaded(true)}
           onError={() => setIsImageLoaded(true)} // still show ribbon even on fallback

@@ -1,18 +1,23 @@
 @use "../styles/variables.scss" as *;
 
 .chat-window {
-  width: 80%;
+
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: $gap-default;
 
+  .placeholder {
+    margin: auto;
+  }
+
   .load-earlier {
     text-align: right;
-    color: #ccc;
+    color: $color-text;
     cursor: pointer;
     padding: 10px;
     font-size: 14px;
-    transition: color 0.2s;
+    transition: background-color 0.1s ease;
 
     &:hover {
       color: #fff;
@@ -122,7 +127,7 @@
 
           &.incoming {
             background-color: $color-chat-incoming;
-            color: #222;
+            color: black;
             text-align: left;
 
             .timestamp {
@@ -173,18 +178,20 @@
       max-height: 160px;
       padding: 8px;
       font-size: 16px;
+      background-color: $color-chat-incoming;
     }
 
     button {
       padding: 8px 16px;
-      background: $color-button-bg;
+      background: none;
       color: white;
-      border: none;
+      border: 0.5px solid $color-border;
       cursor: pointer;
-      transition: 0.2s;
+      transition: background-color 0.1s ease;
 
       &:hover {
-        background-color: $color-button-hover;
+        background-color: $color-button-bg;
+        color: $color-text-button-hover;
       }
     }
   }

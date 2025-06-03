@@ -1,15 +1,15 @@
 @use "sass:color";
 
 /* ------------------- COLORS ------------------- */
-$color-bg: #474747;
 $color-text: rgba(255, 255, 255, 0.87);
 $color-heading: white;
 $color-border: #ccc;
 $color-placeholder: $color-text;
-$color-book-card: grey;
 
+$color-bg: #474747;
 $color-card-bg: #595959;
 $color-box-bg: #646464;
+$color-book-card: grey;
 
 $color-link: #d4964a;
 $color-link-hover: #f0c14b;
@@ -29,6 +29,7 @@ $color-avatar-fallback: #888; // CHECKED
 
 $color-button-bg: #fa971d;
 $color-button-hover: color.adjust($color-button-bg, $lightness: 10%);
+$color-text-button-hover: #313131;
 
 $color-textarea: color.adjust($color-box-bg, $lightness: 30%);
 $color-textarea-text: color.adjust($color-box-bg, $lightness: -20%);
@@ -36,6 +37,7 @@ $color-textarea-text: color.adjust($color-box-bg, $lightness: -20%);
 /* ------------------- SPACING ------------------- */
 $gap-mini: 10px;
 $gap-default: 20px;
+$padding-micro: 8px;
 $padding-mini: 15px;
 $padding-default: 20px;
 $margin-default: 20px;

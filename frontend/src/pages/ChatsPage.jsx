@@ -56,7 +56,10 @@ export default function ChatsPage() {
           <ChatWindow swapId={swapId} />
         ) : (
           <div className="placeholder">
-            <p>Select a chat from the list</p>
+            <p>
+              No chatter yet! Select a swap to start a conversation and trade
+              some stories.
+            </p>
           </div>
         )}
       </div>

@@ -14,16 +14,16 @@
     cursor: pointer;
     font-weight: bold;
     color: white;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.1s ease;
 
     &.active {
       background-color: $color-button-bg;
-      color: black;
+      color: $color-text-button-hover;
     }
 
     &:hover {
       background-color: $color-button-hover;
-      color: black;
+      color: $color-text-button-hover;
     }
   }
 }

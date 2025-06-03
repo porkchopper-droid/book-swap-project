@@ -6,34 +6,22 @@
   gap: $gap-default;
 
   .chat-list {
-    width: 20%;
+    flex: 0 0 20%;
     min-height: calc(100vh - 120px);
     background-color: $color-box-bg;
     text-align: center;
 
     .chat-item {
-      padding: 8px;
+      padding: $padding-micro;
       cursor: pointer;
-      transition: background-color 0.2s;
       font-size: $font-size-base;
+      transition: background-color 0.1s ease;
 
       &:hover,
       &.active {
-        background-color: #d4964a;
+        background-color: $color-button-bg;
+        color: $color-text-button-hover;
       }
-
-      span {
-        display: block;
-        font-size: 14px;
-        font-weight: 500;
-        color: #fefefe;
-      }
-    }
-  }
-
-  .chat-window {
-    .placeholder {
-      color: red;
     }
   }
 }
