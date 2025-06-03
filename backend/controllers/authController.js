@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { sendVerificationEmail } from "../utils/emailService.js";
+import { sendVerificationEmail } from "../utils/sendVerificationEmail.js";
 
 /* ------------------------- JWT ------------------------ */
 
@@ -78,7 +78,7 @@ export const registerUser = async (req, res) => {
     await sendVerificationEmail(email, verificationToken);
 
     // Create login token for immediate session (optional)
-    const token = generateToken(newUser._id);
+    // const token = generateToken(newUser._id);
 
     res.status(201).json({
       token,

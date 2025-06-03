@@ -5,7 +5,7 @@ import { log } from "./utils/logger.js";
 import { findStaleSwaps } from "./utils/findStaleSwaps.js";
 import { handleStaleSwaps } from "./utils/handleStaleSwaps.js";
 import { deleteOldExpiredSwaps } from "./utils/deleteOldExpiredSwaps.js";
-import { sendEmail } from "./utils/sendEmail.js";
+import { sendEmail } from "./utils/sendCronEmail.js";
 
 dotenv.config();
 

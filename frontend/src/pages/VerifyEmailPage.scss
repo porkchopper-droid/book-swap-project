@@ -18,7 +18,7 @@
     display: inline-block;
     margin-top: $gap-default;
     padding: 0.5rem 1rem;
-   border: 0.5px solid $color-border;
+    border: 0.5px solid $color-border;
     color: $color-text;
     text-decoration: none;
     border-radius: $border-radius-mini;
@@ -27,7 +27,6 @@
 
     &:hover {
       background-color: $color-button-bg;
-   
     }
   }
 }

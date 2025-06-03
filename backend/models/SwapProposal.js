@@ -87,12 +87,6 @@ const swapProposalSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    fromMessageCreatedAt: {
-      type: Date,
-    },
-    toMessageCreatedAt: {
-      type: Date,
-    },
   },
   { timestamps: true } // createdAt
 );

@@ -1,6 +1,8 @@
 import Book from "../models/Book.js";
 import User from "../models/User.js";
 import SwapProposal from "../models/SwapProposal.js";
+import { sendSwapProposalEmail } from "../utils/sendSwapProposalEmail.js";
+import { sendSwapResponseEmail } from "../utils/sendSwapResponseEmail.js";
 
 export const createSwapProposal = async (req, res) => {
   try {
@@ -19,7 +21,6 @@ export const createSwapProposal = async (req, res) => {
       toAccepted: false,
       status: "pending", // BY DEFAULT, DUH!!
       fromMessage,
-      fromMessageCreatedAt: new Date(),
     });
 
     const existing = await SwapProposal.findOne({
@@ -42,7 +43,24 @@ export const createSwapProposal = async (req, res) => {
       });
     }
 
-    const saved = await newProposal.save();
+    const saved = await newProposal.save(); // saving to mongoDB
+
+    // Send email to the recipient (to)
+    const recipientUser = await User.findById(to).select("username email");
+    if (recipientUser) {
+      const populatedSwap = await SwapProposal.findById(saved._id)
+        .populate("offeredBook", "title")
+        .populate("requestedBook", "title");
+      await sendSwapProposalEmail(recipientUser.email, {
+        recipientUser: recipientUser.username,
+        sender: req.user.username,
+        offeredBook: populatedSwap.offeredBook.title,
+        requestedBook: populatedSwap.requestedBook.title,
+        fromMessage: populatedSwap.fromMessage,
+        link: `${process.env.FRONTEND_URL}/swaps`,
+      });
+    }
+
     res.status(201).json(saved);
   } catch (err) {
     console.error(err);
@@ -85,9 +103,33 @@ export const respondToSwapProposal = async (req, res) => {
       console.log("Attached toMessage:", toMessage);
       if (toMessage) {
         proposal.toMessage = toMessage;
-        proposal.toMessageCreatedAt = new Date();
       }
-      await proposal.save();
+
+      await proposal.save(); // DECLINED saved to mongoDB
+
+      // Send email to the initiator
+      const initiatorUser = await User.findById(proposal.from).select(
+        "username email"
+      );
+      if (initiatorUser) {
+        // Populate the books so we have titles
+        const populatedProposal = await SwapProposal.findById(proposal._id)
+          .populate("offeredBook", "title author")
+          .populate("requestedBook", "title author");
+
+        await sendSwapResponseEmail(initiatorUser.email, {
+          recipientUser: initiatorUser.username,
+          responder: req.user.username,
+          offeredBook: populatedProposal.offeredBook.title,
+          offeredBookAuthor: populatedProposal.offeredBook.author,
+          requestedBook: populatedProposal.requestedBook.title,
+          requestedBookAuthor: populatedProposal.requestedBook.author,
+          toMessage: toMessage || "",
+          response: "declined",
+          link: `${process.env.FRONTEND_URL}/swaps`,
+        });
+      }
+
       return res.json({ message: "Proposal declined.", proposal });
     }
 
@@ -97,10 +139,33 @@ export const respondToSwapProposal = async (req, res) => {
     proposal.acceptedAt = new Date(); // timestamp locked
     if (toMessage) {
       proposal.toMessage = toMessage;
-      proposal.toMessageCreatedAt = new Date();
     }
 
-    await proposal.save();
+    await proposal.save(); // ACCEPTED saved to mongoDB
+
+    // Send email to the initiator
+    const initiatorUser = await User.findById(proposal.from).select(
+      "username email"
+    );
+    if (initiatorUser) {
+
+      // Populate the books so we have titles
+      const populatedProposal = await SwapProposal.findById(proposal._id)
+        .populate("offeredBook", "title author")
+        .populate("requestedBook", "title author");
+
+      await sendSwapResponseEmail(initiatorUser.email, {
+        recipientUser: initiatorUser.username,
+        responder: req.user.username,
+        offeredBook: populatedProposal.offeredBook.title,
+        offeredBookAuthor: populatedProposal.offeredBook.author,
+        requestedBook: populatedProposal.requestedBook.title,
+        requestedBookAuthor: populatedProposal.requestedBook.author,
+        toMessage: toMessage || "",
+        response: "accepted",
+        link: `${process.env.FRONTEND_URL}/swaps`,
+      });
+    }
 
     // Mark both books as booked
     await Book.findByIdAndUpdate(proposal.offeredBook, { status: "booked" });

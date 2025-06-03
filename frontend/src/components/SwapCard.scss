@@ -46,6 +46,9 @@
     z-index: 1;
     letter-spacing: 1px;
     pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &.pending {
       color: $color-warning-text;
