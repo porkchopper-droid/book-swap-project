@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ChatWindow from "../components/ChatWindow.jsx";
 import axios from "axios";
+import SVGBackgroundGrid from "../components/SVGBackgroundGrid.jsx";
 
 import "./ChatsPage.scss";
 
@@ -56,10 +57,11 @@ export default function ChatsPage() {
           <ChatWindow swapId={swapId} />
         ) : (
           <div className="placeholder">
-            <p>
+            <SVGBackgroundGrid />
+            {/* <p className="no-chatter-message">
               No chatter yet! Select a swap to start a conversation and trade
               some stories.
-            </p>
+            </p> */}
           </div>
         )}
       </div>
