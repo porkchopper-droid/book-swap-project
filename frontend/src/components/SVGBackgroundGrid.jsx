@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import CallIcon from "../icons/chat-round-call-svgrepo-com.svg?react";
 import CheckIcon from "../icons/chat-round-check-svgrepo-com.svg?react";
@@ -20,14 +20,15 @@ const svgComponents = [
 
 const ICON_SIZE = 100; // px
 
-const SVGBackgroundGrid = () => {
+const SVGBackgroundGrid = ({ animate }) => {
   const [tiles, setTiles] = useState([]);
+  const gridRef = useRef(null);
 
   const updateTiles = () => {
-    const placeholder = document.querySelector(".placeholder");
-    if (!placeholder) return;
+    const gridContainer = gridRef.current?.parentElement; // 🟢 Parent of `.svg-grid`
+    if (!gridContainer) return;
 
-    const { width, height } = placeholder.getBoundingClientRect();
+    const { width, height } = gridContainer.getBoundingClientRect();
     const cols = Math.ceil(width / ICON_SIZE) + 1; // Add extra column
     const rows = Math.ceil(height / ICON_SIZE) + 1; // Add extra row
 
@@ -57,32 +58,42 @@ const SVGBackgroundGrid = () => {
   };
 
   useEffect(() => {
-    updateTiles();
-    window.addEventListener("resize", updateTiles);
-    return () => window.removeEventListener("resize", updateTiles);
+    updateTiles(); // Initial draw
+
+    const observer = new ResizeObserver(() => {
+      updateTiles();
+    });
+
+    if (gridRef.current?.parentElement) {
+      observer.observe(gridRef.current.parentElement);
+    }
+
+    window.addEventListener("resize", updateTiles); // Keep for window resizes too
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateTiles);
+    };
   }, []);
 
-  const IconComponent =
-    svgComponents[Math.floor(Math.random() * svgComponents.length)];
-
   return (
-    <div className="svg-grid">
+    <div ref={gridRef} className={`svg-grid ${animate ? "animated" : ""}`}>
       {tiles.map((tile) => {
-  const IconComponent = tile.Icon;
-  const delay = `${Math.random() * 2}s`; // random 0–2 seconds delay
-  return (
-    <IconComponent
-      key={tile.id}
-      className="svg-icon"
-      style={{
-        top: `${tile.top}px`,
-        left: `${tile.left}px`,
-        position: "absolute",
-        animationDelay: delay, // 👈 random delay
-      }}
-    />
-  );
-})}
+        const IconComponent = tile.Icon;
+        const delay = `${Math.random() * 2}s`; // random 0–2 seconds delay
+        return (
+          <IconComponent
+            key={tile.id}
+            className="svg-icon"
+            style={{
+              top: `${tile.top}px`,
+              left: `${tile.left}px`,
+              position: "absolute",
+              animationDelay: delay, // 👈 random delay
+            }}
+          />
+        );
+      })}
     </div>
   );
 };

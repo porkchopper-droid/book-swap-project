@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { useAuth } from "../contexts/AuthContext";
 import { io } from "socket.io-client";
 import axios from "axios";
-
+import SVGBackgroundGrid from "./SVGBackgroundGrid";
 import "./ChatWindow.scss";
 
 export default function ChatWindow({ swapId }) {
@@ -33,11 +33,8 @@ export default function ChatWindow({ swapId }) {
 
     fetchSwap();
   }, [swapId]);
-  
 
-  const chatPartner =
-  swap?.from._id === user._id ? swap.to : swap?.from;
-
+  const chatPartner = swap?.from._id === user._id ? swap.to : swap?.from;
 
   const fetchMessages = async (before = null) => {
     if (!swapId) return;
@@ -89,7 +86,7 @@ export default function ChatWindow({ swapId }) {
     });
 
     socket.current.on("messageSent", (msg) => {
-       console.log("✅ messageSent received:", msg);
+      console.log("✅ messageSent received:", msg);
       setMessages((prev) => [...prev, msg]);
       setNewMessage("");
     });
@@ -132,7 +129,7 @@ export default function ChatWindow({ swapId }) {
 
   return (
     <>
-    <h3>Chat with {chatPartner?.username || "..."}</h3>
+      <h3>Chat with {chatPartner?.username || "..."}</h3>
       {hasMore && (
         <div
           className="load-earlier"

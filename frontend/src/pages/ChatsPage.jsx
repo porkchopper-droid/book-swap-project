@@ -54,10 +54,13 @@ export default function ChatsPage() {
 
       <div className="chat-window">
         {swapId ? (
-          <ChatWindow swapId={swapId} />
+          <>
+            <SVGBackgroundGrid animate={false} /> {/* Static background */}
+            <ChatWindow swapId={swapId} />
+          </>
         ) : (
           <div className="placeholder">
-            <SVGBackgroundGrid />
+            <SVGBackgroundGrid animate={true} /> {/* Animated background */}
             {/* <p className="no-chatter-message">
               No chatter yet! Select a swap to start a conversation and trade
               some stories.
