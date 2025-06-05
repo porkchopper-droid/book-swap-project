@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import ChatWindow from "../components/ChatWindow.jsx";
 import axios from "axios";
 import SVGBackgroundGrid from "../components/SVGBackgroundGrid.jsx";
+import { useNotification } from "../contexts/NotificationContext";
 
 import "./ChatsPage.scss";
 
@@ -12,29 +13,35 @@ export default function ChatsPage() {
   const [activeSwapId, setActiveSwapId] = useState(null);
   const [chats, setChats] = useState([]);
 
+  // Pull in unreadCounts from NotificationContext:
+  const { unreadCounts } = useNotification();
+
   useEffect(() => {
     if (swapId) setActiveSwapId(swapId); // ✅ Sync URL to state
   }, [swapId]);
 
+  // Fetch list of “chats” (swaps that have messages)
   useEffect(() => {
-    const fetchChats = async () => {
-      const res = await axios.get("/api/chats/mine", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = res.data;
-      setChats(data);
-    };
-
+    async function fetchChats() {
+      try {
+        const res = await axios.get("/api/chats/mine", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setChats(res.data); // assume data = array of { _id, name, lastMessage, … }
+      } catch (err) {
+        console.error("Failed to load chats:", err);
+      }
+    }
     fetchChats();
   }, []);
 
   return (
     <div className="chats-page">
+      {/* ───── Left column: list of chats ───── */}
       <div className="chat-list">
-        <h3>My Chats</h3>
+        {/* <h3>My Chats</h3> */}
         {chats.map((swap) => {
+          const count = unreadCounts[swap._id] || 0;
           const offeredBook = swap.offeredBook?.title || "❓";
           const requestedBook = swap.requestedBook?.title || "❓";
 
@@ -46,25 +53,25 @@ export default function ChatsPage() {
                 swap._id === activeSwapId ? "active" : ""
               }`}
             >
-              {offeredBook} ⇄ {requestedBook}
+              <span className="chat-label">
+                {offeredBook} ⇄ {requestedBook}
+              </span>
+              {count > 0 && <span className="chat-badge">{count}</span>}
             </div>
           );
         })}
       </div>
 
+      {/* ───── Right column: the ChatWindow (or placeholder) ───── */}
       <div className="chat-window">
         {swapId ? (
           <>
-            <SVGBackgroundGrid animate={false} /> {/* Static background */}
+            <SVGBackgroundGrid animate={false} />
             <ChatWindow swapId={swapId} />
           </>
         ) : (
           <div className="placeholder">
-            <SVGBackgroundGrid animate={true} /> {/* Animated background */}
-            {/* <p className="no-chatter-message">
-              No chatter yet! Select a swap to start a conversation and trade
-              some stories.
-            </p> */}
+            <SVGBackgroundGrid animate={true} />
           </div>
         )}
       </div>

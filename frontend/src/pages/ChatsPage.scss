@@ -13,19 +13,37 @@
 
     .chat-item {
       padding: $padding-micro;
-      cursor: pointer;
       font-size: $font-size-base;
       transition: background-color 0.1s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: $gap-mini;
+      cursor: pointer;
 
       &:hover,
       &.active {
         background-color: $color-button-bg;
         color: $color-text-button-hover;
       }
+
+      .chat-badge {
+        background-color: $color-button-bg;
+        color: $color-text-button-hover;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 0.5px solid $color-box-bg;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: $font-size-tiny;
+
+      }
     }
   }
-  .chat-window {
 
+  .chat-window {
     .placeholder {
       position: relative;
       min-height: 100%;
