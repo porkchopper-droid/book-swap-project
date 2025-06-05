@@ -17,7 +17,7 @@ export default function SetLocation() {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
 
-        const token = localStorage.getItem("token"); // token shit
+        const token = localStorage.getItem("token"); // retrieve auth token
 
         fetch("http://localhost:6969/api/users/update-location", {
           method: "PATCH",

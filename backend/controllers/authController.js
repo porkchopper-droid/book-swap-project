@@ -78,7 +78,7 @@ export const registerUser = async (req, res) => {
     await sendVerificationEmail(email, verificationToken);
 
     // Create login token for immediate session (optional)
-    // const token = generateToken(newUser._id);
+    const token = generateToken(newUser._id);
 
     res.status(201).json({
       token,

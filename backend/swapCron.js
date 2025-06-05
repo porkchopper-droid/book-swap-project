@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGO_URL).then(() => {
 
     logWrap("⏰ Midnight task started");
 
-    // looking for swaps older then 7 days
+    // looking for swaps older than 7 days
     const staleSwaps = await findStaleSwaps();
     if (staleSwaps.length > 0) {
       await handleStaleSwaps(staleSwaps); // setting them as expired + books become available

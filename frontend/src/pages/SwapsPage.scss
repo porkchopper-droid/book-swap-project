@@ -34,4 +34,6 @@
   flex-wrap: wrap;
   gap: $gap-default;
   justify-content: center;
+  position: relative;
+  min-height: calc(100vh - 180px);
 }

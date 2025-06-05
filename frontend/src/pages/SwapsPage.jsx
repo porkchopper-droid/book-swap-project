@@ -3,6 +3,7 @@ import SwapCard from "../components/SwapCard";
 import SwapModal from "../components/SwapModal";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
+import SwapSVGBackgroundGrid from "../components/SwapSVGBackgroundGrid.jsx";
 import "./SwapsPage.scss";
 
 export default function SwapsPage() {
@@ -221,6 +222,7 @@ export default function SwapsPage() {
           </div>
 
           <div className="swaps-container">
+            <SwapSVGBackgroundGrid />
             {loading ? (
               <p>Loading swaps...</p>
             ) : filteredSwaps.length === 0 ? (

@@ -47,9 +47,9 @@ const SVGBackgroundGrid = ({ animate }) => {
           id: `${row}-${col}`,
           top: row * ICON_SIZE,
           left: col * ICON_SIZE,
-          Icon: Icon,
           jitterX: jitterX,
           jitterY: jitterY,
+          Icon: Icon,
         });
       }
     }
@@ -86,8 +86,8 @@ const SVGBackgroundGrid = ({ animate }) => {
             key={tile.id}
             className="svg-icon"
             style={{
-              top: `${tile.top}px`,
-              left: `${tile.left}px`,
+              top: `${tile.top + tile.jitterY}px`,
+              left: `${tile.left + tile.jitterX}px`,
               position: "absolute",
               animationDelay: delay, // 👈 random delay
             }}

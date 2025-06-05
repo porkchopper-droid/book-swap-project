@@ -70,10 +70,6 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    manualLocation: {
-      type: Boolean,
-      default: false,
-    },
     unreadCounts: {
       type: Map,
       of: Number,

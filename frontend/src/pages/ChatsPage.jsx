@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ChatWindow from "../components/ChatWindow.jsx";
 import axios from "axios";
-import SVGBackgroundGrid from "../components/SVGBackgroundGrid.jsx";
+import SVGBackgroundGrid from "../components/ChatSVGBackgroundGrid.jsx";
 import { useNotification } from "../contexts/NotificationContext";
 
 import "./ChatsPage.scss";

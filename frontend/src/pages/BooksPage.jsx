@@ -3,6 +3,7 @@ import "./BooksPage.scss";
 import BookCard from "../components/BookCard";
 import BookModal from "../components/BookModal";
 import axios from "axios";
+import BookSVGBackgroundGrid from "../components/BookSVGBackgroundGrid";
 
 export default function BooksPage() {
   const [books, setBooks] = useState([]);
@@ -161,6 +162,7 @@ export default function BooksPage() {
           </div>
 
           <div className="books-container">
+            <BookSVGBackgroundGrid />
             {loading ? (
               <p>Loading books...</p>
             ) : books.length === 0 ? (

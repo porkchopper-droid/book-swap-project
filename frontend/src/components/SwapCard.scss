@@ -25,7 +25,7 @@
 
   &.greyscale {
     filter: grayscale(100%);
-    opacity: 0.6;
+    // opacity: 0.6;
 
     .unarchive-button {
       filter: none !important;
@@ -140,9 +140,8 @@
     font-weight: bold;
 
     &:hover {
-      background-color: $color-button-bg;   
-      color: #313131; 
-
+      background-color: $color-button-bg;
+      color: #313131;
     }
   }
 }

@@ -25,12 +25,16 @@
   z-index: -1;
   overflow: hidden;
 
+  // Fade out at the top
+  // mask-image: linear-gradient(to bottom, transparent 0%, black 30%);
+  // -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30%);
+
   .svg-icon {
     position: absolute;
     width: 80px;
     height: 80px;
     opacity: 0.03;
-    stroke: $color-text;
+    color: $color-text;
     transition: transform 0.3s ease;
     transform: translate(-30px, -20px);
   }
