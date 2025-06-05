@@ -7,7 +7,7 @@
   align-items: center;
   padding: 0 $padding-default $padding-default $padding-default;
   color: white;
-  border-bottom: 1px solid $color-border;
+  border-bottom: 0.5px solid $color-border;
 
   .nav-left,
   .nav-center,
@@ -17,13 +17,25 @@
   }
 
   .nav-left {
-    // flex: 1;
     .profile-link {
       display: flex;
       align-items: center;
       text-decoration: none;
       color: inherit;
-      gap: 10px;
+      gap: $gap-mini;
+
+      .avatar-fallback {
+        width: $avatar-size-large;
+        height: $avatar-size-large;
+        border-radius: 50%;
+        background-color: $color-avatar-fallback;
+        color: $color-heading;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: $font-size-base;
+      }
 
       img {
         width: $avatar-size-large;
@@ -40,9 +52,28 @@
   }
 
   .nav-center {
-    // flex: 1;
     justify-content: center;
     gap: 25px;
+
+    .chats-link {
+      position: relative;
+
+      // Badge style
+      .badge {
+        position: absolute;
+        top: -6px;
+        right: -10px;
+        background-color: $color-button-bg;
+        color: $color-text-button-hover;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        font-size: $font-size-tiny;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
 
     a {
       text-decoration: none;
@@ -70,17 +101,4 @@
       }
     }
   }
-}
-
-.avatar-fallback {
-  width: $avatar-size-large;
-  height: $avatar-size-large;
-  border-radius: 50%;
-  background-color: $color-avatar-fallback;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 1rem;
 }
