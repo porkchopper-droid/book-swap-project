@@ -1,4 +1,3 @@
-// src/contexts/SocketContext.jsx
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "./AuthContext";
@@ -49,5 +48,7 @@ export const SocketProvider = ({ children }) => {
     };
   }, [user?._id]);
 
-  return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
+  return (
+    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+  );
 };

@@ -1,6 +1,7 @@
 import { createContext, useContext, useReducer, useEffect } from "react";
 import { useSocket } from "./SocketContext"; // our existing global socket
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const NotificationContext = createContext();
 
@@ -8,6 +9,8 @@ const NotificationContext = createContext();
 // - { [swapId]: count, ... }
 function notificationReducer(state, action) {
   switch (action.type) {
+    case "SET_ALL": // for hydration 💦
+      return action.payload || {};
     case "INCREMENT_UNREAD": {
       const { swapId } = action;
       const prevCount = state[swapId] || 0;
@@ -36,11 +39,27 @@ export function NotificationProvider({ children }) {
   // We need to know: “Which chat is open right now?” so we can skip incrementing
   // when the user is already in that chat.
   //
-  // We can grab the current path or params from react-router. Example:
-  const location = useLocation();
   const params = useParams();
   // If the URL is /chats/:swapId, then params.swapId is the open chat
   const activeSwapId = params.swapId || null;
+
+  // 💦 Hydrate from backend when provider first mounts
+  useEffect(() => {
+    const loadInitialUnreadCounts = async () => {
+      try {
+        const res = await axios.get("/api/notifications/unreadCounts", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        dispatch({ type: "SET_ALL", payload: res.data });
+      } catch (err) {
+        console.error("Failed to load initial unread counts:", err);
+      }
+    };
+
+    loadInitialUnreadCounts();
+  }, []); // 🔥 empty deps = run once on first mount
 
   useEffect(() => {
     if (!socket) return;
@@ -68,8 +87,17 @@ export function NotificationProvider({ children }) {
     dispatch({ type: "INCREMENT_UNREAD", swapId: String(swapId) });
   };
 
-  const clearUnread = (swapId) => {
+  const clearUnread = async (swapId) => {
     dispatch({ type: "CLEAR_UNREAD", swapId: String(swapId) });
+    try {
+      await axios.patch(`/api/notifications/clearUnread/${swapId}`, null, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+    } catch (err) {
+      console.error("Failed to clear unread count on server:", err);
+    }
   };
 
   const resetAll = () => {

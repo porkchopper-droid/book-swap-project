@@ -1,3 +1,6 @@
+/* ----------------------- IMPORTS ---------------------- */
+import User from "./models/User.js";
+
 /* -------------------- DEPENDENCIES -------------------- */
 
 import mongoose from "mongoose";
@@ -20,6 +23,7 @@ import swapRoutes from "./routes/swapRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import mapRoutes from "./routes/mapRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 dotenv.config();
 
@@ -33,6 +37,7 @@ app.use("/api/swaps", swapRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/map", mapRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 /* ----------------- MongoDB Connection ----------------- */
 
@@ -74,7 +79,8 @@ io.on("connection", (socket) => {
     try {
       const swap = await SwapProposal.findById(swapId);
       // console.log("🔍 Found swap:", swap);
-      if (!swap || !["accepted", "completed", "reported"].includes(swap.status)) return;
+      if (!swap || !["accepted", "completed", "reported"].includes(swap.status))
+        return;
 
       const message = new Message({ swapId, sender: senderId, text });
       const saved = await message.save();
@@ -82,6 +88,13 @@ io.on("connection", (socket) => {
 
       const receiverId =
         senderId === String(swap.from) ? String(swap.to) : String(swap.from);
+
+      // 1️⃣ Increment unread count for the receiver
+      await User.findByIdAndUpdate(receiverId, {
+        $inc: { [`unreadCounts.${swapId}`]: 1 },
+      });
+
+      // 2️⃣ Emit to receiver if they’re online
       const receiverSocket = connectedUsers.get(receiverId);
 
       /* ------------------------ DEBUG START ----------------------- */
@@ -94,6 +107,7 @@ io.on("connection", (socket) => {
         io.to(receiverSocket).emit("newMessage", populated);
       }
 
+      // 3️⃣ Echo back to sender
       socket.emit("messageSent", populated);
     } catch (err) {
       console.error("❌ Message failed:", err);
