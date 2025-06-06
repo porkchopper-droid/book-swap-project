@@ -148,7 +148,6 @@ export const respondToSwapProposal = async (req, res) => {
       "username email"
     );
     if (initiatorUser) {
-
       // Populate the books so we have titles
       const populatedProposal = await SwapProposal.findById(proposal._id)
         .populate("offeredBook", "title author")
@@ -399,12 +398,21 @@ export const reportSwap = async (req, res) => {
     const { swapId } = req.params;
     const swap = await SwapProposal.findById(swapId);
 
+    // checking if the swap exists
     if (!swap) {
       return res.status(404).json({ message: "Swap not found." });
     }
 
-    // Only participants can report
+    // only accepted swaps can be reported
+    if (swap.status !== "accepted") {
+      return res
+        .status(400)
+        .json({ message: "Only accepted swaps can be reported." });
+    }
+
     const userId = req.user._id.toString();
+
+    // Only participants can report
     if (![swap.from.toString(), swap.to.toString()].includes(userId)) {
       return res.status(403).json({ message: "Unauthorized." });
     }
@@ -417,7 +425,24 @@ export const reportSwap = async (req, res) => {
     await Book.findByIdAndUpdate(swap.offeredBook, { status: "reported" });
     await Book.findByIdAndUpdate(swap.requestedBook, { status: "reported" });
 
-    res.json({ message: "Swap and books reported.", swap });
+    // Increment the *other* user's reportedCount
+    const otherUserId =
+      userId === String(swap.from) ? String(swap.to) : String(swap.from);
+    const otherUser = await User.findById(otherUserId);
+
+    if (otherUser) {
+      otherUser.reportedCount = (otherUser.reportedCount || 0) + 1;
+      if (otherUser.reportedCount >= 5) {
+        otherUser.isFlagged = true; // flag them
+        otherUser.flaggedUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // for 7 days 😈
+      }
+      await otherUser.save();
+    }
+
+    res.json({
+      message: "Swap and books reported. User's reported count updated.",
+      swap,
+    });
   } catch (err) {
     console.error("Error reporting swap:", err);
     res.status(500).json({ message: "Server error reporting swap." });

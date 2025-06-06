@@ -21,7 +21,7 @@ export const sendVerificationEmail = async (to, token) => {
       <p>Hello,</p>
       <p>Click the link below to verify your email:</p>
       <p><a href="${verificationUrl}">${verificationUrl}</a></p>
-      <p>If you didn’t sign up for Bookbook, you can safely ignore this email.</p>
+      <p>If you didn't sign up for Bookbook, you can safely ignore this email.</p>
     `,
     };
 

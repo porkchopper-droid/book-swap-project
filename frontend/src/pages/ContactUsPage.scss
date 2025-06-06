@@ -1,0 +1,63 @@
+@use "../styles/variables.scss" as *;
+
+.contact-us-wrapper {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .contact-us {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: $color-box-bg;
+    padding: $padding-default;
+    border-radius: $border-radius;
+    width: 400px;
+    position: relative;
+    border: 0.5px solid $color-border;
+
+    form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      p {
+        font-size: $font-size-base;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        margin: 8px 0;
+        padding: 8px;
+        border-radius: 4px;
+        outline: none;
+        border: none;
+        background-color: lightgray;
+      }
+
+      textarea {
+        min-height: 200px;
+        resize: vertical;
+      }
+
+      button[type="submit"] {
+        background: none;
+        color: $color-text;
+        border: 0.5px solid $color-border;
+        padding: 8px 16px;
+        margin-top: 8px;
+        cursor: pointer;
+        border-radius: $border-radius-mini;
+
+        &:hover {
+          background: $color-button-bg;
+          color: $color-text-button-hover;
+        }
+      }
+    }
+  }
+}

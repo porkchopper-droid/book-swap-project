@@ -37,7 +37,7 @@ export const sendSwapResponseEmail = async (
         </ul>
         ${
           toMessage
-            ? `<p>Here’s their message:<br><blockquote>${toMessage}</blockquote></p>`
+            ? `<p>Here's their message:<br><blockquote>${toMessage}</blockquote></p>`
             : ""
         }
         <p>Visit <a href="${link}">Bookbook</a> to see the full swap details.</p>

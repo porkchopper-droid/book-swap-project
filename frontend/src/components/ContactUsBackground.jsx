@@ -1,18 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 
-import BookOne from "../icons/book-svgrepo-com.svg?react";
-import BookTwo from "../icons/book-2-svgrepo-com.svg?react";
-import Bookmark from "../icons/book-bookmark-svgrepo-com.svg?react";
-import BookmarkMin from "../icons/book-bookmark-minimalistic-svgrepo-com.svg?react";
-import BookMin from "../icons/book-minimalistic-svgrepo-com.svg?react";
+import LetterOne from "../icons/letter-opened-svgrepo-com.svg?react";
+import LetterTwo from "../icons/letter-svgrepo-com.svg?react";
+import LetterThree from "../icons/letter-unread-svgrepo-com.svg?react";
 
-import "./SVGBackgroundGrid.scss";
+import "./ContactUsBackground.scss";
 
-const svgComponents = [BookOne, BookTwo, Bookmark, BookmarkMin, BookMin];
+const svgComponents = [LetterOne, LetterTwo, LetterThree];
 
-const ICON_SIZE = 100; // px
+const ICON_SIZE = 150; // px
 
-const BookSVGBackgroundGrid = () => {
+const ContactUsBackground = () => {
   const [tiles, setTiles] = useState([]);
   const gridRef = useRef(null);
 
@@ -30,6 +28,7 @@ const BookSVGBackgroundGrid = () => {
       for (let col = 0; col < cols; col++) {
         const randomIndex = Math.floor(Math.random() * svgComponents.length);
         const Icon = svgComponents[randomIndex];
+        
 
         // Random jitter values for this icon
         const jitterX = Math.floor(Math.random() * 20) - 10; // -10 to +10 px
@@ -69,17 +68,19 @@ const BookSVGBackgroundGrid = () => {
   }, []);
 
   return (
-    <div ref={gridRef} className="svg-grid">
+    <div ref={gridRef} className="contact-us-grid">
       {tiles.map((tile) => {
         const IconComponent = tile.Icon;
+        const delay = `${Math.random() * 2}s`; // random 0–2 seconds delay
         return (
           <IconComponent
             key={tile.id}
-            className="svg-icon"
+            className="contact-us-icon"
             style={{
               top: `${tile.top + tile.jitterY}px`,
               left: `${tile.left + tile.jitterX}px`,
               position: "absolute",
+              animationDelay: delay, // 👈 random delay ‼️‼️
             }}
           />
         );
@@ -88,4 +89,4 @@ const BookSVGBackgroundGrid = () => {
   );
 };
 
-export default BookSVGBackgroundGrid;
+export default ContactUsBackground;

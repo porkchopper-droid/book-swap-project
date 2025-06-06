@@ -70,6 +70,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    flaggedUntil: {
+      type: Date,
+      default: null,
+    },
     unreadCounts: {
       type: Map,
       of: Number,

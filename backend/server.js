@@ -24,6 +24,7 @@ import chatRoutes from "./routes/chatRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import mapRoutes from "./routes/mapRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use("/api/chats", chatRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/map", mapRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/support", contactRoutes)
 
 /* ----------------- MongoDB Connection ----------------- */
 

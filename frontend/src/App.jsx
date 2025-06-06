@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MyAccount from "./pages/MyAccount";
-import BooksPage from "./pages/Bookspage";
+import BooksPage from "./pages/BooksPage";
 import ChatsPage from "./pages/ChatsPage";
 import SwapsPage from "./pages/SwapsPage";
 import SwapPage from "./pages/SwapProposal";
@@ -9,6 +9,7 @@ import Logout from "./pages/Logout";
 import SetLocation from "./pages/SetLocation";
 import MapComponent from "./components/MapComponent";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
+import ContactUsPage from "./pages/ContactUsPage";
 
 import ProtectedRoutes from "./routes/ProtectedRoutes";
 
@@ -19,6 +20,7 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+        <Route path="/contact-us" element={<ContactUsPage />} />
 
 
         {/* Protected Routes */}

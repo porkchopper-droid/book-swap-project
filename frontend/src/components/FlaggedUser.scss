@@ -1,0 +1,30 @@
+@use "../styles/variables.scss" as *;
+
+.flagged-background {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .flagged-info {
+    background: lightgray;
+    padding: calc($padding-default * 2);
+    border-radius: $border-radius;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: $box-shadow-default;
+
+    h2 {
+      margin-bottom: $margin-default;
+      color: #b71c1c;
+    }
+
+    p {
+      color: $color-text-button-hover;
+    }
+
+    .contact-link {
+      color: $color-text-button-hover
+    }
+  }
+}

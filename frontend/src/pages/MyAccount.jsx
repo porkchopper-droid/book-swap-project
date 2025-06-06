@@ -74,7 +74,7 @@ export default function MyAccount() {
           />
         )}
         <div className="my-stats">
-          <h2>📊 My Stats</h2>
+          <h3>📊 My Stats</h3>
           <ul>
             <li>Books available: {stats ? stats.booksCount : "Loading..."}</li>
             <li>
@@ -104,7 +104,7 @@ export default function MyAccount() {
 
         <div className="my-info">
           <div className="my-info-edit">
-            <h2>👤 My info</h2>
+            <h3>👤 My info</h3>
             <button
               aria-label="Edit Info"
               title="Edit Info"
@@ -128,7 +128,7 @@ export default function MyAccount() {
           </ul>
         </div>
         <div className="badges-container">
-          <h2>🏅 Achievements</h2>
+          <h3>🏅 Achievements</h3>
           <div className="badges">
             {stats?.badges.map((badge, idx) => (
               <div
