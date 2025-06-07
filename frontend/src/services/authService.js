@@ -1,23 +1,15 @@
-const API_URL = "http://localhost:6969/api/auth";
+import axios from "axios";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export async function login(email, password) {
-  const res = await fetch(`${API_URL}/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-
-  return await res.json();
+  const res = await axios.post(`${API_URL}/login`, { email, password });
+  return res.data;
 }
 
 export async function signup(userData) {
-  const res = await fetch(`${API_URL}/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData),
-  });
-
-  return await res.json();
+  const res = await axios.post(`${API_URL}/register`, userData);
+  return res.data;
 }
 
 export function logout() {

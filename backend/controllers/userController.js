@@ -226,3 +226,40 @@ export const getUserStats = async (req, res) => {
       .json({ message: "Server error while generating user stats." });
   }
 };
+
+export const unflagUser = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    if (user.isFlagged && user.flaggedUntil && user.flaggedUntil <= new Date()) {
+      // 🚨 Unflag and reset
+      user.isFlagged = false;
+      user.flaggedUntil = null;
+      user.reportedCount = 0;
+      await user.save();
+
+      // 🚨 Restore their books to "available"
+      await Book.updateMany(
+        { owner: user._id, status: "reported" },
+        { status: "available" }
+      );
+
+      console.log(`✅ User ${user._id} unflagged and books restored!`);
+      return res.json({ message: "User unflagged and books restored." });
+    }
+
+    // Still flagged
+    return res.json({
+      message: "User is still flagged.",
+      flaggedUntil: user.flaggedUntil,
+    });
+  } catch (err) {
+    console.error("Error in unflagUser:", err);
+    res.status(500).json({ message: "Failed to unflag user." });
+  }
+};

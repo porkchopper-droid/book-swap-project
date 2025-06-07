@@ -10,6 +10,7 @@ import SetLocation from "./pages/SetLocation";
 import MapComponent from "./components/MapComponent";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ContactUsPage from "./pages/ContactUsPage";
+import FlaggedUser from "./components/FlaggedUser";
 
 import ProtectedRoutes from "./routes/ProtectedRoutes";
 
@@ -26,6 +27,7 @@ function App() {
         {/* Protected Routes */}
         <Route element={<ProtectedRoutes />}>
           <Route path="/my-account" element={<MyAccount />} />
+          <Route path="/my-account/restricted" element={<FlaggedUser />} />
           <Route path="/books" element={<BooksPage />} />
           <Route path="/chats" element={<ChatsPage />} />
           <Route path="/chats/:swapId" element={<ChatsPage />} />

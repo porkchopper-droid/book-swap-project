@@ -5,13 +5,15 @@ import {
   getCurrentUserInfo,
   updateUserProfile,
   getUserStats,
-  getUserById
+  getUserById,
+  unflagUser
 } from "../controllers/userController.js";
 
 const router = express.Router();
 
 router.patch("/update-location", protect, updateUserLocation);
 router.get("/me", protect, getCurrentUserInfo);
+router.patch("/me/unflag", protect, unflagUser);
 router.get("/:userId", protect, getUserById);
 router.patch("/me", protect, updateUserProfile);
 router.get("/me/stats", protect, getUserStats);

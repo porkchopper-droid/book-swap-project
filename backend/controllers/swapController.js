@@ -435,6 +435,9 @@ export const reportSwap = async (req, res) => {
       if (otherUser.reportedCount >= 5) {
         otherUser.isFlagged = true; // flag them
         otherUser.flaggedUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // for 7 days 😈
+
+        // 🚨 Also mark all their books as reported
+        await Book.updateMany({ owner: otherUser._id }, { status: "reported" });
       }
       await otherUser.save();
     }

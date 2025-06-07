@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import FlaggedBackground from "./FlaggedBackground";
 
@@ -8,6 +8,7 @@ import "./FlaggedUser.scss"; // optional, for styles
 
 export default function FlaggedUser() {
   const { user, setUser } = useAuth();
+  const navigate = useNavigate();
 
   console.log("🟢 User in FlaggedUser component:", user);
 
@@ -19,28 +20,45 @@ export default function FlaggedUser() {
       })
     : "unknown";
 
-  // Make a silent background request to /api/users/me to trigger protect
-  // useEffect(() => {
-  //   const checkFlagStatus = async () => {
-  //     try {
-  //       const { data } = await axios.get("/api/users/me", {
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //         },
-  //       });
-  //       // Update user state
-  //       setUser(data);
-  //     } catch (err) {
-  //       console.error("Silent flag status check failed:", err);
-  //     }
-  //   };
+  useEffect(() => {
+    const checkFlagStatus = async () => {
+      try {
+        // 1️⃣ Trigger unflag
+        await axios.patch(
+          "/api/users/me/unflag",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
-  //   checkFlagStatus();
-  // }, [setUser]);
+        // 2️⃣ Fetch fresh user data
+        const res = await axios.get("/api/users/me", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setUser(res.data);
+      } catch (err) {
+        console.error("Silent flag status check failed:", err);
+      }
+    };
+
+    checkFlagStatus();
+  }, [setUser]);
+
+  // This kicks user out of FlaggedUser page when they’re no longer flagged
+  useEffect(() => {
+    if (user && !user.isFlagged) {
+      navigate("/my-account");
+    }
+  }, [user, navigate]);
 
   return (
     <div className="flagged-background">
-    <FlaggedBackground />
+      <FlaggedBackground />
       <div className="flagged-info">
         <h2>Account Restricted</h2>
         <p>

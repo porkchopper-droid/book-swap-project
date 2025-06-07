@@ -1,6 +1,6 @@
 @use "../styles/variables.scss" as *;
 
-@keyframes wiggle-spin-scale {
+@keyframes contact-wiggle-spin-scale {
   0%,
   100% {
     transform: translate(-40px, -30px) rotate(0deg) scale(1);
@@ -33,6 +33,6 @@
     color: $color-text;
     transition: transform 0.3s ease;
     transform: translate(-40px, -30px);
-    animation: wiggle-spin-scale 3s infinite ease-in-out;
+    animation: contact-wiggle-spin-scale 3s infinite ease-in-out;
   }
 }
