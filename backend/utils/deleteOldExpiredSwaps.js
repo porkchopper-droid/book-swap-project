@@ -14,7 +14,5 @@ export const deleteOldExpiredSwaps = async () => {
     log(`🗑️ Deleted expired swap ${swap._id} (older than 30 days)`);
   }
 
-  log(`✅ Purged ${staleExpired.length} old expired swap(s)`);
-
   return staleExpired.length;
 };

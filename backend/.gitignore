@@ -3,3 +3,4 @@ tech-readme.md
 .env
 bcryptDemo.js
 .log
+logs/

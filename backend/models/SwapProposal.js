@@ -91,4 +91,7 @@ const swapProposalSchema = new mongoose.Schema(
   { timestamps: true } // createdAt
 );
 
+// 🔥 Add compound index for status + updatedAt (for CRONJOB)
+swapProposalSchema.index({ status: 1, updatedAt: 1 });
+
 export default mongoose.model("SwapProposal", swapProposalSchema);

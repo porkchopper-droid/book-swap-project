@@ -422,8 +422,8 @@ export const reportSwap = async (req, res) => {
     swap.reportedAt = new Date();
     await swap.save();
 
-    await Book.findByIdAndUpdate(swap.offeredBook, { status: "reported" });
-    await Book.findByIdAndUpdate(swap.requestedBook, { status: "reported" });
+    await Book.findByIdAndUpdate(swap.offeredBook, { status: "reported", reportedAt: new Date() });
+    await Book.findByIdAndUpdate(swap.requestedBook, { status: "reported", reportedAt: new Date() });
 
     // Increment the *other* user's reportedCount
     const otherUserId =

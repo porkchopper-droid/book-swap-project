@@ -243,13 +243,26 @@ export const unflagUser = async (req, res) => {
       user.reportedCount = 0;
       await user.save();
 
-      // 🚨 Restore their books to "available"
+      // 1️⃣ Find swaps where this user was flagged
+      const reportedSwaps = await SwapProposal.find({
+        status: "reported",
+        $or: [{ from: userId }, { to: userId }],
+      });
+
+      const bookIdsToRestore = new Set();
+      for (const swap of reportedSwaps) {
+        bookIdsToRestore.add(swap.offeredBook.toString());
+        bookIdsToRestore.add(swap.requestedBook.toString());
+      }
+
+      // 2️⃣ Restore all these books
       await Book.updateMany(
-        { owner: user._id, status: "reported" },
-        { status: "available" }
+        { _id: { $in: Array.from(bookIdsToRestore) } },
+        { status: "available", reportedAt: null }
       );
 
-      console.log(`✅ User ${user._id} unflagged and books restored!`);
+      console.log(`✅ User ${user._id} unflagged and all swap-related books restored!`);
+
       return res.json({ message: "User unflagged and books restored." });
     }
 

@@ -21,7 +21,7 @@ const bookSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true, // current owner
+      required: true, // current user
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
