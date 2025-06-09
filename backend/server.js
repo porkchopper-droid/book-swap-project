@@ -82,7 +82,7 @@ io.on("connection", (socket) => {
       const swap = await SwapProposal.findById(swapId);
       // console.log("🔍 Found swap:", swap);
       if (!swap || !["accepted", "completed", "reported"].includes(swap.status))
-        return;
+        return; // Invalid swap or not in the right status
 
       const message = new Message({ swapId, sender: senderId, text });
       const saved = await message.save();

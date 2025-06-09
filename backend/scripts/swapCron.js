@@ -1,13 +1,13 @@
 import cron from "node-cron";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import { log } from "./utils/logger.js";
-import { findStaleSwaps } from "./utils/findStaleSwaps.js";
-import { handleStaleSwaps } from "./utils/handleStaleSwaps.js";
-import { deleteOldExpiredSwaps } from "./utils/deleteOldExpiredSwaps.js";
-import { autoUnflagUsers } from "./utils/autoUnflagUsers.js";
-import { generateDailyMetrics } from "./utils/generateDailyMetrics.js";
-import { sendEmail } from "./utils/sendCronEmail.js";
+import { log } from "../utils/logger.js";
+import { findStaleSwaps } from "../utils/findStaleSwaps.js";
+import { handleStaleSwaps } from "../utils/handleStaleSwaps.js";
+import { deleteOldExpiredSwaps } from "../utils/deleteOldExpiredSwaps.js";
+import { autoUnflagUsers } from "../utils/autoUnflagUsers.js";
+import { generateDailyMetrics } from "../utils/generateDailyMetrics.js";
+import { sendEmail } from "../utils/sendCronEmail.js";
 
 dotenv.config();
 
