@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import MapComponent from "../components/MapComponent";
 import UserInfoModal from "../components/UserInfoModal";
-import "./MyAccount.scss";
+import "./Account.scss";
 
-export default function MyAccount() {
+export default function Account() {
   const [showModal, setShowModal] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [stats, setStats] = useState(null);
@@ -14,7 +14,7 @@ export default function MyAccount() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const res = await axios.get("/api/users/me", {
+        const res = await axios.get("/api/users/account", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -30,7 +30,7 @@ export default function MyAccount() {
 
   const refreshUserInfo = async () => {
     try {
-      const res = await axios.get("/api/users/me", {
+      const res = await axios.get("/api/users/account", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -44,7 +44,7 @@ export default function MyAccount() {
   useEffect(() => {
     const fetchUserStats = async () => {
       try {
-        const res = await axios.get("/api/users/me/stats", {
+        const res = await axios.get("/api/users/account/stats", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

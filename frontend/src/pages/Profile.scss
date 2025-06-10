@@ -1,0 +1,193 @@
+@use "../styles/variables.scss" as *;
+@use "sass:color";
+
+.profile {
+  display: flex;
+  gap: $gap-default;
+
+  .left-column {
+    flex: 1;
+    border-radius: $border-radius;
+    color: $color-text;
+
+    .profile-edit-panel {
+      display: flex;
+      flex-direction: column;
+      gap: $gap-default;
+
+      h3 {
+        color: $color-heading;
+        text-align: center;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: $gap-mini;
+
+        .username-file-row {
+          display: flex;
+          gap: $gap-mini;
+          align-items: center;
+
+          input[type="text"] {
+            flex: 1;
+          }
+
+          input[type="file"] {
+            width: auto;
+            cursor: pointer;
+          }
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+          color: $color-text !important;
+
+          &::placeholder {
+            color: color.adjust($color-text, $lightness: -30%);
+          }
+
+          &:-webkit-autofill,
+          &:-webkit-autofill:hover,
+          &:-webkit-autofill:focus,
+          &:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px $color-box-bg inset !important;
+            -webkit-text-fill-color: $color-text !important;
+            background-color: $color-box-bg !important;
+          }
+        }
+
+        input {
+          width: 100%;
+          display: flex;
+          padding: $gap-mini;
+          font-size: $font-size-base;
+          border: 0.5px solid $color-border;
+          border-radius: $border-radius-mini;
+          background-color: $color-box-bg;
+          color: $color-text !important;
+        }
+
+        .react-select__control {
+          width: 100%;
+          font-size: $font-size-base;
+          border: 0.5px solid #ccc;
+          border-radius: 6px;
+          background-color: $color-box-bg;
+        }
+
+        .react-select__single-value,
+        .react-select__placeholder {
+          color: $color-text;
+        }
+
+        .react-select__menu {
+          background-color: $color-box-bg;
+          border-radius: 6px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .react-select__option {
+          background-color: $color-box-bg;
+          color: $color-text;
+
+          &:hover {
+            background-color: color.adjust($color-box-bg, $lightness: -5%);
+          }
+
+          &.react-select__option--is-focused {
+            background-color: color.adjust($color-box-bg, $lightness: -10%);
+          }
+
+          &.react-select__option--is-selected {
+            background-color: color.adjust($color-box-bg, $lightness: 10%);
+            color: $color-text;
+          }
+        }
+
+        .react-select__control,
+        .react-select__menu,
+        .react-select__option,
+        .react-select__single-value,
+        .react-select__placeholder,
+        .react-select__input input {
+          font-family: Arial, Helvetica, sans-serif !important;
+        }
+
+        .profile-edit-button {
+          display: flex;
+          align-self: center;
+
+          button {
+            padding: 8px 30px;
+            background-color: darkred;
+            color: white;
+            border: 0.5px solid $color-border;
+            border-radius: $border-radius-mini;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: $margin-mini;
+            transition: 0.1s ease;
+
+            &:hover {
+              background-color: color.adjust(darkred, $lightness: 10%);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .divider {
+    width: 0.5px;
+    background-color: $color-border; // adjust as needed
+  }
+
+  .right-column {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: $gap-mini;
+    text-align: center;
+
+    .chart-header {
+      display: flex;
+      justify-content: space-around;
+
+      h3 {
+        text-decoration: underline;
+      }
+
+      button {
+        background-color: $color-bg;
+        color: $color-text;
+        font-weight: bold;
+        border-radius: $border-radius-mini;
+        border: 0.5px solid $color-border;
+        padding: 8px;
+        min-width: 120px;
+        cursor: pointer;
+        transition: 0.1s ease;
+
+        &:hover {
+              background-color: $color-button-bg;
+              color: $color-text-button-hover;
+            }
+      }
+    }
+
+    .custom-tooltip {
+      background: rgba(250, 151, 29, 0.9);
+      color: $color-text-button-hover;
+      padding: 6px 10px;
+      border-radius: $border-radius-mini;
+      font-size: $font-size-tiny;
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+}

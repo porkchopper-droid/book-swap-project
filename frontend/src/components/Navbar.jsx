@@ -15,7 +15,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="nav-left">
-        <NavLink to="/my-account" className="profile-link">
+        <NavLink to="/account" className="account-link">
           {user?.profilePicture && user.profilePicture.trim() !== "" ? (
             <img src={user.profilePicture} alt="Profile" />
           ) : (
@@ -24,7 +24,7 @@ export default function Navbar() {
             </div>
           )}
           <div>
-            <h3>Hello, {user?.username || "Guest"}</h3>
+            <h4>Hello, {user?.username || "Guest"}</h4>
           </div>
         </NavLink>
       </div>

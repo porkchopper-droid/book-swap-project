@@ -60,7 +60,7 @@ export default function UserInfoModal({ user, onClose, onUpdate }) {
         formData.append("avatar", avatarFile);
       }
 
-      const { data } = await axios.patch("/api/users/me", formData, {
+      const { data } = await axios.patch("/api/users/account", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

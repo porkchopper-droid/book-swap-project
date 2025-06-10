@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import MyAccount from "./pages/MyAccount";
+import Account from "./pages/Account";
+import Profile from "./pages/Profile";
 import BooksPage from "./pages/BooksPage";
 import ChatsPage from "./pages/ChatsPage";
 import SwapsPage from "./pages/SwapsPage";
@@ -29,8 +30,9 @@ function App() {
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoutes />}>
-          <Route path="/my-account" element={<MyAccount />} />
-          <Route path="/my-account/restricted" element={<FlaggedUser />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/account/profile" element={<Profile />} />
+          <Route path="/account/restricted" element={<FlaggedUser />} />
           <Route path="/books" element={<BooksPage />} />
           <Route path="/chats" element={<ChatsPage />} />
           <Route path="/chats/:swapId" element={<ChatsPage />} />

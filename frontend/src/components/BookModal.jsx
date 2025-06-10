@@ -55,8 +55,8 @@ export default function BookModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+    <div className="book-modal-overlay" onClick={onClose}>
+      <div className="book-modal" onClick={(e) => e.stopPropagation()}>
         <h3>{isEdit ? "Edit Book" : "Add Book"}</h3>
         {["title", "author", "year", "genre", "imageUrl"].map((field) => (
           <input

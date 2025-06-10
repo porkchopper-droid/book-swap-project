@@ -31,7 +31,7 @@ export default function Landing() {
         localStorage.setItem("user", JSON.stringify(data.user));
         setUser(data.user);
         setStatus("✅ Logged in!");
-        navigate("/my-account");
+        navigate("/account");
       } else {
         setStatus("❌ Login failed: " + (data.message || "Invalid credentials"));
       }

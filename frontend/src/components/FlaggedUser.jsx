@@ -25,7 +25,7 @@ export default function FlaggedUser() {
       try {
         // 1️⃣ Trigger unflag
         await axios.patch(
-          "/api/users/me/unflag",
+          "/api/users/account/unflag",
           {},
           {
             headers: {
@@ -35,7 +35,7 @@ export default function FlaggedUser() {
         );
 
         // 2️⃣ Fetch fresh user data
-        const res = await axios.get("/api/users/me", {
+        const res = await axios.get("/api/users/account", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -52,7 +52,7 @@ export default function FlaggedUser() {
   // This kicks user out of FlaggedUser page when they’re no longer flagged
   useEffect(() => {
     if (user && !user.isFlagged) {
-      navigate("/my-account");
+      navigate("/account");
     }
   }, [user, navigate]);
 

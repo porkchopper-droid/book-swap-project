@@ -17,6 +17,142 @@ export const getCurrentUserInfo = async (req, res) => {
   }
 };
 
+export const getFullProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Basic user info
+    const user = await User.findById(userId).select(
+      "username email city country profilePicture"
+    );
+
+    // Quick stats
+    const booksCount = await Book.countDocuments({ user: userId });
+    const totalSwaps = await SwapProposal.countDocuments({
+      $or: [{ from: userId }, { to: userId }],
+      status: "completed",
+    });
+
+    const lastSwap = await SwapProposal.findOne({
+      $or: [{ from: userId }, { to: userId }],
+      status: "completed",
+    }).sort({ completedAt: -1 });
+
+    const lastSwapDate = lastSwap?.completedAt || null;
+
+    const badges = [
+      { name: "Bronze Medal 🥉", achieved: booksCount >= 1 },
+      { name: "Silver Medal 🥈", achieved: booksCount >= 5 },
+      { name: "Gold Medal 🥇", achieved: booksCount >= 10 },
+    ];
+
+    // Fetch user's books (shortlist)
+    const userBooks = await Book.find({ user: userId }).select(
+      "title author coverUrl"
+    );
+
+    res.json({
+      user,
+      stats: {
+        booksCount,
+        totalSwaps,
+        lastSwapDate,
+        badges,
+      },
+      userBooks,
+    });
+  } catch (err) {
+    console.error("Failed to fetch profile:", err);
+    res.status(500).json({ message: "Server error while fetching profile." });
+  }
+};
+
+
+export const getDailyBooksStats = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // 🗓️ Get month/year from query params or use current month/year
+    const year = parseInt(req.query.year, 10) || new Date().getFullYear();
+    const month = parseInt(req.query.month, 10) || new Date().getMonth() + 1; // 1-based
+
+    // 🗓️ Build start and end of month
+    const startOfMonth = new Date(year, month - 1, 1);
+    const startOfNextMonth = new Date(year, month, 1);
+
+    const dailyBooks = await Book.aggregate([
+      {
+        $match: {
+          user: userId,
+          createdAt: { $gte: startOfMonth, $lt: startOfNextMonth },
+        },
+      },
+      {
+        $group: {
+          _id: { $dayOfMonth: "$createdAt" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          day: "$_id",
+          count: 1,
+          _id: 0,
+        },
+      },
+      { $sort: { day: 1 } },
+    ]);
+
+    res.json({ month, year, dailyBooks });
+  } catch (err) {
+    console.error("Failed to fetch daily book stats:", err);
+    res.status(500).json({ message: "Server error while fetching daily book stats." });
+  }
+};
+
+export const getDailySwapsStats = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // 🗓️ Get month/year from query params or default to current month/year
+    const year = parseInt(req.query.year, 10) || new Date().getFullYear();
+    const month = parseInt(req.query.month, 10) || new Date().getMonth() + 1; // 1-based
+
+    // 🗓️ Build date range for that month
+    const startOfMonth = new Date(year, month - 1, 1);
+    const startOfNextMonth = new Date(year, month, 1);
+
+    const dailySwaps = await SwapProposal.aggregate([
+      {
+        $match: {
+          $or: [{ from: userId }, { to: userId }],
+          status: "completed",
+          completedAt: { $gte: startOfMonth, $lt: startOfNextMonth },
+        },
+      },
+      {
+        $group: {
+          _id: { $dayOfMonth: "$completedAt" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          day: "$_id",
+          count: 1,
+          _id: 0,
+        },
+      },
+      { $sort: { day: 1 } },
+    ]);
+
+    res.json({ month, year, dailySwaps });
+  } catch (err) {
+    console.error("Failed to fetch daily swap stats:", err);
+    res.status(500).json({ message: "Server error while fetching daily swap stats." });
+  }
+};
+
 export const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.userId).select(

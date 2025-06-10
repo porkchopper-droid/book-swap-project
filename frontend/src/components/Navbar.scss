@@ -17,12 +17,12 @@
   }
 
   .nav-left {
-    .profile-link {
+    .account-link {
       display: flex;
       align-items: center;
       text-decoration: none;
       color: inherit;
-      gap: $gap-mini;
+      gap: $gap-default;
 
       .avatar-fallback {
         min-width: $avatar-size-large;
@@ -41,12 +41,6 @@
         min-width: $avatar-size-large;
         height: $avatar-size-large;
         border-radius: 50%;
-        margin-right: 0.75rem;
-      }
-
-      h3 {
-        margin: 0;
-        font-size: 1rem;
       }
     }
   }

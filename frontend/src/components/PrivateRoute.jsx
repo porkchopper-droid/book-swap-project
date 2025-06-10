@@ -9,11 +9,11 @@ export default function PrivateRoute({ children }) {
     return <Navigate to="/" />;
   }
 
-  // ⚠️ If flagged and NOT already at /my-account/restricted → redirect
-  if (user.isFlagged && location.pathname !== "/my-account/restricted") {
-    return <Navigate to="/my-account/restricted" />;
+  // ⚠️ If flagged and NOT already at /account/restricted → redirect
+  if (user.isFlagged && location.pathname !== "/account/restricted") {
+    return <Navigate to="/account/restricted" />;
   }
 
-  // ✅ If already at /my-account/restricted, allow it
+  // ✅ If already at /account/restricted, allow it
   return children;
 }
