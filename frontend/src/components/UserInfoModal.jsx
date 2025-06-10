@@ -8,6 +8,7 @@ import "./UserInfoModal.scss";
 const countryOptions = countryList().getData();
 
 export default function UserInfoModal({ user, onClose, onUpdate }) {
+  const [avatarFile, setAvatarFile] = useState(null);
   const [form, setForm] = useState({
     username: user?.username || "",
     email: user?.email || "",
@@ -48,16 +49,18 @@ export default function UserInfoModal({ user, onClose, onUpdate }) {
 
   const handleSubmit = async () => {
     try {
-      const payload = {
-        username: form.username,
-        email: form.email,
-        city: form.city?.value || "",
-        country: form.country?.value || "",
-        currentPassword: form.currentPassword, // always sent
-        newPassword: form.newPassword || "", // optional
-      };
+      const formData = new FormData();
+      formData.append("username", form.username);
+      formData.append("email", form.email);
+      formData.append("city", form.city?.value || "");
+      formData.append("country", form.country?.value || "");
+      formData.append("currentPassword", form.currentPassword);
+      formData.append("newPassword", form.newPassword || "");
+      if (avatarFile) {
+        formData.append("avatar", avatarFile);
+      }
 
-      const { data } = await axios.patch("/api/users/me", payload, {
+      const { data } = await axios.patch("/api/users/me", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -72,8 +75,8 @@ export default function UserInfoModal({ user, onClose, onUpdate }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+    <div className="user-modal-overlay" onClick={onClose}>
+      <div className="user-modal" onClick={(e) => e.stopPropagation()}>
         <h3>Edit Your Info</h3>
         <form
           onSubmit={(e) => {
@@ -81,17 +84,29 @@ export default function UserInfoModal({ user, onClose, onUpdate }) {
             handleSubmit();
           }}
         >
-          {["username", "email"].map((field) => (
+          <div className="username-file-row">
             <input
-              key={field}
-              name={field}
-              placeholder={field}
-              value={form[field]}
-              onChange={(e) => setForm({ ...form, [field]: e.target.value })}
+              name="username"
+              placeholder="username"
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
               required
+              autocomplete="username"
             />
-          ))}
-
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setAvatarFile(e.target.files[0])}
+            />
+          </div>
+          <input
+            name="email"
+            placeholder="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            required
+            autocomplete="email"
+          />
           <Select
             classNamePrefix="react-select"
             options={countryOptions}
@@ -113,9 +128,7 @@ export default function UserInfoModal({ user, onClose, onUpdate }) {
             name="currentPassword"
             placeholder="Current Password (required for any change)"
             value={form.currentPassword}
-            onChange={(e) =>
-              setForm({ ...form, currentPassword: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, currentPassword: e.target.value })}
             required
           />
 
@@ -126,7 +139,8 @@ export default function UserInfoModal({ user, onClose, onUpdate }) {
             value={form.newPassword}
             onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
           />
-          <div className="modal-buttons">
+
+          <div className="modal-button">
             <button type="submit">Save</button>
           </div>
         </form>

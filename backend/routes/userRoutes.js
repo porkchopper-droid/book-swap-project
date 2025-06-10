@@ -8,6 +8,7 @@ import {
   getUserById,
   unflagUser
 } from "../controllers/userController.js";
+import parser from "../config/multer.js";
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.patch("/update-location", protect, updateUserLocation);
 router.get("/me", protect, getCurrentUserInfo);
 router.patch("/me/unflag", protect, unflagUser);
 router.get("/:userId", protect, getUserById);
-router.patch("/me", protect, updateUserProfile);
+router.patch("/me", parser.single("avatar"), protect, updateUserProfile);
 router.get("/me/stats", protect, getUserStats);
 
 export default router;

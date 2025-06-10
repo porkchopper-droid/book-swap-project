@@ -2,12 +2,11 @@ import User from "../models/User.js";
 import Book from "../models/Book.js";
 import SwapProposal from "../models/SwapProposal.js";
 import bcrypt from "bcrypt";
+import cloudinary from "../config/cloudinary.js";
 
 export const getCurrentUserInfo = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select(
-      "username email country city location"
-    );
+    const user = await User.findById(req.user._id).select("username email country city location");
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -64,8 +63,7 @@ export const updateUserLocation = async (req, res) => {
 
 export const updateUserProfile = async (req, res) => {
   try {
-    const { username, email, city, country, currentPassword, newPassword } =
-      req.body;
+    const { username, email, city, country, currentPassword, newPassword } = req.body;
 
     //  Fetch the user (with password field)
     const user = await User.findById(req.user._id).select("+password");
@@ -75,9 +73,7 @@ export const updateUserProfile = async (req, res) => {
 
     // Check that the current password is provided and correct
     if (!currentPassword || !(await user.comparePassword(currentPassword))) {
-      return res
-        .status(401)
-        .json({ message: "Current password is incorrect or missing." });
+      return res.status(401).json({ message: "Current password is incorrect or missing." });
     }
 
     // Update basic info
@@ -90,6 +86,33 @@ export const updateUserProfile = async (req, res) => {
     if (newPassword) {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    // uploading an avatar and deleting (if necessary) the old one
+    if (req.file) {
+      // If user already has an avatar, remove it from Cloudinary
+      if (user.profilePicture) {
+        // Extract public ID from URL
+        const publicId = user.profilePicture.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(`avatars/${publicId}`);
+      }
+
+      // Upload new avatar
+      const dataUri = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+      const result = await cloudinary.uploader.upload(dataUri, {
+        folder: "avatars",
+        transformation: [
+          {
+            width: 300,
+            height: 300,
+            crop: "fill",
+            gravity: "auto",
+            quality: "auto",
+            fetch_format: "auto",
+          },
+        ],
+      });
+      user.profilePicture = result.secure_url;
     }
 
     // If both city & country are present, geocode them
@@ -109,10 +132,7 @@ export const updateUserProfile = async (req, res) => {
           const jitter = () => (Math.random() - 0.5) * 0.02; // jittering users' location on country/city change
           user.location = {
             type: "Point",
-            coordinates: [
-              parseFloat(geo.lng) + jitter(),
-              parseFloat(geo.lat) + jitter(),
-            ],
+            coordinates: [parseFloat(geo.lng) + jitter(), parseFloat(geo.lat) + jitter()],
           };
         } else {
           console.warn("⚠️ No matching GeoNames result found.");
@@ -221,9 +241,7 @@ export const getUserStats = async (req, res) => {
     res.json(userStats);
   } catch (err) {
     console.error("Error generating user stats:", err);
-    res
-      .status(500)
-      .json({ message: "Server error while generating user stats." });
+    res.status(500).json({ message: "Server error while generating user stats." });
   }
 };
 

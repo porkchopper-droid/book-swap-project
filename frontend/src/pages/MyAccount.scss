@@ -10,7 +10,6 @@
     padding: $padding-default;
     width: 25%;
     background-color: $color-box-bg;
-    color: $color-text;
     display: flex;
     flex-direction: column;
     gap: $gap-default;
@@ -65,10 +64,12 @@
       flex-direction: column;
       gap: $gap-mini;
       align-items: center;
+      
 
       .badges {
         display: flex;
         gap: $gap-default;
+  
       }
 
       .badge {

@@ -39,7 +39,7 @@ app.use("/api/chats", chatRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/map", mapRoutes);
 app.use("/api/notifications", notificationRoutes);
-app.use("/api/support", contactRoutes)
+app.use("/api/support", contactRoutes);
 
 /* ----------------- MongoDB Connection ----------------- */
 
@@ -81,15 +81,13 @@ io.on("connection", (socket) => {
     try {
       const swap = await SwapProposal.findById(swapId);
       // console.log("🔍 Found swap:", swap);
-      if (!swap || !["accepted", "completed", "reported"].includes(swap.status))
-        return; // Invalid swap or not in the right status
+      if (!swap || !["accepted", "completed", "reported"].includes(swap.status)) return; // Invalid swap or not in the right status
 
       const message = new Message({ swapId, sender: senderId, text });
       const saved = await message.save();
       const populated = await saved.populate("sender", "username");
 
-      const receiverId =
-        senderId === String(swap.from) ? String(swap.to) : String(swap.from);
+      const receiverId = senderId === String(swap.from) ? String(swap.to) : String(swap.from);
 
       // 1️⃣ Increment unread count for the receiver
       await User.findByIdAndUpdate(receiverId, {
