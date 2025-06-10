@@ -1,0 +1,32 @@
+@use "../styles/variables.scss" as *;
+
+.careers-page {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  color: $color-text;
+  min-height: 100vh;
+  gap: $gap-default;
+
+  h1 {
+    font-weight: bold;
+  }
+
+  p {
+    max-width: 50%;
+    line-height: 1.6;
+    color: $color-text;
+
+    a {
+      color: $color-text;
+
+      font-weight: bold;
+
+      &:hover {
+        text-decoration: none; // optional
+      }
+    }
+  }
+}

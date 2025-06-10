@@ -37,7 +37,7 @@ export default function ContactUsPage() {
           />
           <textarea
             id="message"
-            placeholder="Describe your issue..."
+            placeholder="A penny for your thoughts..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             required

@@ -11,6 +11,8 @@ import MapComponent from "./components/MapComponent";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ContactUsPage from "./pages/ContactUsPage";
 import FlaggedUser from "./components/FlaggedUser";
+import AboutUsPage from "./pages/AboutUs";
+import CareersPage from "./pages/Careers";
 
 import ProtectedRoutes from "./routes/ProtectedRoutes";
 
@@ -22,7 +24,8 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
         <Route path="/contact-us" element={<ContactUsPage />} />
-
+        <Route path="/about" element={<AboutUsPage />} />
+        <Route path="/careers" element={<CareersPage />} />
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoutes />}>
