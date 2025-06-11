@@ -73,7 +73,6 @@
       text-decoration: none;
       color: white;
       font-weight: 500;
-      font-size: 1rem;
 
       &.active {
         text-decoration: underline;
@@ -88,11 +87,6 @@
       text-decoration: none;
       color: white;
       font-weight: 500;
-      transition: color 0.2s;
-
-      &:hover {
-        color: red;
-      }
     }
   }
 }

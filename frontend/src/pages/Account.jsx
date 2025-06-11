@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import MapComponent from "../components/MapComponent";
-import UserInfoModal from "../components/UserInfoModal";
+import { IoStatsChartOutline } from "react-icons/io5";
+import { GrContactInfo } from "react-icons/gr";
 import "./Account.scss";
 
 export default function Account() {
-  const [showModal, setShowModal] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [stats, setStats] = useState(null);
   const [forceReload, setForceReload] = useState(false);
   const [editLocation, setEditLocation] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -63,57 +66,42 @@ export default function Account() {
   return (
     <div className="account-layout">
       <aside>
-        {showModal && (
-          <UserInfoModal
-            user={userInfo}
-            onClose={() => setShowModal(false)}
-            onUpdate={(updated) => {
-              setUserInfo(updated);
-              setForceReload((prev) => !prev); // 💥 trigger map reload
-            }}
-          />
-        )}
         <div className="my-stats">
-          <h3>📊 My Stats</h3>
+          <h3>
+            <IoStatsChartOutline /> My Stats
+          </h3>
           <ul>
-            <li>Books available: {stats ? stats.booksCount : "Loading..."}</li>
             <li>
-              Swaps made: {stats ? stats.totalBooksExchanged : "Loading..."}
-            </li>
-            <li>Favorite genre: {stats?.favoriteGenre || "N/A"}</li>
-            <li>
-              Oldest book:{" "}
-              {stats?.oldestBook
-                ? `${stats.oldestBook.title} (${stats.oldestBook.year})`
-                : "N/A"}
+              <strong>Books available:</strong> {stats ? stats.booksCount : "Loading..."}
             </li>
             <li>
-              Most popular book:{" "}
+              <strong>Swaps made:</strong> {stats ? stats.totalBooksExchanged : "Loading..."}
+            </li>
+            <li>
+              <strong>Favorite genre:</strong> {stats?.favoriteGenre || "N/A"}
+            </li>
+            <li>
+              <strong>Oldest book:</strong>{" "}
+              {stats?.oldestBook ? `${stats.oldestBook.title} (${stats.oldestBook.year})` : "N/A"}
+            </li>
+            <li>
+              <strong>Most popular book:</strong>{" "}
               {stats?.mostPopularBook
                 ? `${stats.mostPopularBook.title} (${stats.mostPopularBook.swapCount} swaps)`
                 : "N/A"}
             </li>
             <li>
-              Last swap date:{" "}
-              {stats?.lastSwapDate
-                ? new Date(stats.lastSwapDate).toLocaleDateString()
-                : "N/A"}
+              <strong>Last swap date:</strong>{" "}
+              {stats?.lastSwapDate ? new Date(stats.lastSwapDate).toLocaleDateString() : "N/A"}
             </li>
           </ul>
         </div>
 
         <div className="my-info">
-          <div className="my-info-edit">
-            <h3>👤 My info</h3>
-            <button
-              aria-label="Edit Info"
-              title="Edit Info"
-              className="my-info-edit-button"
-              onClick={() => setShowModal(true)}
-            >
-              ✏️
-            </button>
-          </div>
+          <h3>
+            <GrContactInfo style={{ verticalAlign: "middle", fontSize: "24px" }} /> My info
+          </h3>
+
           <ul>
             <li>
               <strong>Username:</strong> {userInfo.username}
@@ -122,25 +110,18 @@ export default function Account() {
               <strong>Email:</strong> {userInfo.email}
             </li>
             <li>
-              <strong>Location:</strong>{" "}
-              {userInfo.location.coordinates.join(", ")}
+              <strong>Location:</strong> {userInfo.location.coordinates.join(", ")}
             </li>
           </ul>
         </div>
-        <div className="badges-container">
-          <h3>🏅 Achievements</h3>
-          <div className="badges">
-            {stats?.badges.map((badge, idx) => (
-              <div
-                key={idx}
-                className={`badge ${badge.achieved ? "achieved" : "locked"}`}
-                title={badge.name}
-              >
-                {badge.name.slice(-2)}
-              </div>
-            ))}
-          </div>
-        </div>
+        <button
+          aria-label="My Profile"
+          title="My Profile"
+          className="my-profile-button"
+          onClick={() => navigate("/account/profile")}
+        >
+          My Profile
+        </button>
       </aside>
 
       <main>

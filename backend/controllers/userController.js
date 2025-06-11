@@ -4,7 +4,7 @@ import SwapProposal from "../models/SwapProposal.js";
 import bcrypt from "bcrypt";
 import cloudinary from "../config/cloudinary.js";
 
-export const getCurrentUserInfo = async (req, res) => {
+export const getUserInfo = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select("username email country city location");
 
@@ -22,9 +22,7 @@ export const getFullProfile = async (req, res) => {
     const userId = req.user._id;
 
     // Basic user info
-    const user = await User.findById(userId).select(
-      "username email city country profilePicture"
-    );
+    const user = await User.findById(userId).select("username email city country profilePicture");
 
     // Quick stats
     const booksCount = await Book.countDocuments({ user: userId });
@@ -40,16 +38,14 @@ export const getFullProfile = async (req, res) => {
 
     const lastSwapDate = lastSwap?.completedAt || null;
 
-    const badges = [
-      { name: "Bronze Medal 🥉", achieved: booksCount >= 1 },
-      { name: "Silver Medal 🥈", achieved: booksCount >= 5 },
-      { name: "Gold Medal 🥇", achieved: booksCount >= 10 },
-    ];
+    // const badges = [
+    //   { name: "Bronze Medal 🥉", achieved: booksCount >= 1 },
+    //   { name: "Silver Medal 🥈", achieved: booksCount >= 5 },
+    //   { name: "Gold Medal 🥇", achieved: booksCount >= 10 },
+    // ];
 
     // Fetch user's books (shortlist)
-    const userBooks = await Book.find({ user: userId }).select(
-      "title author coverUrl"
-    );
+    const userBooks = await Book.find({ user: userId }).select("title author coverUrl");
 
     res.json({
       user,
@@ -57,7 +53,7 @@ export const getFullProfile = async (req, res) => {
         booksCount,
         totalSwaps,
         lastSwapDate,
-        badges,
+        // badges,
       },
       userBooks,
     });
@@ -66,7 +62,6 @@ export const getFullProfile = async (req, res) => {
     res.status(500).json({ message: "Server error while fetching profile." });
   }
 };
-
 
 export const getDailyBooksStats = async (req, res) => {
   try {

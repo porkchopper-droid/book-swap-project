@@ -4,7 +4,6 @@
 .account-layout {
   display: flex;
   gap: $gap-default;
-  flex: 1;
 
   aside {
     padding: $padding-default;
@@ -34,23 +33,8 @@
       flex-direction: column;
       gap: $gap-mini;
 
-      .my-info-edit {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-
-        .my-info-edit-button {
-          width: calc($font-size-base * 2);
-          height: calc($font-size-base * 2);
-          border-radius: 50%;
-          padding: 2px;
-          background-color: $color-box-bg;
-          border: 0.5px solid $color-text;
-
-          &:hover {
-            background-color: $color-button-bg;
-          }
-        }
+      h3 {
+        text-align: center;
       }
 
       ul {
@@ -59,27 +43,19 @@
       }
     }
 
-    .badges-container {
-      display: flex;
-      flex-direction: column;
-      gap: $gap-mini;
-      align-items: center;
-      
+    button {
+      padding: 8px 30px;
+      background-color: darkred;
+      color: white;
+      border: 0.5px solid $color-border;
+      border-radius: $border-radius-mini;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: $margin-mini;
+      transition: 0.1s ease;
 
-      .badges {
-        display: flex;
-        gap: $gap-default;
-  
-      }
-
-      .badge {
-        font-size: calc($font-size-base * 3); // make those medals nice & big!
-        opacity: 0.3; // default to greyed out
-        transition: opacity 0.3s ease;
-
-        &.achieved {
-          opacity: 1; // full color once achieved
-        }
+      &:hover {
+        background-color: color.adjust(darkred, $lightness: 10%);
       }
     }
   }

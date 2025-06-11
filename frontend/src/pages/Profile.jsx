@@ -148,7 +148,7 @@ export default function Profile() {
         formData.append("avatar", avatarFile);
       }
 
-      const { data } = await axios.patch("/api/users/account", formData, {
+      const { data } = await axios.patch("/api/users/account/profile", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -285,7 +285,11 @@ export default function Profile() {
         <div className="chart-header">
           <button onClick={prevMonth}>⬅️ Previous</button>
           <h3>
-            Activity for {year}-{month.toString().padStart(2, "0")}
+            Activity for{" "}
+            {new Date(year, month - 1).toLocaleString("default", {
+              month: "long",
+              year: "numeric",
+            })}
           </h3>
           <button onClick={nextMonth}>Next ➡️</button>
         </div>

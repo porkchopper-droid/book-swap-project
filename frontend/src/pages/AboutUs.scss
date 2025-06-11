@@ -1,5 +1,46 @@
 @use "../styles/variables.scss" as *;
 
+.qr-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+
+  .qr-modal {
+    min-width: 30%;
+    min-height: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    border: 0.5px solid $color-border;
+    background: $color-box-bg;
+    border-radius: $border-radius;
+    padding: $padding-default;
+
+    img {
+      max-width: 200px;
+      box-shadow: 0 0 10px black;
+    }
+
+    button {
+      background: darkred;
+      color: white;
+      border: none;
+      border-radius: $border-radius-mini;
+      padding: 10px 30px;
+      border: 0.5px solid $color-border;
+      cursor: pointer;
+    }
+  }
+}
+
 .about-us-page {
   display: flex;
   flex-direction: column;
@@ -21,7 +62,7 @@
 
     a {
       color: $color-text;
-      
+
       font-weight: bold;
 
       &:hover {

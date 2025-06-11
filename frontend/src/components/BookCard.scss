@@ -3,7 +3,7 @@
 
 .book-card {
   background-color: $color-book-card;
-  border: 0.5px solid #ccc;
+  border: 0.5px solid $color-border;
   border-radius: $border-radius;
   width: 200px;
   padding: $padding-mini;
@@ -11,7 +11,7 @@
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  gap: 5px;
+  gap: $gap-mini;
   box-shadow: $box-shadow-default;
   cursor: pointer;
 
