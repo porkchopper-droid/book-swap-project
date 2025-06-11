@@ -1,15 +1,6 @@
-import nodemailer from "nodemailer";
+import { sendEmail } from "./emailService.js";
 
-export const sendEmail = async ({ subject, text }) => {
-  
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
+export const sendCronEmail = async (subject, text) => {
   const mailOptions = {
     from: `"Bookbook Cron" <${process.env.EMAIL_USER}>`,
     to: process.env.NOTIFY_EMAIL,
@@ -17,5 +8,5 @@ export const sendEmail = async ({ subject, text }) => {
     text,
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendEmail(mailOptions);
 };

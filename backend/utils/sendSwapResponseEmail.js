@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { sendEmail } from "./emailService.js";
 
 export const sendSwapResponseEmail = async (
   toEmail,
@@ -14,38 +14,26 @@ export const sendSwapResponseEmail = async (
     link,
   }
 ) => {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  const mailOptions = {
+    from: `"Bookbook" <${process.env.EMAIL_USER}>`,
+    to: toEmail,
+    subject: "Your Swap Proposal Has Been Responded To!",
+    html: `
+      <p>Hello ${recipientUser}!</p>
+      <p>${responder} has <strong>${response}</strong> your swap proposal.</p>
+      <p>Swap details:</p>
+      <ul>
+        <li>Your offer: ${offeredBook} by <em>${offeredBookAuthor}</em></li>
+        <li>Your request: ${requestedBook} by <em>${requestedBookAuthor}</em></li>
+      </ul>
+      ${toMessage ? `<p>Here's their message:<br><blockquote>${toMessage}</blockquote></p>` : ""}
+      <p>Visit <a href="${link}">Bookbook</a> to see the full swap details.</p>
+      <p>Happy swapping! 😊</p>
+    `,
+  };
 
   try {
-    const mailOptions = {
-      from: `"Bookbook" <${process.env.EMAIL_USER}>`,
-      to: toEmail,
-      subject: "Your Swap Proposal Has Been Responded To!",
-      html: `
-        <p>Hello ${recipientUser}!</p>
-        <p>${responder} has <strong>${response}</strong> your swap proposal.</p>
-        <p>Swap details:</p>
-        <ul>
-          <li>Your offer: ${offeredBook} by <em>${offeredBookAuthor}</em></li>
-          <li>Your request: ${requestedBook} by <em>${requestedBookAuthor}</em></li>
-        </ul>
-        ${
-          toMessage
-            ? `<p>Here's their message:<br><blockquote>${toMessage}</blockquote></p>`
-            : ""
-        }
-        <p>Visit <a href="${link}">Bookbook</a> to see the full swap details.</p>
-        <p>Happy swapping! 😊</p>
-      `,
-    };
-
-    await transporter.sendMail(mailOptions);
+    await sendEmail(mailOptions);
     console.log("✅ Swap response email sent to:", toEmail);
   } catch (error) {
     console.error("❌ Failed to send swap response email:", error);

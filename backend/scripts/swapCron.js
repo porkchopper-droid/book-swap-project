@@ -7,7 +7,7 @@ import { handleStaleSwaps } from "../utils/handleStaleSwaps.js";
 import { deleteOldExpiredSwaps } from "../utils/deleteOldExpiredSwaps.js";
 import { autoUnflagUsers } from "../utils/autoUnflagUsers.js";
 import { generateDailyMetrics } from "../utils/generateDailyMetrics.js";
-import { sendEmail } from "../utils/sendCronEmail.js";
+import { sendCronEmail } from "../utils/sendCronEmail.js";
 
 dotenv.config();
 
@@ -53,7 +53,7 @@ mongoose.connect(process.env.MONGO_URL).then(() => {
     logWrap("🎉 Finished handling swap maintenance");
 
     // STEP 5: send email
-    await sendEmail({
+    await sendCronEmail({
       subject: "📘 Bookbook Cron Log - " + new Date().toLocaleDateString(),
       text: logs.join("\n"),
     });
