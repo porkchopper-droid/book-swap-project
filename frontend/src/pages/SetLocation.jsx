@@ -1,4 +1,6 @@
 import { useState } from "react";
+import axios from "axios";
+import { debugLog } from "../utils/debug.js";
 
 export default function SetLocation() {
   const [status, setStatus] = useState("");
@@ -13,32 +15,29 @@ export default function SetLocation() {
     setStatus("Requesting location...");
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
+        const token = localStorage.getItem("token");
 
-        const token = localStorage.getItem("token"); // retrieve auth token
+        try {
+          const res = await axios.patch(
+            `/api/users/update-location`,
+            { lat, lon },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
 
-        fetch("http://localhost:6969/api/users/update-location", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ lat, lon }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            setStatus(
-              `✅ Location set: ${data.location.coordinates.join(", ")}`
-            );
-            setError("");
-            console.log(data);
-          })
-          .catch((err) => {
-            console.error("Update failed:", err);
-            setError("Failed to update location.");
-          });
+          setStatus(`✅ Location set: ${res.data.location.coordinates.join(", ")}`);
+          setError("");
+          debugLog(res.data);
+        } catch (err) {
+          console.error("Update failed:", err);
+          setError("Failed to update location.");
+        }
       },
       (err) => {
         console.error("Geolocation error:", err);

@@ -24,7 +24,7 @@ export default function ChatsPage() {
   useEffect(() => {
     async function fetchChats() {
       try {
-        const res = await axios.get("/api/chats/mine", {
+        const res = await axios.get(`/api/chats/mine`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         setChats(res.data); // assume data = array of { _id, name, lastMessage, … }

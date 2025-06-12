@@ -15,9 +15,7 @@ export default function VerifyEmailPage() {
         setMessage(`✅ ${res.data.message}`);
       } catch (err) {
         console.error("Verification failed:", err);
-        setMessage(
-          "❌ Verification failed. The link may be expired or already used."
-        );
+        setMessage("❌ Verification failed. The link may be expired or already used.");
       }
     };
 

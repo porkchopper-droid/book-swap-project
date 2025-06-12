@@ -2,6 +2,7 @@ import L from "leaflet";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { debugLog } from "../utils/debug.js";
 import axios from "axios";
 import "./MapComponent.scss";
 
@@ -39,9 +40,7 @@ export default function MapComponent({
   setEditLocation,
   refreshUserInfo,
 }) {
-  const [mapCenter, setMapCenter] = useState([
-    12.891404295324467, 100.87394532173053,
-  ]);
+  const [mapCenter, setMapCenter] = useState([12.891404295324467, 100.87394532173053]);
   const [zoom, setZoom] = useState(4);
   const [users, setUsers] = useState([]);
   const [tempPosition, setTempPosition] = useState(null);
@@ -65,7 +64,7 @@ export default function MapComponent({
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-        console.log("Map Users Fetched:", res.data);
+        debugLog("Map Users Fetched:", res.data);
         setUsers(res.data);
 
         const currentUser = res.data.find((u) => u.isCurrentUser);
@@ -97,7 +96,7 @@ export default function MapComponent({
       setTempPosition(null);
       setEditLocation(false);
       refreshUserInfo?.();
-      console.log(" Location updated successfully");
+      debugLog(" Location updated successfully");
     } catch (err) {
       console.error("Failed to update location", err);
     }
@@ -154,11 +153,12 @@ export default function MapComponent({
                     {user.books.slice(0, 5).map((book, idx) => (
                       <div key={idx}>{book.title}</div>
                     ))}
-                    {user.books.length > 5 && (
-                      <span className="and-more">...and more</span>
-                    )}
+                    {user.books.length > 5 && <span className="and-more">...and more</span>}
                   </div>
-                  <button className="preview-popup-button" onClick={() => navigate(`/swap/${user._id}`)}>
+                  <button
+                    className="preview-popup-button"
+                    onClick={() => navigate(`/swap/${user._id}`)}
+                  >
                     🔄 View All Books
                   </button>
                 </div>
@@ -179,10 +179,7 @@ export default function MapComponent({
 
       {editLocation &&
         (tempPosition ? (
-          <button
-            className="edit-location-btn"
-            onClick={() => handleSaveLocation(tempPosition)}
-          >
+          <button className="edit-location-btn" onClick={() => handleSaveLocation(tempPosition)}>
             ✅ Save Location
           </button>
         ) : (

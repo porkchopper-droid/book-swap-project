@@ -65,9 +65,7 @@ export default function BooksPage() {
         }
       );
 
-      setBooks((prevBooks) =>
-        prevBooks.map((b) => (b._id === updatedBook._id ? updatedBook : b))
-      );
+      setBooks((prevBooks) => prevBooks.map((b) => (b._id === updatedBook._id ? updatedBook : b)));
       setSelectedBook(null);
     } catch (err) {
       console.error("Failed to update book:", err);
@@ -76,7 +74,7 @@ export default function BooksPage() {
 
   const handleAddSave = async (newBook) => {
     try {
-      await axios.post("/api/books", newBook, {
+      await axios.post(`/api/books`, newBook, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -89,9 +87,7 @@ export default function BooksPage() {
   };
 
   const handleDelete = async () => {
-    const confirm = window.confirm(
-      "Are you sure you want to delete this book?"
-    );
+    const confirm = window.confirm("Are you sure you want to delete this book?");
     if (!confirm) return;
 
     if (!selectedBook || selectedBook.status !== "available") return;
@@ -103,9 +99,7 @@ export default function BooksPage() {
         },
       });
 
-      setBooks((prevBooks) =>
-        prevBooks.filter((b) => b._id !== selectedBook._id)
-      );
+      setBooks((prevBooks) => prevBooks.filter((b) => b._id !== selectedBook._id));
       setSelectedBook(null);
     } catch (err) {
       console.error("Failed to delete book:", err);
@@ -124,9 +118,7 @@ export default function BooksPage() {
         }
       );
 
-      setBooks((prevBooks) =>
-        prevBooks.map((b) => (b._id === bookId ? data.book : b))
-      );
+      setBooks((prevBooks) => prevBooks.map((b) => (b._id === bookId ? data.book : b)));
       setSelectedBook(null);
       await fetchBooks(); // 🔁 pull fresh list for activeTab
     } catch (err) {
@@ -141,10 +133,7 @@ export default function BooksPage() {
       ) : (
         <>
           <div className="book-header">
-            <button
-              className="add-book-button"
-              onClick={() => setShowModal(true)}
-            >
+            <button className="add-book-button" onClick={() => setShowModal(true)}>
               ✍️ Add Book
             </button>
 
@@ -169,11 +158,7 @@ export default function BooksPage() {
               <p>No books with {activeTab} status.</p>
             ) : (
               books.map((book) => (
-                <BookCard
-                  key={book._id}
-                  book={book}
-                  onClick={(book) => setSelectedBook(book)}
-                />
+                <BookCard key={book._id} book={book} onClick={(book) => setSelectedBook(book)} />
               ))
             )}
           </div>

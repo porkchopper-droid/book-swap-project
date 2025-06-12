@@ -83,7 +83,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("/api/users/account/profile", {
+        const res = await axios.get(`/api/users/account/profile`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         setProfile(res.data);
@@ -148,7 +148,7 @@ export default function Profile() {
         formData.append("avatar", avatarFile);
       }
 
-      const { data } = await axios.patch("/api/users/account/profile", formData, {
+      const { data } = await axios.patch(`/api/users/account/profile`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

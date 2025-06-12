@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import FlaggedBackground from "./FlaggedBackground";
+import { debugLog } from "../utils/debug.js";
 
 import axios from "axios";
 import "./FlaggedUser.scss"; // optional, for styles
@@ -10,7 +11,7 @@ export default function FlaggedUser() {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
-  console.log("🟢 User in FlaggedUser component:", user);
+   debugLog("🟢 User in FlaggedUser component:", user);
 
   const endDate = user?.flaggedUntil
     ? new Date(user.flaggedUntil).toLocaleDateString("en-US", {

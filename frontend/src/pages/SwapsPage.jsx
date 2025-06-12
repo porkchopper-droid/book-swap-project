@@ -61,7 +61,7 @@ export default function SwapsPage() {
   const fetchSwaps = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/swaps/mine", {
+      const res = await axios.get(`/api/swaps/mine`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

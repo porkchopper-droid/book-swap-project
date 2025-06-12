@@ -6,7 +6,7 @@ import App from "./App.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:6969";
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

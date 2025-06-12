@@ -17,7 +17,7 @@ export default function Account() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const res = await axios.get("/api/users/account", {
+        const res = await axios.get(`/api/users/account`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -33,7 +33,7 @@ export default function Account() {
 
   const refreshUserInfo = async () => {
     try {
-      const res = await axios.get("/api/users/account", {
+      const res = await axios.get(`/api/users/account`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -47,7 +47,7 @@ export default function Account() {
   useEffect(() => {
     const fetchUserStats = async () => {
       try {
-        const res = await axios.get("/api/users/account/stats", {
+        const res = await axios.get(`/api/users/account/stats`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

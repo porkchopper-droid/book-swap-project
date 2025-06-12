@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "./AuthContext";
+import { debugLog } from "../utils/debug.js";
 
 const SocketContext = createContext(null);
 
@@ -17,11 +18,11 @@ export const SocketProvider = ({ children }) => {
     // Only initialize once, when user._id exists and we haven’t yet created a socket
     if (user?._id && !socketRef.current) {
       // Replace URL if your backend lives somewhere else
-      const newSocket = io("http://localhost:6969");
+      const newSocket = io(import.meta.env.VITE_API_URL);
 
       // When the handshake succeeds:
       newSocket.on("connect", () => {
-        console.log("🌐 Global socket connected:", newSocket.id);
+         debugLog("🌐 Global socket connected:", newSocket.id);
         newSocket.emit("register", user._id);
       });
 
@@ -30,7 +31,7 @@ export const SocketProvider = ({ children }) => {
 
       // Listen globally for newMessage to see anything at all
       newSocket.on("newMessage", (msg) => {
-        console.log("📨 Global socket caught newMessage:", msg);
+         debugLog("📨 Global socket caught newMessage:", msg);
       });
 
       // Save into ref and state (causes a re-render so context value updates)

@@ -49,7 +49,7 @@ export default function SwapPage() {
   const fetchBooks = async () => {
     try {
       const [mine, theirs] = await Promise.all([
-        axios.get("/api/books/mine?status=available", {
+        axios.get(`/api/books/mine?status=available`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -73,7 +73,7 @@ export default function SwapPage() {
   const handleConfirmProposal = async () => {
     try {
       await axios.post(
-        "/api/swaps",
+        `/api/swaps`,
         {
           to: userId,
           offeredBook: mySelectedBook._id,
