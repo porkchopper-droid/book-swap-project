@@ -1,10 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Backend API server for Bookbook, a book swapping platform with chat and location-based features.",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
     "generate-integrity": "node scripts/generateIntegrity.js",
     "check-integrity": "node scripts/checkIntegrity.js"
   },
@@ -28,5 +30,8 @@
     "path": "^0.12.7",
     "rotating-file-stream": "^3.2.6",
     "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }

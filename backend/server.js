@@ -43,7 +43,7 @@ app.use("/api/support", contactRoutes);
 
 /* ----------------- MongoDB Connection ----------------- */
 
-const mongoURI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_CLUSTER}/${process.env.MONGO_DB}?retryWrites=true&w=majority`;
+const mongoURI = process.env.MONGO_URL;
 
 mongoose
   .connect(mongoURI)

@@ -53,9 +53,9 @@ mongoose.connect(process.env.MONGO_URL).then(() => {
     logWrap("🎉 Finished handling swap maintenance");
 
     // STEP 5: send email
-    await sendCronEmail({
-      subject: "📘 Bookbook Cron Log - " + new Date().toLocaleDateString(),
-      text: logs.join("\n"),
-    });
+    await sendCronEmail(
+      `📘 Bookbook Cron Log - ${new Date().toLocaleDateString()}`,
+      logs.join("\n")
+    );
   });
 });
