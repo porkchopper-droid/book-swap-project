@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import SwapProposal from "../models/SwapProposal.js";
 import { sendSwapProposalEmail } from "../utils/sendSwapProposalEmail.js";
 import { sendSwapResponseEmail } from "../utils/sendSwapResponseEmail.js";
+import { debugLog } from "../utils/debug.js";
 
 export const createSwapProposal = async (req, res) => {
   try {
@@ -38,8 +39,7 @@ export const createSwapProposal = async (req, res) => {
     });
     if (existing) {
       return res.status(400).json({
-        message:
-          "You have already proposed a swap with these books. Patience is a virtue!?",
+        message: "You have already proposed a swap with these books. Patience is a virtue!?",
       });
     }
 
@@ -69,16 +69,12 @@ export const createSwapProposal = async (req, res) => {
 };
 
 export const respondToSwapProposal = async (req, res) => {
-  console.log("Request body:", req.body);
-  console.log(
-    "Swap ID from params:",
-    req.params.swapId,
-    typeof req.params.swapId
-  );
+  debugLog("Request body:", req.body);
+  debugLog("Swap ID from params:", req.params.swapId, typeof req.params.swapId);
   try {
     const { swapId } = req.params;
     const { response, toMessage } = req.body; // response = "accept" or "decline"
-    console.log("swapId being passed:", swapId, typeof swapId);
+    debugLog("swapId being passed:", swapId, typeof swapId);
     if (!["accept", "decline"].includes(response)) {
       return res.status(400).json({ message: "Invalid response." });
     }
@@ -100,7 +96,7 @@ export const respondToSwapProposal = async (req, res) => {
 
     if (response === "decline") {
       proposal.status = "declined";
-      console.log("Attached toMessage:", toMessage);
+      debugLog("Attached toMessage:", toMessage);
       if (toMessage) {
         proposal.toMessage = toMessage;
       }
@@ -108,9 +104,7 @@ export const respondToSwapProposal = async (req, res) => {
       await proposal.save(); // DECLINED saved to mongoDB
 
       // Send email to the initiator
-      const initiatorUser = await User.findById(proposal.from).select(
-        "username email"
-      );
+      const initiatorUser = await User.findById(proposal.from).select("username email");
       if (initiatorUser) {
         // Populate the books so we have titles
         const populatedProposal = await SwapProposal.findById(proposal._id)
@@ -144,9 +138,7 @@ export const respondToSwapProposal = async (req, res) => {
     await proposal.save(); // ACCEPTED saved to mongoDB
 
     // Send email to the initiator
-    const initiatorUser = await User.findById(proposal.from).select(
-      "username email"
-    );
+    const initiatorUser = await User.findById(proposal.from).select("username email");
     if (initiatorUser) {
       // Populate the books so we have titles
       const populatedProposal = await SwapProposal.findById(proposal._id)
@@ -186,14 +178,10 @@ export const respondToSwapProposal = async (req, res) => {
     );
 
     // Safe partner selection
-    const fromUser = await User.findById(proposal.from).select(
-      "username email"
-    );
+    const fromUser = await User.findById(proposal.from).select("username email");
     const toUser = await User.findById(proposal.to).select("username email");
     const partner =
-      String(req.user._id) === String(proposal.from._id || proposal.from)
-        ? toUser
-        : fromUser;
+      String(req.user._id) === String(proposal.from._id || proposal.from) ? toUser : fromUser;
 
     res.json({
       message: "Proposal accepted. Books are now booked.",
@@ -259,9 +247,7 @@ export const markSwapAsCompleted = async (req, res) => {
 
     // Only allow if status is accepted
     if (proposal.status !== "accepted") {
-      return res
-        .status(400)
-        .json({ message: "Only accepted swaps can be marked completed." });
+      return res.status(400).json({ message: "Only accepted swaps can be marked completed." });
     }
 
     // Only participants can mark as completed
@@ -315,9 +301,7 @@ export const markSwapAsCompleted = async (req, res) => {
     });
   } catch (err) {
     console.error("Failed to mark completed:", err);
-    res
-      .status(500)
-      .json({ message: "Server error marking swap as completed." });
+    res.status(500).json({ message: "Server error marking swap as completed." });
   }
 };
 
@@ -333,9 +317,7 @@ export const markSwapAsArchived = async (req, res) => {
 
     // Only allow if status is completed
     if (proposal.status !== "completed") {
-      return res
-        .status(400)
-        .json({ message: "Only swaps marked as 'Completed' can be archived." });
+      return res.status(400).json({ message: "Only swaps marked as 'Completed' can be archived." });
     }
 
     // Only participants can mark as archived
@@ -405,9 +387,7 @@ export const reportSwap = async (req, res) => {
 
     // only accepted swaps can be reported
     if (swap.status !== "accepted") {
-      return res
-        .status(400)
-        .json({ message: "Only accepted swaps can be reported." });
+      return res.status(400).json({ message: "Only accepted swaps can be reported." });
     }
 
     const userId = req.user._id.toString();
@@ -423,11 +403,13 @@ export const reportSwap = async (req, res) => {
     await swap.save();
 
     await Book.findByIdAndUpdate(swap.offeredBook, { status: "reported", reportedAt: new Date() });
-    await Book.findByIdAndUpdate(swap.requestedBook, { status: "reported", reportedAt: new Date() });
+    await Book.findByIdAndUpdate(swap.requestedBook, {
+      status: "reported",
+      reportedAt: new Date(),
+    });
 
     // Increment the *other* user's reportedCount
-    const otherUserId =
-      userId === String(swap.from) ? String(swap.to) : String(swap.from);
+    const otherUserId = userId === String(swap.from) ? String(swap.to) : String(swap.from);
     const otherUser = await User.findById(otherUserId);
 
     if (otherUser) {
@@ -463,15 +445,11 @@ export const cancelSwapProposal = async (req, res) => {
     }
 
     if (String(swap.from) !== String(userId)) {
-      return res
-        .status(403)
-        .json({ message: "Not authorized to cancel this swap." });
+      return res.status(403).json({ message: "Not authorized to cancel this swap." });
     }
 
     if (swap.status !== "pending") {
-      return res
-        .status(400)
-        .json({ message: "Only pending swaps can be cancelled." });
+      return res.status(400).json({ message: "Only pending swaps can be cancelled." });
     }
 
     swap.status = "cancelled";

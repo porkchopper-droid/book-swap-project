@@ -33,7 +33,7 @@ export default function SwapModal({
           placeholder="Add a message (optional)..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          maxLength={100}
+          maxLength={80}
         />
 
         <div className="modal-actions">

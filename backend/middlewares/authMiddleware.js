@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { debugLog } from "../utils/debug.js";
 
 export const protect = async (req, res, next) => {
   try {
@@ -13,7 +14,9 @@ export const protect = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findById(decoded.id);
-    console.log("Before unflag:", user.isFlagged, user.flaggedUntil);
+
+    debugLog("Before unflag:", user.isFlagged, user.flaggedUntil);
+
     // Check if user is flagged
     if (user.isFlagged && user.flaggedUntil && user.flaggedUntil > new Date()) {
       return res.status(403).json({

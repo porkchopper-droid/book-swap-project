@@ -3,15 +3,17 @@
 
 .account-layout {
   display: flex;
+  flex: 1;
   gap: $gap-default;
 
   aside {
-    padding: $padding-default;
-    width: 25%;
-    background-color: $color-box-bg;
     display: flex;
     flex-direction: column;
-    gap: $gap-default;
+    justify-content: space-around;
+    width: 25%;
+    gap: $gap-mini;
+    padding: $padding-default;
+    background-color: $color-box-bg;
 
     .my-stats {
       display: flex;

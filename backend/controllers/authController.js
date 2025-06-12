@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendVerificationEmail } from "../utils/sendVerificationEmail.js";
+import { debugLog } from "../utils/debug.js";
 
 /* ------------------------- JWT ------------------------ */
 
@@ -34,7 +35,7 @@ export const registerUser = async (req, res) => {
           city
         )}&country=${country}&maxRows=1&username=${process.env.GEONAMES_USER}`;
 
-        console.log("🌍 Geocoding via GeoNames:", url);
+        debugLog("🌍 Geocoding via GeoNames:", url);
 
         const geoRes = await fetch(url);
         const geoData = await geoRes.json();
@@ -44,16 +45,13 @@ export const registerUser = async (req, res) => {
           const jitter = () => (Math.random() - 0.5) * 0.02; // jittering users' location on creation
           location = {
             type: "Point",
-            coordinates: [
-              parseFloat(geo.lng) + jitter(),
-              parseFloat(geo.lat) + jitter(),
-            ],
+            coordinates: [parseFloat(geo.lng) + jitter(), parseFloat(geo.lat) + jitter()],
           };
         } else {
-          console.warn("⚠️ No matching GeoNames result found.");
+          debugLog("⚠️ No matching GeoNames result found.");
         }
       } catch (geoErr) {
-        console.error("🌐 Geocoding failed:", geoErr);
+        debugLog("🌐 Geocoding failed:", geoErr);
       }
     }
 
@@ -99,21 +97,15 @@ export const registerUser = async (req, res) => {
 export const verifyEmail = async (req, res) => {
   const { token } = req.params;
 
-  console.log(
-    "💡 Received verification request for token:",
-    token,
-    new Date().toISOString()
-  );
+  debugLog("💡 Received verification request for token:", token, new Date().toISOString());
 
   try {
     const user = await User.findOne({ verificationToken: token });
 
     if (!user) {
-      console.log("👀 No user found — maybe already verified or invalid.");
+      debugLog("👀 No user found — maybe already verified or invalid.");
       // return a 200 with a message clarifying
-      return res
-        .status(200)
-        .json({ message: "Email already verified or link expired!" });
+      return res.status(200).json({ message: "Email already verified or link expired!" });
     }
 
     user.isVerified = true;
@@ -123,7 +115,7 @@ export const verifyEmail = async (req, res) => {
     res.status(200).json({
       message: "Email verified successfully! You can now log in.",
     });
-    console.log("✅ User found and verified:", user.email);
+    debugLog("✅ User found and verified:", user.email);
   } catch (err) {
     console.error("❌ Email verification failed:", err);
     res.status(500).json({ message: "Server error during verification." });
@@ -157,9 +149,7 @@ export const loginUser = async (req, res) => {
 
     // Return user info (without password)
     const { __v, password: _, ...userData } = user._doc;
-    res
-      .status(200)
-      .json({ message: "Login successful", token, user: userData });
+    res.status(200).json({ message: "Login successful", token, user: userData });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error during login." });

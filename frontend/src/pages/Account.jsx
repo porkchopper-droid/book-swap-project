@@ -68,7 +68,7 @@ export default function Account() {
       <aside>
         <div className="my-stats">
           <h3>
-            <IoStatsChartOutline /> My Stats
+            <IoStatsChartOutline/> My Stats
           </h3>
           <ul>
             <li>

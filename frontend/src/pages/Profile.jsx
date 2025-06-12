@@ -183,10 +183,10 @@ export default function Profile() {
   if (!profile) return <p>Loading profile...</p>;
 
   return (
-    <div className="profile">
+    <div className="profile-layout">
       {/* Left column: Profile info */}
       <div className="left-column">
-        <div className="profile-edit-panel">
+        <div className="profile-info-panel">
           <h3>Edit Your Info</h3>
           <form
             onSubmit={(e) => {

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Select from "react-select";
 import AsyncSelect from "react-select/async";
 import countryList from "react-select-country-list";
+import { GiBookCover, GiBookmark } from "react-icons/gi";
 import "./Landing.scss";
 
 import { useAuth } from "../contexts/AuthContext";
@@ -86,73 +87,82 @@ export default function Landing() {
   return (
     <div className="landing-container">
       <div className="main-content">
-        <h1>📚 Welcome to BookBook 🍆</h1>
-        <p>Find books. Swap books. Make connections.</p>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            showSignup ? handleSignup() : handleLogin();
-          }}
-        >
-          {showSignup && (
-            <>
-              <input
-                placeholder="Username"
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </>
-          )}
+        <div className="main-content-box">
+          <h1>
+            <GiBookCover /> Welcome to BookBook <GiBookmark />
+          </h1>
+          <p>Find books. Swap books. Make connections.</p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              showSignup ? handleSignup() : handleLogin();
+            }}
+          >
+            {showSignup && (
+              <>
+                <input
+                  placeholder="Username"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+              </>
+            )}
 
-          <input
-            type="email"
-            placeholder="Email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+            <input
+              type="email"
+              placeholder="Email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
-          <input
-            type="password"
-            placeholder="Password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+            <input
+              type="password"
+              placeholder="Password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
-          {showSignup && (
-            <>
-              <Select
-                options={countryList().getData()}
-                value={country}
-                onChange={(val) => setCountry(val)}
-                placeholder="Select your country"
-                classNamePrefix="react-select"
-              />
-              <AsyncSelect
-                placeholder="Start typing your city"
-                loadOptions={loadCityOptions}
-                value={city}
-                onChange={(val) => setCity(val)}
-                isDisabled={!country}
-                classNamePrefix="react-select"
-              />
-            </>
-          )}
-          <div className="landing-buttons">
-            <button type="submit">{showSignup ? "Sign Up" : "Log In"}</button>
-            <button type="button" onClick={() => setShowSignup(!showSignup)}>
-              {showSignup ? "Back to Login" : "Sign Up"}
-            </button>
-          </div>
-        </form>
+            {showSignup && (
+              <>
+                <Select
+                  options={countryList().getData()}
+                  value={country}
+                  onChange={(val) => setCountry(val)}
+                  placeholder="Select your country"
+                  classNamePrefix="react-select"
+                />
+                <AsyncSelect
+                  placeholder="Start typing your city"
+                  loadOptions={loadCityOptions}
+                  value={city}
+                  onChange={(val) => setCity(val)}
+                  isDisabled={!country}
+                  classNamePrefix="react-select"
+                />
+              </>
+            )}
+            <div className="landing-buttons">
+              <button type="submit">{showSignup ? "Sign Up" : "Log In"}</button>
+              <button type="button" onClick={() => setShowSignup(!showSignup)}>
+                {showSignup ? "Back to Login" : "Sign Up"}
+              </button>
+            </div>
+          </form>
 
-        {status && <p>{status}</p>}
+          {status && <p>{status}</p>}
+        </div>
       </div>
       <p className="info-section">
         Want to know more? <Link to="/about">About Us</Link> | <Link to="/careers">Careers</Link>
       </p>
+      <img
+        src="/720x1280-cG5n.png"
+        alt="stack of books"
+        className="corner-image"
+      />
     </div>
   );
 }

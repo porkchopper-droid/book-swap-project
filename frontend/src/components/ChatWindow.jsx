@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
 import axios from "axios";
 import { useSocket } from "../contexts/SocketContext";
+import { debugLog } from "../utils/debug";
 import "./ChatWindow.scss";
 
 export default function ChatWindow({ swapId }) {
@@ -62,9 +63,7 @@ export default function ChatWindow({ swapId }) {
 
         if (before) {
           const reversed = data.reverse();
-          const filtered = reversed.filter(
-            (m) => !messages.find((msg) => msg._id === m._id)
-          );
+          const filtered = reversed.filter((m) => !messages.find((msg) => msg._id === m._id));
           setMessages((prev) => [...filtered, ...prev]);
         } else {
           setMessages(data.reverse());
@@ -86,13 +85,13 @@ export default function ChatWindow({ swapId }) {
     // If the socket is already connected by the time this effect runs,
     // immediately mark it as ready.
     if (socket.connected) {
-      console.log("✅ ChatWindow sees socket already connected:", socket.id);
+      debugLog("✅ ChatWindow sees socket already connected:", socket.id);
       setSocketReady(true);
     }
 
     // Otherwise, wait for the connect event
     const onConnect = () => {
-      console.log("✅ ChatWindow sees socket just now connected:", socket.id);
+      debugLog("✅ ChatWindow sees socket just now connected:", socket.id);
       setSocketReady(true);
     };
     socket.on("connect", onConnect);
@@ -140,7 +139,7 @@ export default function ChatWindow({ swapId }) {
     }
     if (!newMessage.trim()) return;
 
-    console.log("🔔 Emitting sendMessage →", {
+    debugLog("🔔 Emitting sendMessage →", {
       swapId,
       senderId: userId,
       text: newMessage.trim(),
@@ -154,9 +153,7 @@ export default function ChatWindow({ swapId }) {
 
   // 7️⃣ Group messages by date
   const groupedMessages = {};
-  const sorted = [...messages].sort(
-    (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-  );
+  const sorted = [...messages].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   sorted.forEach((msg) => {
     const dateKey = format(new Date(msg.createdAt), "yyyy-MM-dd");
     if (!groupedMessages[dateKey]) groupedMessages[dateKey] = [];
@@ -179,7 +176,7 @@ export default function ChatWindow({ swapId }) {
               // Tell our auto‐scroll effect “we’re loading earlier messages,
               // so don’t scroll to bottom after prepend.”
               scrollingUpRef.current = true;
-              
+
               (async () => {
                 try {
                   let url = `/api/chats/${swapId}?before=${oldest}`;
@@ -189,9 +186,7 @@ export default function ChatWindow({ swapId }) {
                     },
                   });
                   const data = res.data.reverse();
-                  const filtered = data.filter(
-                    (m) => !messages.find((msg) => msg._id === m._id)
-                  );
+                  const filtered = data.filter((m) => !messages.find((msg) => msg._id === m._id));
                   setMessages((prev) => [...filtered, ...prev]);
                   if (data.length < 20) setHasMore(false);
                 } catch (err) {
@@ -208,9 +203,7 @@ export default function ChatWindow({ swapId }) {
       <div className="messages">
         {Object.entries(groupedMessages).map(([date, msgs]) => (
           <div key={date} className="date-block">
-            <div className="date-divider">
-              {format(new Date(date), "MMMM d, yyyy")}
-            </div>
+            <div className="date-divider">{format(new Date(date), "MMMM d, yyyy")}</div>
 
             {msgs.map((msg, index) => {
               const isOwn = msg.sender._id === userId;
@@ -228,24 +221,16 @@ export default function ChatWindow({ swapId }) {
               const time = format(new Date(msg.createdAt), "HH:mm");
 
               return (
-                <div
-                  key={msg._id}
-                  className={`message-row ${isOwn ? "own" : "incoming"}`}
-                >
+                <div key={msg._id} className={`message-row ${isOwn ? "own" : "incoming"}`}>
                   {/* Incoming avatar (left) */}
                   {!isOwn && (
                     <div className="avatar-container">
                       {showAvatar ? (
                         msg.sender.profilePicture?.trim() ? (
-                          <img
-                            src={msg.sender.profilePicture}
-                            className="avatar"
-                            alt="avatar"
-                          />
+                          <img src={msg.sender.profilePicture} className="avatar" alt="avatar" />
                         ) : (
                           <div className="avatar-fallback">
-                            {msg.sender.username?.charAt(0).toUpperCase() ||
-                              "?"}
+                            {msg.sender.username?.charAt(0).toUpperCase() || "?"}
                           </div>
                         )
                       ) : (
@@ -255,11 +240,7 @@ export default function ChatWindow({ swapId }) {
                   )}
 
                   {/* Message bubble */}
-                  <div
-                    className={`message-bubble ${
-                      isOwn ? "own" : "incoming"
-                    } ${positionClass}`}
-                  >
+                  <div className={`message-bubble ${isOwn ? "own" : "incoming"} ${positionClass}`}>
                     {msg.text}
                     <span className="timestamp">{time}</span>
                   </div>
@@ -269,11 +250,7 @@ export default function ChatWindow({ swapId }) {
                     <div className="avatar-container">
                       {showAvatar ? (
                         user.profilePicture?.trim() ? (
-                          <img
-                            src={user.profilePicture}
-                            className="avatar"
-                            alt="avatar"
-                          />
+                          <img src={user.profilePicture} className="avatar" alt="avatar" />
                         ) : (
                           <div className="avatar-fallback">
                             {user.username?.charAt(0).toUpperCase() || "?"}
@@ -297,9 +274,7 @@ export default function ChatWindow({ swapId }) {
         <textarea
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          placeholder={
-            socketReady ? "Type your message..." : "Connecting… please wait"
-          }
+          placeholder={socketReady ? "Type your message..." : "Connecting… please wait"}
           rows={2}
           disabled={!socketReady}
           onKeyDown={(e) => {
@@ -309,10 +284,7 @@ export default function ChatWindow({ swapId }) {
             }
           }}
         />
-        <button
-          onClick={handleSend}
-          disabled={!socketReady || !newMessage.trim()}
-        >
+        <button onClick={handleSend} disabled={!socketReady || !newMessage.trim()}>
           Send
         </button>
       </div>
