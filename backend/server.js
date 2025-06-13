@@ -1,5 +1,6 @@
 /* ----------------------- IMPORTS ---------------------- */
 import User from "./models/User.js";
+import { encryptMessage, decryptMessage } from "./utils/crypto.js";
 
 /* -------------------- DEPENDENCIES -------------------- */
 
@@ -53,7 +54,15 @@ mongoose
 /* ------------------ Basic Test Route ------------------ */
 
 app.get("/", (req, res) => {
-  res.send("API is running!..");
+  res.send("API is running!..🐔🐔🐔🐔🐔🐔🐔");
+});
+
+app.get("/test-encryption", (req, res) => {
+  const encrypted =
+    "U2FsdGVkX1828bK0uAPzS1nj+Z8uhjvjyP/r0C9tl/Jwwl5FFkl6JYSZBpV5i3cf";
+  const decrypted = decryptMessage(encrypted);
+
+  res.json({ encrypted, decrypted });
 });
 
 /* ------------- Server and Socket.io Start ------------- */
@@ -77,40 +86,68 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendMessage", async ({ swapId, senderId, text }) => {
-    //  console.log("📥 sendMessage received:", { swapId, senderId, text });
+    console.log("📥 Socket.IO sendMessage received:");
+    console.log("➡️ swapId:", swapId);
+    console.log("➡️ senderId:", senderId);
+    console.log("➡️ original text:", text);
+
     try {
       const swap = await SwapProposal.findById(swapId);
-      // console.log("🔍 Found swap:", swap);
-      if (!swap || !["accepted", "completed", "reported"].includes(swap.status)) return; // Invalid swap or not in the right status
+      if (!swap || !["accepted", "completed", "reported"].includes(swap.status)) {
+        console.warn("⚠️ Swap not found or not in valid status");
+        return;
+      }
 
-      const message = new Message({ swapId, sender: senderId, text });
+      console.log("✅ Swap found. Proceeding with encryption...");
+
+      // 🔐 Encrypt message
+      const encryptedText = encryptMessage(text);
+      console.log("🔒 Encrypted text:", encryptedText);
+
+      // Save encrypted message
+      const message = new Message({
+        swapId,
+        sender: senderId,
+        text: encryptedText,
+      });
+
       const saved = await message.save();
       const populated = await saved.populate("sender", "username");
 
+      console.log("📦 Message saved and populated:", populated);
+
       const receiverId = senderId === String(swap.from) ? String(swap.to) : String(swap.from);
 
-      // 1️⃣ Increment unread count for the receiver
+      console.log("👥 Receiver determined:", receiverId);
+
+      // 🔓 Decrypt before sending back
+      const decrypted = {
+        ...populated.toObject(),
+        text: decryptMessage(populated.text),
+      };
+
+      console.log("🗝️ Decrypted message for emission:", decrypted.text);
+
+      // 🔔 Increment unread count for the receiver
       await User.findByIdAndUpdate(receiverId, {
         $inc: { [`unreadCounts.${swapId}`]: 1 },
       });
+      console.log("📈 Incremented unread count for receiver.");
 
-      // 2️⃣ Emit to receiver if they’re online
+      // 📡 Emit to receiver if online
       const receiverSocket = connectedUsers.get(receiverId);
-
-      /* ------------------------ DEBUG START ----------------------- */
-      // console.log("📡 Emitting newMessage to socket:", receiverSocket);
-      // console.log("📨 Message content:", populated);
-      // console.log("🗺️ Current connectedUsers map:", connectedUsers);
-      /* ------------------------ DEBUG END ------------------------ */
-
       if (receiverSocket) {
-        io.to(receiverSocket).emit("newMessage", populated);
+        console.log("📨 Emitting newMessage to receiver socket:", receiverSocket);
+        io.to(receiverSocket).emit("newMessage", decrypted);
+      } else {
+        console.log("🕳️ Receiver is offline. No socket to emit to.");
       }
 
-      // 3️⃣ Echo back to sender
-      socket.emit("messageSent", populated);
+      // 🔁 Echo back to sender
+      console.log("↩️ Emitting messageSent back to sender");
+      socket.emit("messageSent", decrypted);
     } catch (err) {
-      console.error("❌ Message failed:", err);
+      console.error("❌ sendMessage handler failed:", err);
       socket.emit("error", "Message failed.");
     }
   });

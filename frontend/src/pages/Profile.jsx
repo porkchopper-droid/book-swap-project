@@ -42,14 +42,14 @@ export default function Profile() {
         username: profile.user.username || "",
         email: profile.user.email || "",
         city: profile.user.city ? { label: profile.user.city, value: profile.user.city } : null,
-        country: profile.user.country
-          ? { label: profile.user.country, value: profile.user.country }
-          : null,
+          country: profile.user.country
+        ? countryOptions.find((c) => c.value === profile.user.country)
+        : null,
         currentPassword: "",
         newPassword: "",
       });
     }
-  }, [profile]);
+  }, [profile, countryOptions]);
 
   const loadCityOptions = async (inputValue) => {
     if (!inputValue || !form.country?.value) return [];
@@ -185,7 +185,7 @@ export default function Profile() {
   return (
     <div className="profile-layout">
       {/* Left column: Profile info */}
-      <div className="left-column">
+      <aside>
         <div className="profile-info-panel">
           <h3>Edit Your Info</h3>
           <form
@@ -275,13 +275,10 @@ export default function Profile() {
             </div>
           </form>
         </div>
-      </div>
-
-      {/* Vertical divider */}
-      {/* <div className="divider"></div> */}
+      </aside>
 
       {/* Right column: Graphs */}
-      <div className="right-column">
+      <main>
         <div className="chart-header">
           <button onClick={prevMonth}>⬅️ Previous</button>
           <h3>
@@ -331,7 +328,7 @@ export default function Profile() {
             />
           </LineChart>
         </ResponsiveContainer>
-      </div>
+      </main>
     </div>
   );
 }

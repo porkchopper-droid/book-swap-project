@@ -51,6 +51,12 @@
     align-items: center;
     justify-content: center;
 
+    &.legacy {
+      background-color: #3f3f3f;
+      color: $color-text;
+      pointer-events: auto;
+    }
+
     &.pending {
       color: $color-warning-text;
       background-color: $color-warning-bg;

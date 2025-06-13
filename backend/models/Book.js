@@ -7,7 +7,7 @@ const bookSchema = new mongoose.Schema(
     year: Number,
     status: {
       type: String,
-      enum: ["available", "booked", "swapped", "reported"],
+      enum: ["available", "booked", "swapped", "reported", "deleted"],
       default: "available",
     },
     description: String,

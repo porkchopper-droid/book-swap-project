@@ -68,7 +68,7 @@ Visit: [`http://localhost:5173`](http://localhost:5173)
 
 - 🔒 Secure login/signup with hashed passwords
 - 📸 Upload and preview book covers (via Cloudinary)
-- 💌 Propose swaps and exchange messages
+- 💌 Propose swaps and exchange (encrypted) messages 
 - 🧭 Discover users near you (map-based search)
 - 🕐 Daily maintenance via cron (cleans stale swaps, resets flags)
 - 📊 Stats, metrics, and moderation tools
@@ -111,6 +111,7 @@ GEONAMES_USER=
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
+MESSAGE_SECRET=
 ```
 
 Frontend keys:

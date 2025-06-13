@@ -19,9 +19,7 @@ export default function SwapCard({
 
   // testing who is who during the swap
   const isUserFrom = user._id === swap.from._id;
-  const hasUserMarkedCompleted = isUserFrom
-    ? swap.fromCompleted
-    : swap.toCompleted;
+  const hasUserMarkedCompleted = isUserFrom ? swap.fromCompleted : swap.toCompleted;
   const hasUserArchived = isUserFrom ? swap.fromArchived : swap.toArchived;
 
   const showReport =
@@ -35,9 +33,16 @@ export default function SwapCard({
   let ribbonText = swap.status.toUpperCase();
   let ribbonClass = swap.status;
 
+  // detecting if a book(!) was deleted
+  const isDeletedSwap =
+    swap.offeredBook?.status === "deleted" || swap.requestedBook?.status === "deleted";
+
   if (swap.status === "completed") {
     if (hasUserArchived) {
       ribbonText = "ARCHIVED";
+    } else if (isDeletedSwap) {
+      ribbonText = "LEGACY";
+      ribbonClass = "legacy";
     } else {
       ribbonText = "COMPLETED";
       ribbonClass = "completed";
@@ -76,6 +81,7 @@ export default function SwapCard({
         className={`swap-status-ribbon ${ribbonClass} ${
           showCancel || showReport ? "hoverable" : ""
         }`}
+        title={isDeletedSwap ? "One or both books have been deleted." : ""}
         onMouseEnter={() => {
           if (showCancel || showReport) setHoveringRibbon(true);
         }}
@@ -101,9 +107,7 @@ export default function SwapCard({
       </div>
 
       <div className="swap-messages">
-        {swap.fromMessage && (
-          <p className="swap-message">💬 {swap.fromMessage}</p>
-        )}
+        {swap.fromMessage && <p className="swap-message">💬 {swap.fromMessage}</p>}
         {swap.toMessage && <p className="swap-message">💬 {swap.toMessage}</p>}
       </div>
       {swap.status !== "declined" && swap.status !== "cancelled" && (
@@ -113,25 +117,18 @@ export default function SwapCard({
             swap.status !== "pending" &&
             swap.status !== "expired" &&
             swap.status !== "cancelled" && (
-              <button onClick={() => navigate(`/chats/${swap._id}`)}>
-                Go to Chat
-              </button>
+              <button onClick={() => navigate(`/chats/${swap._id}`)}>Go to Chat</button>
             )}
           {swap.status === "pending" && user?._id === swap.to._id && (
             <>
-              <button
-                className="resolve-button"
-                onClick={() => onResolve(swap._id)}
-              >
+              <button className="resolve-button" onClick={() => onResolve(swap._id)}>
                 Resolve
               </button>
             </>
           )}
 
           {swap.status === "accepted" && !hasUserMarkedCompleted && (
-            <button onClick={() => handleMarkCompleted(swap._id)}>
-              Mark as Completed
-            </button>
+            <button onClick={() => handleMarkCompleted(swap._id)}>Mark as Completed</button>
           )}
 
           {swap.status === "completed" && !hasUserArchived && (

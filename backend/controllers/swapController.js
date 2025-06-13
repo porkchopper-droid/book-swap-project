@@ -7,23 +7,22 @@ import { debugLog } from "../utils/debug.js";
 
 export const createSwapProposal = async (req, res) => {
   try {
+    // 1️⃣ Pull out fields first
     const { to, offeredBook, requestedBook, fromMessage } = req.body;
 
     if (!to || !offeredBook || !requestedBook) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
-    const newProposal = new SwapProposal({
-      from: req.user._id,
-      to,
-      offeredBook,
-      requestedBook,
-      fromAccepted: true,
-      toAccepted: false,
-      status: "pending", // BY DEFAULT, DUH!!
-      fromMessage,
-    });
+    // 2️⃣ Look up both books
+    const offered = await Book.findById(offeredBook);
+    const requested = await Book.findById(requestedBook);
 
+    if (!offered || !requested || offered.status === "deleted" || requested.status === "deleted") {
+      return res.status(400).json({ message: "One of the books has been deleted." });
+    }
+
+    // 3️⃣ Duplicate-proposal check (unchanged)
     const existing = await SwapProposal.findOne({
       status: "pending",
       $or: [
@@ -43,9 +42,21 @@ export const createSwapProposal = async (req, res) => {
       });
     }
 
+    // 4️⃣ Create & save proposal (unchanged)
+    const newProposal = new SwapProposal({
+      from: req.user._id,
+      to,
+      offeredBook,
+      requestedBook,
+      fromAccepted: true,
+      toAccepted: false,
+      status: "pending", // BY DEFAULT, DUH!!
+      fromMessage,
+    });
+
     const saved = await newProposal.save(); // saving to mongoDB
 
-    // Send email to the recipient (to)
+    // 5️⃣ Notify recipient via email
     const recipientUser = await User.findById(to).select("username email");
     if (recipientUser) {
       const populatedSwap = await SwapProposal.findById(saved._id)

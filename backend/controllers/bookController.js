@@ -30,9 +30,7 @@ export const getNearbyBooks = async (req, res) => {
     const radiusInMeters = parseFloat(radius) * 1000;
 
     if (!latitude || !longitude || !radiusInMeters) {
-      return res
-        .status(400)
-        .json({ message: "Missing or invalid lat/lon/radius." });
+      return res.status(400).json({ message: "Missing or invalid lat/lon/radius." });
     }
 
     // Find users near the given point
@@ -51,7 +49,7 @@ export const getNearbyBooks = async (req, res) => {
     const userIds = nearbyUsers.map((user) => user._id);
 
     // Find books owned by nearby users
-    const books = await Book.find({ user: { $in: userIds } }).populate(
+    const books = await Book.find({ user: { $in: userIds }, status: { $ne: "deleted" } }).populate(
       "user",
       "username city country"
     );
@@ -70,9 +68,7 @@ export const fetchBookByISBN = async (req, res) => {
       return res.status(400).json({ message: "Invalid ISBN format" });
     }
 
-    const response = await axios.get(
-      `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
-    );
+    const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
 
     const book = response.data.items?.[0]?.volumeInfo;
     if (!book) {
@@ -98,7 +94,11 @@ export const getMyBooks = async (req, res) => {
     const filters = { user: req.user._id };
 
     if (req.query.status) {
+      // caller wants a specific status (could even be "deleted")
       filters.status = req.query.status;
+    } else {
+      // default: everything except "deleted"
+      filters.status = { $ne: "deleted" };
     }
 
     const books = await Book.find(filters);
@@ -131,8 +131,12 @@ export const getUserBooks = async (req, res) => {
   try {
     const filters = { user: req.params.userId };
 
-    if (req.query.status) {
+     if (req.query.status) {
+      // caller wants a specific status (could even be "deleted")
       filters.status = req.query.status;
+    } else {
+      // default: everything except "deleted"
+      filters.status = { $ne: "deleted" };
     }
 
     const books = await Book.find(filters);
@@ -208,12 +212,11 @@ export const deleteBook = async (req, res) => {
     }
 
     if (!book.user.equals(req.user._id)) {
-      return res
-        .status(403)
-        .json({ message: "Not authorized to delete this book." });
+      return res.status(403).json({ message: "Not authorized to delete this book." });
     }
 
-    await book.deleteOne();
+    book.status = "deleted";
+    await book.save();
     res.json({ message: "Book deleted successfully." });
   } catch (err) {
     console.error(err);
