@@ -165,8 +165,7 @@ export default function ChatWindow({ swapId }) {
 
   return (
     <>
-      <h3>Chat with {chatPartner?.username || "..."}</h3>
-
+      <h3>Chat with {chatPartner === null ? "[deleted user]" : chatPartner?.username || "..."}</h3>
       {hasMore && (
         <div
           className="load-earlier"

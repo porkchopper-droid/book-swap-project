@@ -1,10 +1,18 @@
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const rfs = require("rotating-file-stream");
+
+import fs from "fs";
 import path from "path";
+
+const rfs = require("rotating-file-stream");
 
 // Define the logs directory relative to this file (logger.js)
 const logsDirectory = path.resolve("logs"); // This points to "backend/logs"
+
+// Create it (with parents, just in case)
+if (!fs.existsSync(logsDirectory)) {
+  fs.mkdirSync(logsDirectory, { recursive: true }); 
+}
 
 // Create a rotating stream
 const stream = rfs.createStream("cron.log", {

@@ -5,3 +5,5 @@ bcryptDemo.js
 .log
 logs/
 demo_data/
+tests/
+jest.config.js

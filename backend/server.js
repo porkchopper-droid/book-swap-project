@@ -58,7 +58,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/test-encryption", (req, res) => {
-  const encrypted = "U2FsdGVkX1+mnrWeDGuG5L0jRwlKFGukdordYeypr/f6nIq1dd+h0wOhyQtCUS95+4Af2JlgW6EQ1Hr2tS9mEg==";
+  const encrypted =
+    "U2FsdGVkX1+mnrWeDGuG5L0jRwlKFGukdordYeypr/f6nIq1dd+h0wOhyQtCUS95+4Af2JlgW6EQ1Hr2tS9mEg==";
   const decrypted = decryptMessage(encrypted);
 
   res.json({ encrypted, decrypted });
@@ -89,6 +90,13 @@ io.on("connection", (socket) => {
     console.log("➡️ swapId:", swapId);
     console.log("➡️ senderId:", senderId);
     console.log("➡️ original text:", text);
+
+    // Empty message guard
+    // if (!text || !text.trim()) {
+    //   console.warn("❌ Empty message blocked.");
+    //   socket.emit("error", "Empty messages are not allowed.");
+    //   return;
+    // }
 
     try {
       const swap = await SwapProposal.findById(swapId);
@@ -126,19 +134,26 @@ io.on("connection", (socket) => {
 
       console.log("🗝️ Decrypted message for emission:", decrypted.text);
 
-      // 🔔 Increment unread count for the receiver
-      await User.findByIdAndUpdate(receiverId, {
-        $inc: { [`unreadCounts.${swapId}`]: 1 },
-      });
-      console.log("📈 Incremented unread count for receiver.");
+      const receiverArchived =
+        (receiverId === String(swap.from) && swap.fromArchived) ||
+        (receiverId === String(swap.to) && swap.toArchived);
 
-      // 📡 Emit to receiver if online
-      const receiverSocket = connectedUsers.get(receiverId);
-      if (receiverSocket) {
-        console.log("📨 Emitting newMessage to receiver socket:", receiverSocket);
-        io.to(receiverSocket).emit("newMessage", decrypted);
+      if (!receiverArchived) {
+        // 🔔 Only bump the badge if they haven’t muted the swap
+        await User.findByIdAndUpdate(receiverId, {
+          $inc: { [`unreadCounts.${swapId}`]: 1 },
+        });
+
+        const receiverSocket = connectedUsers.get(receiverId);
+        if (receiverSocket) {
+          io.to(receiverSocket).emit("newMessage", decrypted);
+        } else {
+          console.log("🕳️ Receiver is offline. No socket to emit to.");
+        }
       } else {
-        console.log("🕳️ Receiver is offline. No socket to emit to.");
+        console.log(
+          `🔇 Receiver ${receiverId} has archived swap ${swapId}; skipping badge + socket ping`
+        );
       }
 
       // 🔁 Echo back to sender

@@ -4,7 +4,7 @@
   "description": "Backend API server for Bookbook, a book swapping platform with chat and location-based features.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "start": "node -r dotenv/config server.js",
     "dev": "nodemon --require dotenv/config server.js",
     "generate-integrity": "node scripts/generateIntegrity.js",
@@ -28,11 +28,13 @@
     "multer-storage-cloudinary": "^4.0.0",
     "node-cron": "^4.0.5",
     "nodemailer": "^7.0.3",
-    "path": "^0.12.7",
     "rotating-file-stream": "^3.2.6",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "@jest/globals": "^30.0.0",
+    "cross-env": "^7.0.3",
+    "jest": "^30.0.0",
     "nodemon": "^3.1.0"
   }
 }
