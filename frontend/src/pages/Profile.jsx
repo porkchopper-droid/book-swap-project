@@ -35,6 +35,46 @@ export default function Profile() {
     newPassword: "",
   });
 
+  const [backupForm, setBackupForm] = useState(null);
+  const startEditing = () => {
+    setBackupForm(form); // snapshot
+    setIsEditing(true);
+  };
+
+  const cancelEdit = () => {
+    setForm(backupForm);
+    setIsEditing(false);
+    setAvatarFile(null);
+  };
+
+  const deleteAccount = async () => {
+  if (
+    !window.confirm(
+      "This will permanently delete your account, books and swaps. Continue?"
+    )
+  )
+    return;
+
+  // STEP 1:  Ask for the password (fast fix — replace with a proper modal later)
+  const pwd = window.prompt("Please re-enter your password to confirm:");
+
+  if (!pwd) return; // user cancelled
+
+  try {
+    await axios.delete("/api/users/account", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      data: { password: pwd },
+    });
+
+    // STEP 2:  Logout + redirect
+    localStorage.clear();
+    window.location.href = "/";
+  } catch (err) {
+    alert("Failed to delete account — try again or contact support.");
+    console.error(err);
+  }
+};
+
   // When profile loads, set form state
   useEffect(() => {
     if (profile) {
@@ -42,9 +82,9 @@ export default function Profile() {
         username: profile.user.username || "",
         email: profile.user.email || "",
         city: profile.user.city ? { label: profile.user.city, value: profile.user.city } : null,
-          country: profile.user.country
-        ? countryOptions.find((c) => c.value === profile.user.country)
-        : null,
+        country: profile.user.country
+          ? countryOptions.find((c) => c.value === profile.user.country)
+          : null,
         currentPassword: "",
         newPassword: "",
       });
@@ -264,11 +304,24 @@ export default function Profile() {
             />
 
             {/* Save button */}
-            <div className="profile-edit-button">
+            <div className="profile-edit-row">
               {isEditing ? (
-                <button type="submit">Save</button>
+                <>
+                  <button type="submit">Save</button>
+                  <button type="button" onClick={cancelEdit}>
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="danger"
+                    onClick={deleteAccount}
+                    title="Irreversible - nukes your data"
+                  >
+                    Delete My Profile
+                  </button>
+                </>
               ) : (
-                <button type="button" onClick={() => setIsEditing(true)}>
+                <button type="button" onClick={startEditing}>
                   Edit
                 </button>
               )}

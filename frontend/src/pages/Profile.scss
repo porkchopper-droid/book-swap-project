@@ -8,6 +8,7 @@
 
   aside {
     width: 33%;
+    height: 100%;
     border-radius: $border-radius;
     color: $color-text;
     flex: none;
@@ -29,8 +30,8 @@
         gap: $gap-mini;
         justify-content: space-between;
         height: 100%;
-        
 
+        // Upload row (text + file)
         .username-file-row {
           display: flex;
           gap: $gap-mini;
@@ -46,10 +47,16 @@
           }
         }
 
-        input[type="email"],
-        input[type="password"],
-        input[type="text"] {
+        // All input styles
+        input {
+          width: 100%;
+          padding: $gap-mini;
+          font-size: $font-size-base;
+          border: 0.5px solid $color-border;
+          border-radius: $border-radius-mini;
+          background-color: $color-box-bg;
           color: $color-text !important;
+          font-family: Arial, Helvetica, sans-serif;
 
           &::placeholder {
             color: color.adjust($color-text, $lightness: -30%);
@@ -65,39 +72,32 @@
           }
         }
 
-        input {
+        // React Select
+        .react-select__control {
           width: 100%;
-          display: flex;
-          padding: $gap-mini;
           font-size: $font-size-base;
           border: 0.5px solid $color-border;
           border-radius: $border-radius-mini;
           background-color: $color-box-bg;
-          color: $color-text !important;
-        }
-
-        .react-select__control {
-          width: 100%;
-          font-size: $font-size-base;
-          border: 0.5px solid #ccc;
-          border-radius: 6px;
-          background-color: $color-box-bg;
+          font-family: Arial, Helvetica, sans-serif !important;
         }
 
         .react-select__single-value,
         .react-select__placeholder {
           color: $color-text;
+          font-family: Arial, Helvetica, sans-serif !important;
         }
 
         .react-select__menu {
           background-color: $color-box-bg;
-          border-radius: 6px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          border-radius: $border-radius-mini;
+          font-family: Arial, Helvetica, sans-serif !important;
         }
 
         .react-select__option {
           background-color: $color-box-bg;
           color: $color-text;
+          font-family: Arial, Helvetica, sans-serif !important;
 
           &:hover {
             background-color: color.adjust($color-box-bg, $lightness: -5%);
@@ -113,29 +113,21 @@
           }
         }
 
-        .react-select__control,
-        .react-select__menu,
-        .react-select__option,
-        .react-select__single-value,
-        .react-select__placeholder,
-        .react-select__input input {
-          font-family: Arial, Helvetica, sans-serif !important;
-        }
-
-        .profile-edit-button {
+        // Button Row (Delete, Save, etc.)
+        .profile-edit-row {
           display: flex;
-          align-self: center;
+          justify-content: center;
+          gap: $gap-mini;
 
           button {
-            padding: 8px 30px;
-            background-color: darkred;
-            color: white;
-            border: 0.5px solid $color-border;
-            border-radius: $border-radius-mini;
+            padding: 8px 20px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: $margin-mini;
-            transition: 0.1s ease;
+            border-radius: $border-radius-mini;
+            border: 0.5px solid $color-border;
+            transition: background-color 0.1s ease;
+            background-color: darkred;
+            color: white;
 
             &:hover {
               background-color: color.adjust(darkred, $lightness: 10%);
@@ -174,9 +166,9 @@
         transition: 0.1s ease;
 
         &:hover {
-              background-color: $color-button-bg;
-              color: $color-text-button-hover;
-            }
+          background-color: $color-button-bg;
+          color: $color-text-button-hover;
+        }
       }
     }
 
@@ -186,10 +178,6 @@
       padding: 6px 10px;
       border-radius: $border-radius-mini;
       font-size: $font-size-tiny;
-
-      p {
-        margin: 0;
-      }
     }
   }
 }

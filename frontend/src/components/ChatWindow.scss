@@ -1,5 +1,12 @@
 @use "../styles/variables.scss" as *;
 
+@mixin timestamp($align, $color) {
+  display: block;
+  text-align: $align;
+  font-size: 10px;
+  color: $color;
+}
+
 .chat-window {
   position: relative;
   display: flex;
@@ -7,35 +14,33 @@
   flex-direction: column;
   gap: $gap-default;
 
+  /* ------------------ Load‑earlier link ----------------- */
   .load-earlier {
     text-align: right;
     color: $color-text;
     cursor: pointer;
     padding: 10px;
     font-size: 14px;
-    transition: background-color 0.1s ease;
+    transition: color 0.1s ease;
 
     &:hover {
       color: #fff;
     }
   }
 
+  /* -------------------- Messages list ------------------- */
   .messages {
-    // display: flex;
-    // flex-direction: column;
-    // align-items: stretch;
-
     .date-block {
       display: flex;
       flex-direction: column;
       gap: 5px;
 
       .date-divider {
+        position: relative;
+        margin: 15px 0 10px;
         text-align: center;
         font-size: $font-size-tiny;
         color: $color-border;
-        margin: 15px 0 10px 0;
-        position: relative;
 
         &::before,
         &::after {
@@ -46,11 +51,9 @@
           height: 0.5px;
           background-color: $color-border;
         }
-
         &::before {
           left: 0;
         }
-
         &::after {
           right: 0;
         }
@@ -61,6 +64,14 @@
         align-items: flex-end;
         gap: $gap-mini;
 
+        &.own {
+          justify-content: flex-end;
+        }
+        &.incoming {
+          justify-content: flex-start;
+        }
+
+        /* ----------------------- Avatar ----------------------- */
         .avatar-container {
           width: $avatar-size-small;
           height: $avatar-size-small;
@@ -68,23 +79,22 @@
           align-items: flex-end;
           justify-content: center;
 
-          .avatar {
-            width: $avatar-size-small;
-            height: $avatar-size-small;
+          > .avatar,
+          > .avatar-placeholder,
+          > .avatar-fallback {
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            object-fit: cover;
           }
 
+          .avatar {
+            object-fit: cover;
+          }
           .avatar-placeholder {
-            width: $avatar-size-small;
-            height: $avatar-size-small;
             visibility: hidden;
           }
 
           .avatar-fallback {
-            width: $avatar-size-small;
-            height: $avatar-size-small;
-            border-radius: 50%;
             background-color: $color-avatar-fallback;
             color: $color-heading;
             display: flex;
@@ -95,73 +105,67 @@
           }
         }
 
-        &.own {
-          justify-content: flex-end;
-        }
-
-        &.incoming {
-          justify-content: flex-start;
-        }
-
+        /* ----------------------- Bubble ----------------------- */
         .message-bubble {
           padding: 8px 12px;
           max-width: 60%;
           font-size: 15px;
+          border-radius: 15px;
+
+          &.single {
+            border-radius: 15px;
+          }
 
           &.own {
             background-color: $color-chat-own;
-            color: white;
+            color: #fff;
             text-align: right;
 
             .timestamp {
-              display: block;
-              text-align: right;
-              font-size: 10px;
-              color: #dcdcdc;
+              @include timestamp(right, #dcdcdc);
+            }
+
+            &.start {
+              border-radius: 15px 15px 0 15px;
+            }
+            &.middle {
+              border-radius: 15px 0 0 15px;
+            }
+            &.end {
+              border-radius: 15px 0 15px 15px;
             }
           }
 
           &.incoming {
             background-color: $color-chat-incoming;
-            color: black;
+            color: #000;
             text-align: left;
 
             .timestamp {
-              display: block;
-              text-align: left;
-              font-size: 10px;
-              color: #393939;
+              @include timestamp(left, #393939);
+            }
+
+            &.deleted {
+              opacity: 0.6;
+              font-style: italic;
+            }
+
+            &.start {
+              border-radius: 15px 15px 15px 0;
+            }
+            &.middle {
+              border-radius: 0 15px 15px 0;
+            }
+            &.end {
+              border-radius: 0 15px 15px 15px;
             }
           }
-
-          &.single {
-            border-radius: 15px;
-          }
-        }
-
-        .message-bubble.own.start {
-          border-radius: 15px 15px 0 15px;
-        }
-        .message-bubble.own.middle {
-          border-radius: 15px 0 0 15px;
-        }
-        .message-bubble.own.end {
-          border-radius: 15px 0 15px 15px;
-        }
-
-        .message-bubble.incoming.start {
-          border-radius: 15px 15px 15px 0;
-        }
-        .message-bubble.incoming.middle {
-          border-radius: 0 15px 15px 0;
-        }
-        .message-bubble.incoming.end {
-          border-radius: 0 15px 15px 15px;
         }
       }
     }
   }
 
+  /* -------------------- Message input ------------------- */
   .message-input {
     margin-top: auto;
     display: flex;
@@ -180,7 +184,7 @@
     button {
       padding: 8px 16px;
       background: none;
-      color: white;
+      color: #fff;
       border: 0.5px solid $color-border;
       cursor: pointer;
       transition: background-color 0.1s ease;

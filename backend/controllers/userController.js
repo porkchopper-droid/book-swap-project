@@ -1,8 +1,11 @@
 import User from "../models/User.js";
 import Book from "../models/Book.js";
 import SwapProposal from "../models/SwapProposal.js";
+import Message from "../models/Message.js";
+import UserTombstone from "../models/UserTombstone.js";
 import bcrypt from "bcrypt";
 import cloudinary from "../config/cloudinary.js";
+import { encryptMessage } from "../utils/crypto.js";
 
 export const getUserInfo = async (req, res) => {
   try {
@@ -423,5 +426,110 @@ export const unflagUser = async (req, res) => {
   } catch (err) {
     console.error("Error in unflagUser:", err);
     res.status(500).json({ message: "Failed to unflag user." });
+  }
+};
+
+export const deleteAccount = async (req, res) => {
+  const userId = req.user._id;
+  const { password } = req.body;
+
+  // STEP 0: Verify identity first
+  const user = await User.findById(userId).select("+password");
+  if (!user) return res.status(404).json({ error: "User not found." });
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) return res.status(401).json({ error: "Incorrect password." });
+
+  try {
+    // STEP 1: Block if user has accepted swaps with one side completed
+    const blockingSwap = await SwapProposal.findOne({
+      $or: [{ from: userId }, { to: userId }],
+      status: "accepted",
+      $or: [
+        { fromCompleted: true, toCompleted: false },
+        { fromCompleted: false, toCompleted: true },
+      ],
+    });
+    if (blockingSwap) {
+      return res.status(409).json({
+        error: "You must finish all pending swap confirmations before deleting your account.",
+      });
+    }
+
+    // STEP 2: 🪦 Gather a snapshot for the tombstone
+    const [booksCount, completedSwapsCount, userBooks, lastSwap, userMessages] = await Promise.all([
+      Book.countDocuments({ user: userId }),
+      SwapProposal.countDocuments({
+        $or: [{ from: userId }, { to: userId }],
+        status: "completed",
+      }),
+      Book.find({ user: userId }).select("title author year genre").lean(),
+      SwapProposal.findOne({
+        $or: [{ from: userId }, { to: userId }],
+        status: "completed",
+      })
+        .sort({ completedAt: -1 })
+        .select("completedAt")
+        .lean(),
+      Message.find({ sender: userId }).select("swapId text createdAt").lean(),
+    ]);
+
+    await UserTombstone.create({
+      originalUserId: userId,
+      username: user.username,
+      email: user.email,
+      country: user.country,
+      city: user.city,
+      profilePicture: user.profilePicture,
+      location: user.location,
+      stats: {
+        booksCount,
+        totalSwaps: completedSwapsCount,
+        lastSwapDate: lastSwap?.completedAt || null,
+      },
+      legacyBooks: userBooks,
+      legacyMessages: userMessages,
+      reason: "User deleted account",
+      deletedAt: new Date(),
+    });
+
+    // STEP 3: Cancel all pending/accepted swaps
+    await SwapProposal.updateMany(
+      {
+        $or: [{ from: userId }, { to: userId }],
+        status: { $in: ["pending", "accepted"] },
+      },
+      {
+        $set: {
+          status: "cancelled",
+          cancelledAt: new Date(),
+        },
+      }
+    );
+
+    // STEP 4: Soft-delete user's books
+    await Book.updateMany({ user: userId }, { $set: { status: "deleted" } });
+
+    // STEP 5: Redact messages in live chat & mark senderDeleted
+    const REDACTED_TEXT = "[message removed by deleted user]";
+    const encryptedRedacted = encryptMessage(REDACTED_TEXT);
+
+    await Message.updateMany(
+      { sender: userId },
+      {
+        $set: {
+          text: encryptedRedacted,
+          senderDeleted: true,
+        },
+      }
+    );
+
+    // STEP 6: Hard delete the user
+    await User.findByIdAndDelete(userId);
+
+    return res.sendStatus(204);
+  } catch (err) {
+    console.error("❌ Account deletion failed:", err);
+    res.status(500).json({ error: "Server error." });
   }
 };

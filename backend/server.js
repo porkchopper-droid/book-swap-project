@@ -58,8 +58,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/test-encryption", (req, res) => {
-  const encrypted =
-    "U2FsdGVkX1828bK0uAPzS1nj+Z8uhjvjyP/r0C9tl/Jwwl5FFkl6JYSZBpV5i3cf";
+  const encrypted = "U2FsdGVkX1+mnrWeDGuG5L0jRwlKFGukdordYeypr/f6nIq1dd+h0wOhyQtCUS95+4Af2JlgW6EQ1Hr2tS9mEg==";
   const decrypted = decryptMessage(encrypted);
 
   res.json({ encrypted, decrypted });
@@ -105,13 +104,12 @@ io.on("connection", (socket) => {
       console.log("🔒 Encrypted text:", encryptedText);
 
       // Save encrypted message
-      const message = new Message({
+      const saved = await Message.create({
         swapId,
         sender: senderId,
         text: encryptedText,
       });
 
-      const saved = await message.save();
       const populated = await saved.populate("sender", "username");
 
       console.log("📦 Message saved and populated:", populated);

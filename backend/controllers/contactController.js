@@ -10,8 +10,7 @@ export const handleSupportRequest = async (req, res) => {
 
   try {
     // Save to DB
-    const newSupportMessage = new SupportMessage({ email, message });
-    await newSupportMessage.save();
+    const saved = await SupportMessage.create({ email, message });
 
     // Use the helper to send email
     await sendSupportEmail(email, message);

@@ -43,7 +43,7 @@ export const createSwapProposal = async (req, res) => {
     }
 
     // 4️⃣ Create & save proposal (unchanged)
-    const newProposal = new SwapProposal({
+    const saved = await SwapProposal.create({
       from: req.user._id,
       to,
       offeredBook,
@@ -53,8 +53,6 @@ export const createSwapProposal = async (req, res) => {
       status: "pending", // BY DEFAULT, DUH!!
       fromMessage,
     });
-
-    const saved = await newProposal.save(); // saving to mongoDB
 
     // 5️⃣ Notify recipient via email
     const recipientUser = await User.findById(to).select("username email");
@@ -106,6 +104,7 @@ export const respondToSwapProposal = async (req, res) => {
     }
 
     if (response === "decline") {
+      // DECLINED
       proposal.status = "declined";
       debugLog("Attached toMessage:", toMessage);
       if (toMessage) {

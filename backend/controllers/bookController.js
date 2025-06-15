@@ -6,14 +6,13 @@ import SwapProposal from "../models/SwapProposal.js";
 
 export const createBook = async (req, res) => {
   try {
-    const newBook = new Book({
+    const saved = await Book.create({
       ...req.body,
       user: req.user._id, // comes from JWT middleware
       createdBy: req.user._id,
       isbn: req.body.isbn,
     });
 
-    const saved = await newBook.save();
     res.status(201).json(saved);
   } catch (err) {
     console.error(err);

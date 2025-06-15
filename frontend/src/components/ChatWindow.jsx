@@ -206,19 +206,31 @@ export default function ChatWindow({ swapId }) {
             <div className="date-divider">{format(new Date(date), "MMMM d, yyyy")}</div>
 
             {msgs.map((msg, index) => {
-              const isOwn = msg.sender._id === userId;
+              // Gracefully handle vanished sender
+              const senderDeleted = msg.senderDeleted || msg.sender === null;
+              const sender = msg.sender || {};
+              const senderId = sender._id;
+
+              const isOwn = !senderDeleted && senderId === userId;
               const prev = msgs[index - 1];
               const next = msgs[index + 1];
-              const isSameAsPrev = prev && prev.sender._id === msg.sender._id;
-              const isSameAsNext = next && next.sender._id === msg.sender._id;
-              const showAvatar = !isSameAsNext;
+
+              const sameAsPrev = prev && prev.sender?._id === senderId;
+              const sameAsNext = next && next.sender?._id === senderId;
+              const showAvatar = !sameAsNext;
 
               let positionClass = "single";
-              if (!isSameAsPrev && isSameAsNext) positionClass = "start";
-              else if (isSameAsPrev && isSameAsNext) positionClass = "middle";
-              else if (isSameAsPrev && !isSameAsNext) positionClass = "end";
+              if (!sameAsPrev && sameAsNext) positionClass = "start";
+              else if (sameAsPrev && sameAsNext) positionClass = "middle";
+              else if (sameAsPrev && !sameAsNext) positionClass = "end";
 
               const time = format(new Date(msg.createdAt), "HH:mm");
+
+              // Decide bubble text & avatar fallback
+              const bubbleText = senderDeleted ? "[message removed by deleted user]" : msg.text;
+              const avatarLetter = senderDeleted
+                ? "💀"
+                : sender.username?.charAt(0).toUpperCase() || "?";
 
               return (
                 <div key={msg._id} className={`message-row ${isOwn ? "own" : "incoming"}`}>
@@ -226,12 +238,10 @@ export default function ChatWindow({ swapId }) {
                   {!isOwn && (
                     <div className="avatar-container">
                       {showAvatar ? (
-                        msg.sender.profilePicture?.trim() ? (
-                          <img src={msg.sender.profilePicture} className="avatar" alt="avatar" />
+                        sender.profilePicture?.trim() && !senderDeleted ? (
+                          <img src={sender.profilePicture} className="avatar" alt="avatar" />
                         ) : (
-                          <div className="avatar-fallback">
-                            {msg.sender.username?.charAt(0).toUpperCase() || "?"}
-                          </div>
+                          <div className="avatar-fallback">{avatarLetter}</div>
                         )
                       ) : (
                         <div className="avatar-placeholder" />
@@ -240,8 +250,13 @@ export default function ChatWindow({ swapId }) {
                   )}
 
                   {/* Message bubble */}
-                  <div className={`message-bubble ${isOwn ? "own" : "incoming"} ${positionClass}`}>
-                    {msg.text}
+                  <div
+                    className={`message-bubble ${isOwn ? "own" : "incoming"} ${positionClass} ${
+                      senderDeleted ? "deleted" : ""
+                    }`}
+                    title={senderDeleted ? "Message from a deleted user" : sender.username}
+                  >
+                    {bubbleText}
                     <span className="timestamp">{time}</span>
                   </div>
 

@@ -10,6 +10,7 @@ import {
   getFullProfile,
   getDailyBooksStats,
   getDailySwapsStats,
+  deleteAccount
 } from "../controllers/userController.js";
 import parser from "../config/multer.js";
 
@@ -24,5 +25,7 @@ router.patch("/account/profile", parser.single("avatar"), protect, updateUserPro
 router.get("/account/stats", protect, getUserStats);
 router.get("/account/stats/daily-books", protect, getDailyBooksStats);
 router.get("/account/stats/daily-swaps", protect, getDailySwapsStats);
+router.delete("/account", protect, deleteAccount);
+
 
 export default router;
