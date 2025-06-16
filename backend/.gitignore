@@ -1,9 +1,10 @@
 node_modules/
 tech-readme.md
-.env
 bcryptDemo.js
 .log
 logs/
 demo_data/
 tests/
 jest.config.js
+.env*
+!.env.example
