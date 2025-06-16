@@ -4,7 +4,7 @@
   "description": "Backend API server for Bookbook, a book swapping platform with chat and location-based features.",
   "main": "server.js",
   "scripts": {
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test": "jest --watch",
     "start": "node -r dotenv/config server.js",
     "dev": "nodemon --require dotenv/config server.js",
     "generate-integrity": "node scripts/generateIntegrity.js",
@@ -32,9 +32,7 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
-    "@jest/globals": "^30.0.0",
     "cross-env": "^7.0.3",
-    "jest": "^30.0.0",
     "nodemon": "^3.1.0"
   }
 }

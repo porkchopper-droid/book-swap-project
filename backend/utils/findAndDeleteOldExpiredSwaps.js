@@ -1,7 +1,7 @@
 import SwapProposal from "../models/SwapProposal.js";
 import { log } from "./logger.js";
 
-export const deleteOldExpiredSwaps = async () => {
+export const findAndDeleteOldExpiredSwaps = async () => {
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
 
   const staleExpired = await SwapProposal.find({

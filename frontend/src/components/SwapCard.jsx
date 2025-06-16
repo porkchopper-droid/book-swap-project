@@ -18,7 +18,7 @@ export default function SwapCard({
   const { user } = useAuth();
 
   // testing who is who during the swap
-  const isUserFrom = user._id === swap.from._id;
+  const isUserFrom = swap.from && user._id === swap.from._id;
   const hasUserMarkedCompleted = isUserFrom ? swap.fromCompleted : swap.toCompleted;
   const hasUserArchived = isUserFrom ? swap.fromArchived : swap.toArchived;
 

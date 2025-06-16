@@ -3,6 +3,7 @@ import Book from "../models/Book.js";
 import { log } from "./logger.js";
 
 export const handleStaleSwaps = async (staleSwaps) => {
+  let restored = 0; // a counter for restored books
   for (const swap of staleSwaps) {
     const { _id, offeredBook, requestedBook, status } = swap;
 
@@ -12,6 +13,7 @@ export const handleStaleSwaps = async (staleSwaps) => {
       // Mark books as available
       await Book.findByIdAndUpdate(offeredBook, { status: "available" });
       await Book.findByIdAndUpdate(requestedBook, { status: "available" });
+      restored += 2; // each swap always frees 2 books
 
       // Log details
       const offeredBookDoc = await Book.findById(offeredBook);
@@ -50,4 +52,5 @@ export const handleStaleSwaps = async (staleSwaps) => {
       log(`✅ Marked swap ${_id} as expired and reverted books`);
     }
   }
+  return restored; // total books restored back
 };

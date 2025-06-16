@@ -10,9 +10,11 @@ export const autoUnflagUsers = async () => {
     flaggedUntil: { $lte: now },
   });
 
+  let booksRestored = 0;
+
   if (flaggedUsers.length === 0) {
     log("👍 No users to unflag today.");
-    return 0; // return 0 (as count)
+    return { users: 0, books: 0 };
   }
 
   for (const user of flaggedUsers) {
@@ -22,14 +24,16 @@ export const autoUnflagUsers = async () => {
     await user.save();
 
     // Restore their reported books
-    await Book.updateMany(
+    const { modifiedCount } = await Book.updateMany(
       { user: user._id, status: "reported" },
       { status: "available", reportedAt: null }
     );
+
+    booksRestored += modifiedCount;
 
     log(`✅ Auto-unflagged user: ${user.username}`);
   }
   log(`🎉 Finished unflagging ${flaggedUsers.length} user(s).`);
 
-  return flaggedUsers.length; // return count
+  return { users: flaggedUsers.length, books: booksRestored };
 };

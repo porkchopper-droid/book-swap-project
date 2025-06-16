@@ -30,27 +30,45 @@ export default function SwapsPage() {
   const myBook = selectedSwap?.requestedBook;
   const theirBook = selectedSwap?.offeredBook;
 
+  const isUserFrom = (swap) => user._id === swap.from?._id;
+  const isUserArchived = (swap) => (isUserFrom(swap) ? swap.fromArchived : swap.toArchived);
+
   const filteredSwaps = swaps.filter((swap) => {
-    const isUserFrom = user._id === swap.from._id;
-    const userArchived = isUserFrom ? swap.fromArchived : swap.toArchived;
+    const userHasArchived = isUserArchived(swap);
 
     switch (activeTab) {
+      /*  🔄  Active = anything currently “in flight”
+      (pending | accepted) AND **not** archived for me   */
       case "active":
-        return ["pending", "accepted"].includes(swap.status) && !userArchived;
+        return ["pending", "accepted"].includes(swap.status) && !userHasArchived;
+
+      // ❌  Declined - only if *my* copy isn’t archived
       case "declined":
-        return swap.status === "declined" && !userArchived;
+        return swap.status === "declined" && !userHasArchived;
+
+      // ✅  Completed but NOT archived
       case "completed":
-        return swap.status === "completed" && !userArchived;
+        return swap.status === "completed" && !userHasArchived;
+
+      // 📦  Archived  (regardless of status)
       case "archived":
-        return userArchived === true;
+        return userHasArchived;
+
+      // ⏳  Expired  – archived flag does ­NOT matter
       case "expired":
         return swap.status === "expired";
+
+      // 🚨  Reported
       case "reported":
         return swap.status === "reported";
+
+      // 🚫  Cancelled
       case "cancelled":
         return swap.status === "cancelled";
+
+      // Anything else
       default:
-        return true; // fallback
+        return true;
     }
   });
 
@@ -164,9 +182,7 @@ export default function SwapsPage() {
   };
 
   const handleReport = async (swapId) => {
-    const confirm = window.confirm(
-      "Are you sure you want to report this swap?"
-    );
+    const confirm = window.confirm("Are you sure you want to report this swap?");
     if (!confirm) return;
 
     try {
@@ -182,9 +198,7 @@ export default function SwapsPage() {
   };
 
   const handleCancelSwap = async (swapId) => {
-    const confirm = window.confirm(
-      "Are you sure you want to cancel this swap?"
-    );
+    const confirm = window.confirm("Are you sure you want to cancel this swap?");
     if (!confirm) return;
 
     try {

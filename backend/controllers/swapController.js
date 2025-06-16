@@ -7,22 +7,47 @@ import { debugLog } from "../utils/debug.js";
 
 export const createSwapProposal = async (req, res) => {
   try {
-    // 1️⃣ Pull out fields first
+    // STEP 0: Pull out fields first (basic field check)
     const { to, offeredBook, requestedBook, fromMessage } = req.body;
 
     if (!to || !offeredBook || !requestedBook) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
-    // 2️⃣ Look up both books
+    // STEP 1: USER-LEVEL FREEZE
+    // If *you* are suspended you can’t create proposals (no matter what UI says)
+    if (req.user.isFlagged) {
+      return res
+        .status(403)
+        .json({ message: "Your account is temporarily suspended from swapping." });
+    }
+
+    // If the recipient is suspended you can’t send them proposals
+    const recipient = await User.findById(to).select("isFlagged username email");
+    if (!recipient) {
+      return res.status(404).json({ message: "Recipient not found." });
+    }
+    if (recipient.isFlagged) {
+      return res.status(403).json({ message: "That user is temporarily suspended from swapping." });
+    }
+
+    // STEP 2: Look up both books (book-status guard)
     const offered = await Book.findById(offeredBook);
     const requested = await Book.findById(requestedBook);
 
-    if (!offered || !requested || offered.status === "deleted" || requested.status === "deleted") {
-      return res.status(400).json({ message: "One of the books has been deleted." });
+    const BAD_STATUSES = ["deleted", "reported", "booked", "swapped"];
+
+    // Now ONLY status: "available" makes it through.
+    if (
+      !offered ||
+      !requested ||
+      BAD_STATUSES.includes(offered.status) ||
+      BAD_STATUSES.includes(requested.status)
+    ) {
+      return res.status(400).json({ message: "One of the books is not available for swapping." });
     }
 
-    // 3️⃣ Duplicate-proposal check (unchanged)
+    // STEP 3: Duplicate-proposal check
     const existing = await SwapProposal.findOne({
       status: "pending",
       $or: [
@@ -42,7 +67,7 @@ export const createSwapProposal = async (req, res) => {
       });
     }
 
-    // 4️⃣ Create & save proposal (unchanged)
+    // STEP 4: Create & save proposal
     const saved = await SwapProposal.create({
       from: req.user._id,
       to,
@@ -54,7 +79,7 @@ export const createSwapProposal = async (req, res) => {
       fromMessage,
     });
 
-    // 5️⃣ Notify recipient via email
+    // STEP 5: Notify recipient via email
     const recipientUser = await User.findById(to).select("username email");
     if (recipientUser) {
       const populatedSwap = await SwapProposal.findById(saved._id)
@@ -429,7 +454,10 @@ export const reportSwap = async (req, res) => {
         otherUser.flaggedUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // for 7 days 😈
 
         // 🚨 Also mark all their books as reported
-        await Book.updateMany({ owner: otherUser._id }, { status: "reported" });
+        await Book.updateMany(
+          { user: otherUser._id, status: { $in: ["available"] } },
+          { status: "reported" }
+        );
       }
       await otherUser.save();
     }
