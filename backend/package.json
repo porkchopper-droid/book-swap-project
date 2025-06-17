@@ -5,8 +5,10 @@
   "main": "server.js",
   "scripts": {
     "test": "jest --watch",
-    "start": "node -r dotenv/config server.js",
-    "dev": "nodemon --require dotenv/config server.js",
+    "dev": "cross-env NODE_ENV=development nodemon server.js",
+    "dev:demo": "cross-env NODE_ENV=demo nodemon server.js",
+    "start:demo": "cross-env NODE_ENV=demo node server.js",
+    "start": "cross-env NODE_ENV=production node server.js",
     "generate-integrity": "node scripts/generateIntegrity.js",
     "check-integrity": "node scripts/checkIntegrity.js"
   },
@@ -21,6 +23,7 @@
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.5.0",
+    "dotenv-flow": "^4.1.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.14.0",

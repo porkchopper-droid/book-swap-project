@@ -6,7 +6,7 @@ import { encryptMessage, decryptMessage } from "./utils/crypto.js";
 
 import mongoose from "mongoose";
 import express from "express";
-import dotenv from "dotenv";
+import dotenvFlow from "dotenv-flow";
 import http from "http";
 import cors from "cors";
 
@@ -27,11 +27,20 @@ import mapRoutes from "./routes/mapRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 
-dotenv.config();
+dotenvFlow.config();
+
+/* -------------------- SANITY CHECK -------------------- */
+console.log("🔧 NODE_ENV:", process.env.NODE_ENV);
+console.log("📦 DB:", process.env.MONGO_URL);
 
 /* ---------------------- APP SETUP --------------------- */
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL, // // e.g. http://localhost:5173  or  https://bookbook.live
+    credentials: true, // allow cookies / auth headers
+  })
+);
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
@@ -70,8 +79,9 @@ app.get("/test-encryption", (req, res) => {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*", // Adjust for frontend origin in prod
+    origin: process.env.FRONTEND_URL,
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 

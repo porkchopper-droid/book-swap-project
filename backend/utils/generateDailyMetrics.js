@@ -1,104 +1,67 @@
-import User from "../models/User.js";
-import Message from "../models/Message.js";
+import User         from "../models/User.js";
+import Message      from "../models/Message.js";
 import SwapProposal from "../models/SwapProposal.js";
-import DailyMetrics from "../models/DailyMetrics.js"; // new collection for daily snapshots
-import { log } from "./logger.js";
+import DailyMetrics from "../models/DailyMetrics.js";
+import { log }      from "./logger.js";
 
+// Runs once per night – captures **yesterday** in pure UTC.
 export const generateDailyMetrics = async () => {
-  // RIGHT NOW: June 9th 00:00
+  /* STEP 1: Anchor to today 00:00 UTC */
+  const todayUTC = new Date();
+  todayUTC.setUTCHours(0, 0, 0, 0);          // e.g. 2025‑06‑17 00:00Z
 
-  // STEP 1: Create a Date object for RIGHT NOW
-  const date = new Date(); // June 9th 00:00
+  /* STEP 2: Start of yesterday 00:00 UTC */
+  const startUTC = new Date(todayUTC);
+  startUTC.setUTCDate(startUTC.getUTCDate() - 1);   // 2025‑06‑16 00:00Z
 
-  // STEP 2: Go back to start of previous day (June 8th 00:00)
-  date.setDate(date.getDate() - 1); // June 8th 00:00
-  date.setHours(0, 0, 0, 0); // Ensure it’s midnight exactly
+  /* STEP 3: End bound (exclusive) */
+  const endUTC = todayUTC;                         // 2025‑06‑17 00:00Z
 
-  // STEP 3: Create "end of day" as tomorrow (June 9th 00:00)
-  const tomorrow = new Date(date); // duplicate date
-  tomorrow.setDate(date.getDate() + 1); // June 9th 00:00
+  const snapshotDate = startUTC.toISOString().slice(0, 10); // "2025‑06‑16"
+  log(`📊 Generating daily metrics for ${snapshotDate}`);
 
-  log(`📊 Generating daily metrics for ${date.toISOString().split("T")[0]}`);
-
-  // Count new users (signed up today)
-  const newUsersCount = await User.countDocuments({
-    createdAt: { $gte: date, $lt: tomorrow },
-  });
-
-  // Count messages sent today
-  const messagesSentCount = await Message.countDocuments({
-    createdAt: { $gte: date, $lt: tomorrow },
-  });
-
-  // Count swaps by status
-  const swapsInitiatedCount = await SwapProposal.countDocuments({
-    createdAt: { $gte: date, $lt: tomorrow },
-  });
-
-  const swapsAcceptedCount = await SwapProposal.countDocuments({
-    status: "accepted",
-    updatedAt: { $gte: date, $lt: tomorrow },
-  });
-
-  const swapsCompletedCount = await SwapProposal.countDocuments({
-    status: "completed",
-    updatedAt: { $gte: date, $lt: tomorrow },
-  });
-
-  const swapsReportedCount = await SwapProposal.countDocuments({
-    status: "reported",
-    updatedAt: { $gte: date, $lt: tomorrow },
-  });
-
-  const swapsCancelledCount = await SwapProposal.countDocuments({
-    status: "cancelled",
-    updatedAt: { $gte: date, $lt: tomorrow },
-  });
-
-  const swapsExpiredCount = await SwapProposal.countDocuments({
-    status: "expired",
-    updatedAt: { $gte: date, $lt: tomorrow },
-  });
-
-  // Count new users by country
-  const usersByCountryAgg = await User.aggregate([
-    {
-      $match: {
-        createdAt: { $gte: date, $lt: tomorrow },
-      },
-    },
-    {
-      $group: {
-        _id: "$country",
-        count: { $sum: 1 },
-      },
-    },
+  /* Counts */
+  const [
+    newUsers, messages, swapsInitiated,
+    swapsAccepted, swapsCompleted,
+    swapsReported, swapsCancelled, swapsExpired,
+  ] = await Promise.all([
+    User.countDocuments({ createdAt: { $gte: startUTC, $lt: endUTC } }),
+    Message.countDocuments({ createdAt: { $gte: startUTC, $lt: endUTC } }),
+    SwapProposal.countDocuments({ createdAt: { $gte: startUTC, $lt: endUTC } }),
+    SwapProposal.countDocuments({ status: "accepted",   updatedAt: { $gte: startUTC, $lt: endUTC } }),
+    SwapProposal.countDocuments({ status: "completed",  updatedAt: { $gte: startUTC, $lt: endUTC } }),
+    SwapProposal.countDocuments({ status: "reported",   updatedAt: { $gte: startUTC, $lt: endUTC } }),
+    SwapProposal.countDocuments({ status: "cancelled",  updatedAt: { $gte: startUTC, $lt: endUTC } }),
+    SwapProposal.countDocuments({ status: "expired",    updatedAt: { $gte: startUTC, $lt: endUTC } }),
   ]);
 
-  const usersByCountry = {};
-  usersByCountryAgg.forEach((entry) => {
-    usersByCountry[entry._id || "unknown"] = entry.count;
-  });
+  /* Users by country */
+  const usersByCountryAgg = await User.aggregate([
+    { $match: { createdAt: { $gte: startUTC, $lt: endUTC } } },
+    { $group: { _id: "$country", count: { $sum: 1 } } },
+  ]);
+  const usersByCountry = Object.fromEntries(
+    usersByCountryAgg.map(({ _id, count }) => [ _id || "unknown", count ])
+  );
 
-  // Save snapshot to DB
-  const snapshot = new DailyMetrics({
-    date: date.toISOString().split("T")[0],
-    newUsers: newUsersCount,
-    messagesSent: messagesSentCount,
-    swapsInitiated: swapsInitiatedCount,
-    swapsAccepted: swapsAcceptedCount,
-    swapsCompleted: swapsCompletedCount,
-    swapsReported: swapsReportedCount,
-    swapsCancelled: swapsCancelledCount,
-    swapsExpired: swapsExpiredCount,
-    usersByCountry,
-  });
-
-  const { _id, ...updatableFields } = snapshot.toObject(); // 🟢 remove _id
+  /* Upsert snapshot */
   await DailyMetrics.updateOne(
-    { date: snapshot.date },
-    { $set: updatableFields },
+    { date: snapshotDate },
+    {
+      $set: {
+        newUsers,
+        messagesSent: messages,
+        swapsInitiated,
+        swapsAccepted,
+        swapsCompleted,
+        swapsReported,
+        swapsCancelled,
+        swapsExpired,
+        usersByCountry,
+      },
+    },
     { upsert: true }
   );
-  log(`✅ Daily metrics saved for ${date.toISOString().split("T")[0]}`);
+  log(`✅ Daily metrics saved for ${snapshotDate}`);
 };

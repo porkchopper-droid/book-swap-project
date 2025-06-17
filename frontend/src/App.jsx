@@ -16,8 +16,15 @@ import AboutUsPage from "./pages/AboutUs";
 import CareersPage from "./pages/Careers";
 
 import ProtectedRoutes from "./routes/ProtectedRoutes";
+import { useEffect } from "react";
 
 function App() {
+  useEffect(() => {
+    console.log("🌍 API:", import.meta.env.VITE_API_URL);
+    console.log("🔌 Socket:", import.meta.env.VITE_SOCKET_URL);
+    console.log("🔧 MODE:", import.meta.env.MODE);
+  }, []);
+
   return (
     <Router>
       <Routes>
