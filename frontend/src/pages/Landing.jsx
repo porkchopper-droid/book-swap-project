@@ -24,21 +24,33 @@ export default function Landing() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    setStatus("⏳ Trying to log you in...");
+    setStatus("⏳ Trying to log you in…");
+
     try {
-      const data = await login(email, password);
+      const data = await login(email, password); // <-- returns res.data
+
       if (data.token && data.user) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         setUser(data.user);
-        setStatus("✅ Logged in!");
+        setStatus(`✅ ${data.message || "Logged in!"}`);
         navigate("/account");
-      } else {
-        setStatus("❌ Login failed: " + (data.message || "Invalid credentials"));
+        return;
       }
+
+      // Backend responded 200 but login still failed (unlikely)
+      setStatus("❌ " + (data.message || "Login failed."));
     } catch (err) {
-      console.error("Login error:", err);
-      setStatus("❌ Something went wrong.");
+      // Axios puts server JSON in err.response.data
+      const msg = err?.response?.data?.message || "Something went wrong. Please try again.";
+
+      if (msg.includes("verify")) {
+        // Provide a clear hint
+        setStatus("❌ " + msg);
+        // Optionally show a “Resend” button instead of inline text
+      } else {
+        setStatus("❌ " + msg);
+      }
     }
   };
 
@@ -158,11 +170,7 @@ export default function Landing() {
       <p className="info-section">
         Want to know more? <Link to="/about">About Us</Link> | <Link to="/careers">Careers</Link>
       </p>
-      <img
-        src="/720x1280-cG5n.png"
-        alt="stack of books"
-        className="corner-image"
-      />
+      <img src="/720x1280-cG5n.png" alt="stack of books" className="corner-image" />
     </div>
   );
 }
