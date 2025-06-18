@@ -31,7 +31,7 @@ dotenvFlow.config();
 
 /* -------------------- SANITY CHECK -------------------- */
 console.log("🔧 NODE_ENV:", process.env.NODE_ENV);
-console.log("📦 DB:", process.env.MONGO_URL);
+console.log("📦 DB Name:", new URL(process.env.MONGO_URL).pathname);
 
 /* ---------------------- APP SETUP --------------------- */
 const app = express();
