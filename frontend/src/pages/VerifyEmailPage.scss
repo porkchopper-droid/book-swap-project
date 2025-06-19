@@ -23,10 +23,11 @@
     text-decoration: none;
     border-radius: $border-radius-mini;
     font-weight: bold;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.1s ease;
 
     &:hover {
       background-color: $color-button-bg;
+      color: $color-text-button-hover;
     }
   }
 }

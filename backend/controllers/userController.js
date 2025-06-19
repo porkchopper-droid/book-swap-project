@@ -452,6 +452,7 @@ export const deleteAccount = async (req, res) => {
     });
     if (blockingSwap) {
       return res.status(409).json({
+        code: "SWAP_PENDING",
         error: "You must finish all pending swap confirmations before deleting your account.",
       });
     }

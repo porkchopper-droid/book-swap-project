@@ -27,29 +27,28 @@ export default function Landing() {
     setStatus("⏳ Trying to log you in…");
 
     try {
-      const data = await login(email, password); // <-- returns res.data
+      const { success, user, token, message, code } = await login(email, password); // <-- returns res.data
 
-      if (data.token && data.user) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        setUser(data.user);
-        setStatus(`✅ ${data.message || "Logged in!"}`);
+      if (success && user && token) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        setUser(user);
+        setStatus(`✅ ${message || "Logged in!"}`);
         navigate("/account");
         return;
       }
 
       // Backend responded 200 but login still failed (unlikely)
-      setStatus("❌ " + (data.message || "Login failed."));
+      setStatus("❌ " + (message || "Login failed."));
     } catch (err) {
-      // Axios puts server JSON in err.response.data
-      const msg = err?.response?.data?.message || "Something went wrong. Please try again.";
+      const { code, message } = err?.response?.data || {};
 
-      if (msg.includes("verify")) {
-        // Provide a clear hint
-        setStatus("❌ " + msg);
-        // Optionally show a “Resend” button instead of inline text
+      if (code === "EMAIL_NOT_VERIFIED") {
+        setStatus("❌ " + message); // clear, backend-driven
+        return;
+        // (Optional) show a "Resend verification" button here
       } else {
-        setStatus("❌ " + msg);
+        setStatus("❌ " + (message || "Something went wrong. Please try again."));
       }
     }
   };
@@ -65,7 +64,7 @@ export default function Landing() {
         country: country?.value,
       });
 
-      if (data.user && data.message?.includes("verify")) {
+      if (data.success && data.code === "REGISTER_SUCCESS" && data.user) {
         setStatus(
           "✅ Account created! Please check your email to verify your account before logging in."
         );
@@ -74,8 +73,13 @@ export default function Landing() {
         setStatus("❌ Signup failed: " + (data.message || "Unknown error"));
       }
     } catch (err) {
+      const { code, message } = err?.response?.data || {};
       console.error("Signup error:", err);
-      setStatus("❌ Something went wrong during signup.");
+      if (code === "EMAIL_TAKEN") {
+        setStatus("⚠️ " + message);
+        return;
+      }
+        setStatus("❌ " + (message || "Something went wrong during signup."));
     }
   };
 

@@ -48,32 +48,33 @@ export default function Profile() {
   };
 
   const deleteAccount = async () => {
-  if (
-    !window.confirm(
-      "This will permanently delete your account, books and swaps. Continue?"
-    )
-  )
-    return;
+    if (!window.confirm("This will permanently delete your account, books and swaps. Continue?"))
+      return;
 
-  // STEP 1:  Ask for the password (fast fix — replace with a proper modal later)
-  const pwd = window.prompt("Please re-enter your password to confirm:");
+    // STEP 1:  Ask for the password (fast fix — replace with a proper modal later)
+    const pwd = window.prompt("Please re-enter your password to confirm:");
 
-  if (!pwd) return; // user cancelled
+    if (!pwd) return; // user cancelled
 
-  try {
-    await axios.delete("/api/users/account", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      data: { password: pwd },
-    });
+    try {
+      await axios.delete("/api/users/account", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        data: { password: pwd },
+      });
 
-    // STEP 2:  Logout + redirect
-    localStorage.clear();
-    window.location.href = "/";
-  } catch (err) {
-    alert("Failed to delete account — try again or contact support.");
-    console.error(err);
-  }
-};
+      // STEP 2:  Logout + redirect
+      localStorage.clear();
+      window.location.href = "/";
+    } catch (err) {
+      const { code, error } = err?.response?.data || {};
+
+      if (code === "SWAP_PENDING") {
+        alert("⚠️ " + error);
+      } else {
+        alert(error || "Something went wrong.");
+      }
+    }
+  };
 
   // When profile loads, set form state
   useEffect(() => {

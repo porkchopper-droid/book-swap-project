@@ -11,15 +11,16 @@ export default function ContactUsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setStatus("");
     setLoading(true);
     try {
-      await axios.post(`/api/support/contact`, { email, message });
-      setStatus("Your message has been sent! We'll reply soon.");
+      const { data } = await axios.post(`/api/support/contact`, { email, message });
+      setStatus(`${data.success ? "✅" : "❌"} ${data.message}`);
       setEmail("");
       setMessage("");
     } catch (err) {
-      console.error(err);
-      setStatus("Failed to send. Please try again later.");
+      const { message } = err?.response?.data || {};
+      setStatus(`❌ ${message || "Unexpected server error"}`);
     } finally {
       setLoading(false);
     }

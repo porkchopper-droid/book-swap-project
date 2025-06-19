@@ -30,21 +30,28 @@ export const handleStaleSwaps = async (staleSwaps) => {
       log(`🗑️ Deleting cancelled swap ${_id} (older than 7 days)`);
       await SwapProposal.findByIdAndDelete(_id);
       log(`✅ Deleted cancelled swap ${_id}`);
+    } else if (status === "declined") {
+      log(`⌛ Expiring declined swap ${_id}`);
+      swap.status = "expired";
+      swap.expiredAt = new Date();
+      await swap.save();
     } else {
       log(`⌛ Expiring ${status} swap ${_id}`);
 
-      // Set to expired
       swap.status = "expired";
       swap.expiredAt = new Date();
       await swap.save();
 
-      // Revert book statuses
-      await Book.findByIdAndUpdate(offeredBook, { status: "available" });
-      await Book.findByIdAndUpdate(requestedBook, { status: "available" });
+      const { modifiedCount } = await Book.updateMany(
+        { _id: { $in: [offeredBook, requestedBook] }, status: { $ne: "available" } },
+        { $set: { status: "available" } }
+      );
+      restored += modifiedCount;
 
-      // Log details
-      const offeredBookDoc = await Book.findById(offeredBook);
-      const requestedBookDoc = await Book.findById(requestedBook);
+      const [offeredBookDoc, requestedBookDoc] = await Promise.all([
+        Book.findById(offeredBook),
+        Book.findById(requestedBook),
+      ]);
 
       log(`📚 Restored offered book: "${offeredBookDoc?.title || "unknown"}"`);
       log(`📚 Restored requested book: "${requestedBookDoc?.title || "unknown"}"`);

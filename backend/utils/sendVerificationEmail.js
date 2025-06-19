@@ -1,6 +1,6 @@
 import { sendEmail } from "./emailService.js";
 
-export const sendVerificationEmail = async (to, token) => {
+export const sendVerificationEmail = async (to, token, name) => {
   try {
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${token}`;
 
@@ -9,7 +9,7 @@ export const sendVerificationEmail = async (to, token) => {
       to,
       subject: "Please verify your email address",
       html: `
-        <p>Hello,</p>
+        <p>Hello ${name},</p>
         <p>Click the link below to verify your email:</p>
         <p><a href="${verificationUrl}">${verificationUrl}</a></p>
         <p>If you didn't sign up for Bookbook, you can safely ignore this email.</p>

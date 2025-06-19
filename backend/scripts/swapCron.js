@@ -19,7 +19,7 @@ log("🚀 Cron job starting...");
 mongoose.connect(process.env.MONGO_URL).then(() => {
   log("✅ Connected to MongoDB");
 
-  cron.schedule("* * * * *", async () => {
+  cron.schedule("5 2 * * *", async () => {
     let totalRestoredBooks = 0;
 
     // every midnight
