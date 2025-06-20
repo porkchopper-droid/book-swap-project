@@ -57,3 +57,14 @@ $box-shadow-default: 0 4px 8px rgba(0, 0, 0, 0.15);
 /* ------------------- AVATAR ------------------- */
 $avatar-size-small: 32px;
 $avatar-size-large: 40px;
+
+/* --------------- MOBILE AND TABLET VIEW --------------- */
+
+$bp-mobile:   480px;
+$bp-tablet:   768px;
+
+@mixin mobile {
+  @media (max-width: $bp-mobile) {
+    @content;
+  }
+}

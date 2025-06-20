@@ -350,7 +350,7 @@ export default function Profile() {
           <LineChart data={dailyBooks}>
             <XAxis dataKey="day" interval={3} tick={{ fontSize: 14, fill: "#CCCC", dy: 5 }} />
             <YAxis
-              tickFormatter={(value) => Math.round(value)}
+              tickFormatter={(v)=>Number.isInteger(v)?v:''}
               tick={{ fontSize: 14, fill: "#CCCC", dx: -2 }}
             />
             <CartesianGrid strokeDasharray="1 3" />
@@ -369,7 +369,7 @@ export default function Profile() {
           <LineChart data={dailySwaps}>
             <XAxis dataKey="day" interval={3} tick={{ fontSize: 14, fill: "#CCCC", dy: 5 }} />
             <YAxis
-              tickFormatter={(value) => Math.round(value)}
+              tickFormatter={(v)=>Number.isInteger(v)?v:''}
               tick={{ fontSize: 14, fill: "#CCCC", dx: -2 }}
             />
             <CartesianGrid strokeDasharray="1 3" />

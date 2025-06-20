@@ -8,10 +8,9 @@
 
   aside {
     width: 33%;
-    height: 100%;
+    min-height: 100%;
     border-radius: $border-radius;
     color: $color-text;
-    flex: none;
 
     .profile-info-panel {
       display: flex;

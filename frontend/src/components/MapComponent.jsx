@@ -120,6 +120,7 @@ export default function MapComponent({
         scrollWheelZoom
         zoomControl={false}
         attributionControl={false}
+        style={{ height: "100%", width: "100%" }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <RecenterMap center={mapCenter} zoom={zoom} />
