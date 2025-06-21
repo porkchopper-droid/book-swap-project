@@ -155,16 +155,20 @@
       }
     }
   }
+}
 
-  @include mobile {
+@include mobile {
+  .landing-container {
+    justify-content: space-around;
     .main-content {
-      flex: 0;
       width: 100%;
+      flex: 0;
 
       .main-content-box {
         padding: $padding-mini;
         width: 100%;
         border: none;
+        gap:30px;
 
         h1 {
           text-align: center;
@@ -201,8 +205,8 @@
       padding: $gap-mini 0;
     }
 
-    img.corner-image {
-      display: none;
+        img.corner-image {
+     display: none;
     }
   }
 }

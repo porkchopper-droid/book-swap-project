@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
@@ -12,6 +13,7 @@ export default function ChatWindow({ swapId }) {
   const userId = user?._id;
   const socket = useSocket();
   const { clearUnread } = useNotification();
+  const navigate = useNavigate();
 
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -165,12 +167,22 @@ export default function ChatWindow({ swapId }) {
 
   return (
     <>
-      <h3>Chat with {chatPartner === null ? "[deleted user]" : chatPartner?.username || "..."}</h3>
+      <div className="chat-header">
+        <button onClick={() => navigate("/chats")} className="back-button">
+          ← 
+        </button>
+
+        <h3 className="chat-title">
+          Chat with {chatPartner === null ? "[deleted user]" : chatPartner?.username || "..."}
+        </h3>
+      </div>
+
       {hasMore && (
         <div
           className="load-earlier"
           onClick={() => {
             const oldest = messages[0]?.createdAt;
+
             if (oldest) {
               // Tell our auto‐scroll effect “we’re loading earlier messages,
               // so don’t scroll to bottom after prepend.”
@@ -179,14 +191,19 @@ export default function ChatWindow({ swapId }) {
               (async () => {
                 try {
                   let url = `/api/chats/${swapId}?before=${oldest}`;
+
                   const res = await axios.get(url, {
                     headers: {
                       Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                   });
+
                   const data = res.data.reverse();
+
                   const filtered = data.filter((m) => !messages.find((msg) => msg._id === m._id));
+
                   setMessages((prev) => [...filtered, ...prev]);
+
                   if (data.length < 20) setHasMore(false);
                 } catch (err) {
                   console.error("Failed to load earlier messages:", err);

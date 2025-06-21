@@ -36,7 +36,7 @@ export default function ChatsPage() {
   }, []);
 
   return (
-    <div className="chats-page">
+    <div className={`chats-page ${swapId ? "show-chat" : ""}`}>
       {/* ───── Left column: list of chats ───── */}
       <div className="chat-list">
         {/* <h3>My Chats</h3> */}
@@ -49,9 +49,7 @@ export default function ChatsPage() {
             <div
               key={swap._id}
               onClick={() => navigate(`/chats/${swap._id}`)}
-              className={`chat-item ${
-                swap._id === activeSwapId ? "active" : ""
-              }`}
+              className={`chat-item ${swap._id === activeSwapId ? "active" : ""}`}
             >
               <span className="chat-label">
                 {offeredBook} ⇄ {requestedBook}

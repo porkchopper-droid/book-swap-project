@@ -38,7 +38,6 @@
         align-items: center;
         justify-content: center;
         font-size: $font-size-tiny;
-
       }
     }
   }
@@ -64,6 +63,32 @@
         padding: $padding-default;
         border: 0.5px solid $color-border;
         box-shadow: 0px 0px 5px $color-bg;
+      }
+    }
+  }
+}
+
+@include mobile {
+  .chats-page {
+    flex-direction: column;
+
+    .chat-list {
+      flex: 1;
+      display: block;
+    }
+
+    .chat-window {
+      display: none;
+    }
+
+    &.show-chat {
+      .chat-list {
+        display: none;
+      }
+
+      .chat-window {
+        display: flex;
+
       }
     }
   }

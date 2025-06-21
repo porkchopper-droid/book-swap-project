@@ -89,4 +89,45 @@
       font-weight: 500;
     }
   }
+
+  .burger {
+    display: none;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 10px;
+    user-select: none;
+  }
+}
+
+@include mobile {
+  .navbar {
+    .burger {
+      display: block;
+    }
+
+    .nav-center,
+    .nav-right {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      position: absolute;
+      top: 60px;
+      left: 0;
+      z-index: 10;
+      padding: 10px;
+    }
+
+    .nav-center.open,
+    .nav-right.open {
+      display: flex;
+    }
+
+    .nav-center a,
+    .nav-right a {
+      padding: 10px 0;
+      color: white;
+      text-align: center;
+    }
+  }
 }

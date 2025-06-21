@@ -120,7 +120,6 @@ export default function MapComponent({
         scrollWheelZoom
         zoomControl={false}
         attributionControl={false}
-        style={{ height: "100%", width: "100%" }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <RecenterMap center={mapCenter} zoom={zoom} />
@@ -172,6 +171,13 @@ export default function MapComponent({
         © <a href="https://www.openstreetmap.org/">OpenStreetMap</a>
       </div>
 
+      <input
+        className="map-search-bar"
+        type="text"
+        placeholder="🔍 Search by book title or author..."
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+
       {!editLocation && (
         <button className="edit-location-btn" onClick={handleStartEdit}>
           📍 Edit Location
@@ -180,7 +186,7 @@ export default function MapComponent({
 
       {editLocation &&
         (tempPosition ? (
-          <button className="edit-location-btn" onClick={() => handleSaveLocation(tempPosition)}>
+          <button className="save-location-btn" onClick={() => handleSaveLocation(tempPosition)}>
             ✅ Save Location
           </button>
         ) : (
@@ -188,12 +194,6 @@ export default function MapComponent({
             ❌ Cancel
           </button>
         ))}
-      <input
-        type="text"
-        placeholder="🔍 Search by book title or author..."
-        className="map-search-bar"
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
     </div>
   );
 }

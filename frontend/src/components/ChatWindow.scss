@@ -14,6 +14,10 @@
   flex-direction: column;
   gap: $gap-default;
 
+  .back-button {
+    display: none;
+  }
+
   /* ------------------ Load‑earlier link ----------------- */
   .load-earlier {
     text-align: right;
@@ -37,7 +41,7 @@
 
       .date-divider {
         position: relative;
-        margin: 15px 0 10px;
+        margin: $margin-mini;
         text-align: center;
         font-size: $font-size-tiny;
         color: $color-border;
@@ -192,6 +196,51 @@
       &:hover {
         background-color: $color-button-bg;
         color: $color-text-button-hover;
+      }
+    }
+  }
+}
+
+@include mobile {
+  .chat-window {
+    .messages {
+      .date-block {
+        .date-divider {
+          &::before,
+        &::after {
+          content: "";
+          
+          width: 30%;
+         
+        }
+        }
+      }
+    }
+    .load-earlier {
+      display: none;
+    }
+    .chat-header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: $padding-mini $padding-default;
+      background-color: $color-bg;
+
+      .back-button {
+        display: block;
+        background: none;
+        border: none;
+        font-size: $font-size-base;
+        color: $color-text;
+      }
+
+      .chat-title {
+        font-weight: bold;
+        font-size: $font-size-base;
+        text-align: left;
       }
     }
   }
