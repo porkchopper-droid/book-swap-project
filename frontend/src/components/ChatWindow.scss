@@ -16,7 +16,11 @@
   overflow: hidden;
   flex-direction: column;
   gap: $gap-default;
- 
+
+  .top-sentinel {
+    height: 1px;
+  }
+
   .chat-content {
     display: flex;
     padding-right: $padding-mini;
@@ -25,6 +29,39 @@
     overflow-y: auto;
     scrollbar-gutter: stable;
     box-sizing: content-box;
+
+
+    .top-sentinel {
+      height: 1px;
+
+      .loading-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px;
+        font-size: 14px;
+        color: #666;
+
+        .loading-spinner {
+          width: 16px;
+          height: 16px;
+          border: 2px solid #e3e3e3;
+          border-top: 2px solid #666;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+      }
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
 
     /* pretty scrollbar */
     scrollbar-width: thin;
@@ -49,20 +86,6 @@
 
   .back-button {
     display: none;
-  }
-
-  /* ------------------ Load‑earlier link ----------------- */
-  .load-earlier {
-    text-align: right;
-    color: $color-text;
-    cursor: pointer;
-    padding: 10px;
-    font-size: 14px;
-    transition: color 0.1s ease;
-
-    &:hover {
-      color: #fff;
-    }
   }
 
   /* -------------------- Messages list ------------------- */
@@ -248,9 +271,7 @@
         }
       }
     }
-    .load-earlier {
-      display: none;
-    }
+
     .chat-header {
       position: sticky;
       top: 0;

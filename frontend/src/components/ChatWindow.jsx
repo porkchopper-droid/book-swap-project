@@ -20,13 +20,15 @@ export default function ChatWindow({ swapId }) {
   const [hasMore, setHasMore] = useState(true);
   const [swap, setSwap] = useState(null);
   const [socketReady, setSocketReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const messagesEndRef = useRef(null); // bottom sentinel
-  const scrollingUpRef = useRef(false); // suppress auto-scroll
-
-  const topAnchorRef = useRef(null); // top sentinel
-  const listWrapperRef = useRef(null); // scroll container
-  const loadingRef = useRef(false); // fetch lock
+  const messagesEndRef = useRef(null);
+  const topSentinelRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+  const loadingRef = useRef(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const previousScrollHeight = useRef(0);
+  const shouldScrollToBottom = useRef(true);
 
   // 1️⃣ Clear unread badge when we open this chat
   useEffect(() => {
@@ -52,73 +54,70 @@ export default function ChatWindow({ swapId }) {
     }
   }, [swapId]);
 
-  // 3️⃣ Load messages (initial 20 + pagination)
+  // 3️⃣ Load initial messages
   useEffect(() => {
-    async function loadMessages(before = null) {
-      if (!swapId) return;
+    if (!swapId) return;
+
+    const loadInitial = async () => {
+      setIsLoading(true);
       try {
-        let url = `/api/chats/${swapId}`;
-        if (before) {
-          scrollingUpRef.current = true;
-          url += `?before=${before}`;
-        }
-        const res = await axios.get(url, {
+        const res = await axios.get(`/api/chats/${swapId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        const data = res.data;
-
-        if (before) {
-          const reversed = data.reverse();
-          const filtered = reversed.filter((m) => !messages.find((msg) => msg._id === m._id));
-          setMessages((prev) => [...filtered, ...prev]);
-        } else {
-          setMessages(data.reverse());
-        }
-
+        const data = res.data.reverse(); // newest → bottom
+        setMessages(data);
         setHasMore(data.length >= 20);
+        setInitialLoadComplete(true);
+        shouldScrollToBottom.current = true;
       } catch (err) {
         console.error("Failed to load messages:", err);
+      } finally {
+        setIsLoading(false);
       }
-    }
+    };
 
-    loadMessages();
+    // Reset state when swapId changes
+    setMessages([]);
+    setHasMore(true);
+    setInitialLoadComplete(false);
+    shouldScrollToBottom.current = true;
+    
+    loadInitial();
   }, [swapId]);
 
   // 4️⃣ Wire up socket registration + listeners
   useEffect(() => {
     if (!userId || !swapId || !socket) return;
 
-    // If the socket is already connected by the time this effect runs,
-    // immediately mark it as ready.
     if (socket.connected) {
       debugLog("✅ ChatWindow sees socket already connected:", socket.id);
       setSocketReady(true);
     }
 
-    // Otherwise, wait for the connect event
     const onConnect = () => {
       debugLog("✅ ChatWindow sees socket just now connected:", socket.id);
       setSocketReady(true);
     };
     socket.on("connect", onConnect);
 
-    // Register this userId (put them on the server side, e.g. into a room)
     socket.emit("register", userId);
 
     const handleNewMessage = (msg) => {
       if (String(msg.swapId) === String(swapId)) {
         setMessages((prev) => [...prev, msg]);
+        shouldScrollToBottom.current = true;
       }
     };
+    
     const handleMessageSent = (msg) => {
       setMessages((prev) => [...prev, msg]);
       setNewMessage("");
+      shouldScrollToBottom.current = true;
     };
 
     socket.on("newMessage", handleNewMessage);
     socket.on("messageSent", handleMessageSent);
 
-    // Cleanup on unmount or any dependency change
     return () => {
       socket.off("connect", onConnect);
       socket.off("newMessage", handleNewMessage);
@@ -126,21 +125,100 @@ export default function ChatWindow({ swapId }) {
     };
   }, [userId, swapId, socket]);
 
-  // 5️⃣ Auto-scroll when new messages arrive
+  // 5️⃣ Handle scrolling behavior
   useEffect(() => {
-    if (scrollingUpRef.current) {
-      scrollingUpRef.current = false;
-      return;
-    }
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
-  // 6️⃣ Send a message (only if socketReady)
+    if (shouldScrollToBottom.current && messagesEndRef.current) {
+      // Scroll to bottom for new messages or initial load
+      messagesEndRef.current.scrollIntoView({ behavior: initialLoadComplete ? "smooth" : "auto" });
+      shouldScrollToBottom.current = false;
+    } else if (previousScrollHeight.current > 0) {
+      // Maintain scroll position after loading older messages
+      const newScrollTop = container.scrollHeight - previousScrollHeight.current;
+      container.scrollTop = newScrollTop;
+    }
+  }, [messages, initialLoadComplete]);
+
+  // 6️⃣ Intersection Observer for lazy loading
+  useEffect(() => {
+    if (!initialLoadComplete || !hasMore || !topSentinelRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && !loadingRef.current && !isLoading) {
+          loadOlderMessages();
+        }
+      },
+      {
+        root: scrollContainerRef.current,
+        rootMargin: "50px 0px 0px 0px", // Trigger 50px before reaching the top
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(topSentinelRef.current);
+
+    return () => observer.disconnect();
+  }, [initialLoadComplete, hasMore, isLoading]);
+
+  // 7️⃣ Load older messages
+  const loadOlderMessages = async () => {
+    if (!swapId || !hasMore || messages.length === 0 || loadingRef.current) return;
+
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    // Store current scroll position
+    previousScrollHeight.current = container.scrollHeight;
+    
+    const oldestMessage = messages[0];
+    if (!oldestMessage) return;
+
+    loadingRef.current = true;
+    setIsLoading(true);
+
+    try {
+      const url = `/api/chats/${swapId}?before=${encodeURIComponent(oldestMessage.createdAt)}`;
+      const res = await axios.get(url, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+
+      const data = res.data.reverse();
+      
+      if (data.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      // Filter out duplicates (though this shouldn't happen with proper before query)
+      const newMessages = data.filter((newMsg) => 
+        !messages.some((existingMsg) => existingMsg._id === newMsg._id)
+      );
+
+      if (newMessages.length > 0) {
+        setMessages((prev) => [...newMessages, ...prev]);
+        setHasMore(data.length >= 20);
+      } else {
+        setHasMore(false);
+      }
+
+    } catch (err) {
+      console.error("Failed to load older messages:", err);
+    } finally {
+      loadingRef.current = false;
+      setIsLoading(false);
+      // Don't scroll to bottom when loading older messages
+      shouldScrollToBottom.current = false;
+    }
+  };
+
+  // 8️⃣ Send a message
   const handleSend = () => {
     if (!socketReady) {
-      console.error("🚫 Socket isn’t ready yet—please wait a moment.");
+      console.error("🚫 Socket isn't ready yet—please wait a moment.");
       return;
     }
     if (!newMessage.trim()) return;
@@ -150,6 +228,7 @@ export default function ChatWindow({ swapId }) {
       senderId: userId,
       text: newMessage.trim(),
     });
+    
     socket.emit("sendMessage", {
       swapId,
       senderId: userId,
@@ -157,7 +236,7 @@ export default function ChatWindow({ swapId }) {
     });
   };
 
-  // 7️⃣ Group messages by date
+  // 9️⃣ Group messages by date
   const groupedMessages = {};
   const sorted = [...messages].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   sorted.forEach((msg) => {
@@ -166,76 +245,41 @@ export default function ChatWindow({ swapId }) {
     groupedMessages[dateKey].push(msg);
   });
 
-  // 8️⃣ Determine chat partner
+  // 🔟 Determine chat partner
   const chatPartner = swap?.from._id === user._id ? swap.to : swap?.from || {};
 
   return (
     <div className="chat-window">
-      <div className="chat-content" ref={listWrapperRef}>
+      <div className="chat-content" ref={scrollContainerRef}>
         <div className="chat-header">
           <button onClick={() => navigate("/chats")} className="back-button">
             ←
           </button>
-
           <h3 className="chat-title">
             Chat with {chatPartner === null ? "[deleted user]" : chatPartner?.username || "..."}
           </h3>
         </div>
 
-        {hasMore && (
-          <div
-            className="load-earlier"
-            onClick={() => {
-              const oldest = messages[0]?.createdAt;
-
-              if (oldest) {
-                // Tell our auto‐scroll effect “we’re loading earlier messages,
-                // so don’t scroll to bottom after prepend.”
-                scrollingUpRef.current = true;
-
-                (async () => {
-                  try {
-                    let url = `/api/chats/${swapId}?before=${oldest}`;
-
-                    const res = await axios.get(url, {
-                      headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                      },
-                    });
-
-                    const data = res.data.reverse();
-
-                    const filtered = data.filter((m) => !messages.find((msg) => msg._id === m._id));
-
-                    setMessages((prev) => [...filtered, ...prev]);
-
-                    if (data.length < 20) setHasMore(false);
-                  } catch (err) {
-                    console.error("Failed to load earlier messages:", err);
-                  }
-                })();
-              }
-            }}
-          >
-            ↑ Load earlier messages
-          </div>
-        )}
-
         <div className="messages">
+          {/* Top sentinel for lazy loading */}
+          {hasMore && (
+            <div ref={topSentinelRef} className="top-sentinel">
+              {isLoading && <div className="loading-indicator">Loading older messages...</div>}
+            </div>
+          )}
+
           {Object.entries(groupedMessages).map(([date, msgs]) => (
             <div key={date} className="date-block">
               <div className="date-divider">{format(new Date(date), "MMMM d, yyyy")}</div>
 
               {msgs.map((msg, index) => {
-                // Gracefully handle vanished sender
                 const senderDeleted = msg.senderDeleted || msg.sender === null;
                 const sender = msg.sender || {};
                 const senderId = sender._id;
-
                 const isOwn = !senderDeleted && senderId === userId;
+                
                 const prev = msgs[index - 1];
                 const next = msgs[index + 1];
-
                 const sameAsPrev = prev && prev.sender?._id === senderId;
                 const sameAsNext = next && next.sender?._id === senderId;
                 const showAvatar = !sameAsNext;
@@ -246,8 +290,6 @@ export default function ChatWindow({ swapId }) {
                 else if (sameAsPrev && !sameAsNext) positionClass = "end";
 
                 const time = format(new Date(msg.createdAt), "HH:mm");
-
-                // Decide bubble text & avatar fallback
                 const bubbleText = senderDeleted ? "[message removed by deleted user]" : msg.text;
                 const avatarLetter = senderDeleted
                   ? "💀"
@@ -255,7 +297,6 @@ export default function ChatWindow({ swapId }) {
 
                 return (
                   <div key={msg._id} className={`message-row ${isOwn ? "own" : "incoming"}`}>
-                    {/* Incoming avatar (left) */}
                     {!isOwn && (
                       <div className="avatar-container">
                         {showAvatar ? (
@@ -270,7 +311,6 @@ export default function ChatWindow({ swapId }) {
                       </div>
                     )}
 
-                    {/* Message bubble */}
                     <div
                       className={`message-bubble ${isOwn ? "own" : "incoming"} ${positionClass} ${
                         senderDeleted ? "deleted" : ""
@@ -281,7 +321,6 @@ export default function ChatWindow({ swapId }) {
                       <span className="timestamp">{time}</span>
                     </div>
 
-                    {/* Own avatar (right) */}
                     {isOwn && (
                       <div className="avatar-container">
                         {showAvatar ? (
@@ -306,6 +345,7 @@ export default function ChatWindow({ swapId }) {
 
         <div ref={messagesEndRef} />
       </div>
+
       <div className="message-input">
         <textarea
           value={newMessage}
