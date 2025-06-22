@@ -1,4 +1,5 @@
 @use "../styles/variables.scss" as *;
+@use "sass:color";
 
 @mixin timestamp($align, $color) {
   display: block;
@@ -11,8 +12,40 @@
   position: relative;
   display: flex;
   flex: 1;
+  height: calc(100vh - 120px);
+  overflow: hidden;
   flex-direction: column;
   gap: $gap-default;
+ 
+  .chat-content {
+    display: flex;
+    padding-right: $padding-mini;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    box-sizing: content-box;
+
+    /* pretty scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: color.adjust($color-border, $alpha: -0.4) transparent;
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: color.adjust($color-border, $alpha: -0.4);
+      border: 2px solid transparent;
+      border-radius: 4px;
+      background-clip: content-box;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: color.adjust($color-border, $alpha: -0.2);
+    }
+  }
 
   .back-button {
     display: none;
@@ -34,6 +67,8 @@
 
   /* -------------------- Messages list ------------------- */
   .messages {
+    display: flex;
+    flex-direction: column;
     .date-block {
       display: flex;
       flex-direction: column;
@@ -123,7 +158,6 @@
           &.own {
             background-color: $color-chat-own;
             color: #fff;
-            text-align: right;
 
             .timestamp {
               @include timestamp(right, #dcdcdc);
@@ -143,7 +177,6 @@
           &.incoming {
             background-color: $color-chat-incoming;
             color: #000;
-            text-align: left;
 
             .timestamp {
               @include timestamp(left, #393939);
@@ -207,12 +240,11 @@
       .date-block {
         .date-divider {
           &::before,
-        &::after {
-          content: "";
-          
-          width: 30%;
-         
-        }
+          &::after {
+            content: "";
+
+            width: 30%;
+          }
         }
       }
     }

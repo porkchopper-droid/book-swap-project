@@ -3,13 +3,35 @@
 
 .chats-page {
   display: flex;
+  height: calc(100vh - 130px);
   gap: $gap-default;
 
   .chat-list {
     flex: 0 0 20%;
-    min-height: calc(100vh - 120px);
+    height: calc(100vh - 120px);
+    overflow-y: auto; 
     background-color: $color-box-bg;
     text-align: center;
+
+     /* prettier, thin scrollbar */
+    scrollbar-width: thin;                                          // Firefox
+    scrollbar-color: color.adjust($color-border, $alpha: -0.4)      // thumb
+                     transparent;                                   // track
+
+    &::-webkit-scrollbar { width: 8px; }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: color.adjust($color-border, $alpha: -0.4);
+      border: 2px solid transparent;         // gives “padding”
+      border-radius: 4px;
+      background-clip: content-box;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: color.adjust($color-border, $alpha: -0.2);
+    }
 
     .chat-item {
       padding: $padding-micro;

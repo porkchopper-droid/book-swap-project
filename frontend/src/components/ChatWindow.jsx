@@ -21,8 +21,12 @@ export default function ChatWindow({ swapId }) {
   const [swap, setSwap] = useState(null);
   const [socketReady, setSocketReady] = useState(false);
 
-  const messagesEndRef = useRef(null);
-  const scrollingUpRef = useRef(false);
+  const messagesEndRef = useRef(null); // bottom sentinel
+  const scrollingUpRef = useRef(false); // suppress auto-scroll
+
+  const topAnchorRef = useRef(null); // top sentinel
+  const listWrapperRef = useRef(null); // scroll container
+  const loadingRef = useRef(false); // fetch lock
 
   // 1️⃣ Clear unread badge when we open this chat
   useEffect(() => {
@@ -166,141 +170,142 @@ export default function ChatWindow({ swapId }) {
   const chatPartner = swap?.from._id === user._id ? swap.to : swap?.from || {};
 
   return (
-    <>
-      <div className="chat-header">
-        <button onClick={() => navigate("/chats")} className="back-button">
-          ← 
-        </button>
+    <div className="chat-window">
+      <div className="chat-content" ref={listWrapperRef}>
+        <div className="chat-header">
+          <button onClick={() => navigate("/chats")} className="back-button">
+            ←
+          </button>
 
-        <h3 className="chat-title">
-          Chat with {chatPartner === null ? "[deleted user]" : chatPartner?.username || "..."}
-        </h3>
-      </div>
-
-      {hasMore && (
-        <div
-          className="load-earlier"
-          onClick={() => {
-            const oldest = messages[0]?.createdAt;
-
-            if (oldest) {
-              // Tell our auto‐scroll effect “we’re loading earlier messages,
-              // so don’t scroll to bottom after prepend.”
-              scrollingUpRef.current = true;
-
-              (async () => {
-                try {
-                  let url = `/api/chats/${swapId}?before=${oldest}`;
-
-                  const res = await axios.get(url, {
-                    headers: {
-                      Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                  });
-
-                  const data = res.data.reverse();
-
-                  const filtered = data.filter((m) => !messages.find((msg) => msg._id === m._id));
-
-                  setMessages((prev) => [...filtered, ...prev]);
-
-                  if (data.length < 20) setHasMore(false);
-                } catch (err) {
-                  console.error("Failed to load earlier messages:", err);
-                }
-              })();
-            }
-          }}
-        >
-          ↑ Load earlier messages
+          <h3 className="chat-title">
+            Chat with {chatPartner === null ? "[deleted user]" : chatPartner?.username || "..."}
+          </h3>
         </div>
-      )}
 
-      <div className="messages">
-        {Object.entries(groupedMessages).map(([date, msgs]) => (
-          <div key={date} className="date-block">
-            <div className="date-divider">{format(new Date(date), "MMMM d, yyyy")}</div>
+        {hasMore && (
+          <div
+            className="load-earlier"
+            onClick={() => {
+              const oldest = messages[0]?.createdAt;
 
-            {msgs.map((msg, index) => {
-              // Gracefully handle vanished sender
-              const senderDeleted = msg.senderDeleted || msg.sender === null;
-              const sender = msg.sender || {};
-              const senderId = sender._id;
+              if (oldest) {
+                // Tell our auto‐scroll effect “we’re loading earlier messages,
+                // so don’t scroll to bottom after prepend.”
+                scrollingUpRef.current = true;
 
-              const isOwn = !senderDeleted && senderId === userId;
-              const prev = msgs[index - 1];
-              const next = msgs[index + 1];
+                (async () => {
+                  try {
+                    let url = `/api/chats/${swapId}?before=${oldest}`;
 
-              const sameAsPrev = prev && prev.sender?._id === senderId;
-              const sameAsNext = next && next.sender?._id === senderId;
-              const showAvatar = !sameAsNext;
+                    const res = await axios.get(url, {
+                      headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                      },
+                    });
 
-              let positionClass = "single";
-              if (!sameAsPrev && sameAsNext) positionClass = "start";
-              else if (sameAsPrev && sameAsNext) positionClass = "middle";
-              else if (sameAsPrev && !sameAsNext) positionClass = "end";
+                    const data = res.data.reverse();
 
-              const time = format(new Date(msg.createdAt), "HH:mm");
+                    const filtered = data.filter((m) => !messages.find((msg) => msg._id === m._id));
 
-              // Decide bubble text & avatar fallback
-              const bubbleText = senderDeleted ? "[message removed by deleted user]" : msg.text;
-              const avatarLetter = senderDeleted
-                ? "💀"
-                : sender.username?.charAt(0).toUpperCase() || "?";
+                    setMessages((prev) => [...filtered, ...prev]);
 
-              return (
-                <div key={msg._id} className={`message-row ${isOwn ? "own" : "incoming"}`}>
-                  {/* Incoming avatar (left) */}
-                  {!isOwn && (
-                    <div className="avatar-container">
-                      {showAvatar ? (
-                        sender.profilePicture?.trim() && !senderDeleted ? (
-                          <img src={sender.profilePicture} className="avatar" alt="avatar" />
-                        ) : (
-                          <div className="avatar-fallback">{avatarLetter}</div>
-                        )
-                      ) : (
-                        <div className="avatar-placeholder" />
-                      )}
-                    </div>
-                  )}
-
-                  {/* Message bubble */}
-                  <div
-                    className={`message-bubble ${isOwn ? "own" : "incoming"} ${positionClass} ${
-                      senderDeleted ? "deleted" : ""
-                    }`}
-                    title={senderDeleted ? "Message from a deleted user" : sender.username}
-                  >
-                    {bubbleText}
-                    <span className="timestamp">{time}</span>
-                  </div>
-
-                  {/* Own avatar (right) */}
-                  {isOwn && (
-                    <div className="avatar-container">
-                      {showAvatar ? (
-                        user.profilePicture?.trim() ? (
-                          <img src={user.profilePicture} className="avatar" alt="avatar" />
-                        ) : (
-                          <div className="avatar-fallback">
-                            {user.username?.charAt(0).toUpperCase() || "?"}
-                          </div>
-                        )
-                      ) : (
-                        <div className="avatar-placeholder" />
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                    if (data.length < 20) setHasMore(false);
+                  } catch (err) {
+                    console.error("Failed to load earlier messages:", err);
+                  }
+                })();
+              }
+            }}
+          >
+            ↑ Load earlier messages
           </div>
-        ))}
+        )}
+
+        <div className="messages">
+          {Object.entries(groupedMessages).map(([date, msgs]) => (
+            <div key={date} className="date-block">
+              <div className="date-divider">{format(new Date(date), "MMMM d, yyyy")}</div>
+
+              {msgs.map((msg, index) => {
+                // Gracefully handle vanished sender
+                const senderDeleted = msg.senderDeleted || msg.sender === null;
+                const sender = msg.sender || {};
+                const senderId = sender._id;
+
+                const isOwn = !senderDeleted && senderId === userId;
+                const prev = msgs[index - 1];
+                const next = msgs[index + 1];
+
+                const sameAsPrev = prev && prev.sender?._id === senderId;
+                const sameAsNext = next && next.sender?._id === senderId;
+                const showAvatar = !sameAsNext;
+
+                let positionClass = "single";
+                if (!sameAsPrev && sameAsNext) positionClass = "start";
+                else if (sameAsPrev && sameAsNext) positionClass = "middle";
+                else if (sameAsPrev && !sameAsNext) positionClass = "end";
+
+                const time = format(new Date(msg.createdAt), "HH:mm");
+
+                // Decide bubble text & avatar fallback
+                const bubbleText = senderDeleted ? "[message removed by deleted user]" : msg.text;
+                const avatarLetter = senderDeleted
+                  ? "💀"
+                  : sender.username?.charAt(0).toUpperCase() || "?";
+
+                return (
+                  <div key={msg._id} className={`message-row ${isOwn ? "own" : "incoming"}`}>
+                    {/* Incoming avatar (left) */}
+                    {!isOwn && (
+                      <div className="avatar-container">
+                        {showAvatar ? (
+                          sender.profilePicture?.trim() && !senderDeleted ? (
+                            <img src={sender.profilePicture} className="avatar" alt="avatar" />
+                          ) : (
+                            <div className="avatar-fallback">{avatarLetter}</div>
+                          )
+                        ) : (
+                          <div className="avatar-placeholder" />
+                        )}
+                      </div>
+                    )}
+
+                    {/* Message bubble */}
+                    <div
+                      className={`message-bubble ${isOwn ? "own" : "incoming"} ${positionClass} ${
+                        senderDeleted ? "deleted" : ""
+                      }`}
+                      title={senderDeleted ? "Message from a deleted user" : sender.username}
+                    >
+                      {bubbleText}
+                      <span className="timestamp">{time}</span>
+                    </div>
+
+                    {/* Own avatar (right) */}
+                    {isOwn && (
+                      <div className="avatar-container">
+                        {showAvatar ? (
+                          user.profilePicture?.trim() ? (
+                            <img src={user.profilePicture} className="avatar" alt="avatar" />
+                          ) : (
+                            <div className="avatar-fallback">
+                              {user.username?.charAt(0).toUpperCase() || "?"}
+                            </div>
+                          )
+                        ) : (
+                          <div className="avatar-placeholder" />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+
+        <div ref={messagesEndRef} />
       </div>
-
-      <div ref={messagesEndRef} />
-
       <div className="message-input">
         <textarea
           value={newMessage}
@@ -319,6 +324,6 @@ export default function ChatWindow({ swapId }) {
           Send
         </button>
       </div>
-    </>
+    </div>
   );
 }
