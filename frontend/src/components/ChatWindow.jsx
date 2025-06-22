@@ -61,7 +61,7 @@ export default function ChatWindow({ swapId }) {
     const loadInitial = async () => {
       setIsLoading(true);
       try {
-        const res = await axios.get(`/api/chats/${swapId}`, {
+        const res = await axios.get(`/api/chats/${swapId}?limit=20`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         const data = res.data.reverse(); // newest → bottom
@@ -128,18 +128,36 @@ export default function ChatWindow({ swapId }) {
   // 5️⃣ Handle scrolling behavior
   useEffect(() => {
     const container = scrollContainerRef.current;
-    if (!container) return;
+    if (!container || messages.length === 0) return;
 
-    if (shouldScrollToBottom.current && messagesEndRef.current) {
-      // Scroll to bottom for new messages or initial load
-      messagesEndRef.current.scrollIntoView({ behavior: initialLoadComplete ? "smooth" : "auto" });
+    if (shouldScrollToBottom.current) {
+      // More aggressive approach to ensure scroll to bottom
+      const scrollToBottom = () => {
+        const maxScrollTop = container.scrollHeight - container.clientHeight;
+        container.scrollTop = maxScrollTop;
+      };
+      
+      // Use requestAnimationFrame for better timing
+      requestAnimationFrame(() => {
+        scrollToBottom();
+        // Double-check with setTimeout as backup
+        setTimeout(() => {
+          scrollToBottom();
+          // Final check after a longer delay
+          setTimeout(scrollToBottom, 100);
+        }, 50);
+      });
+      
       shouldScrollToBottom.current = false;
     } else if (previousScrollHeight.current > 0) {
       // Maintain scroll position after loading older messages
-      const newScrollTop = container.scrollHeight - previousScrollHeight.current;
-      container.scrollTop = newScrollTop;
+      requestAnimationFrame(() => {
+        const newScrollTop = container.scrollHeight - previousScrollHeight.current;
+        container.scrollTop = newScrollTop;
+        previousScrollHeight.current = 0;
+      });
     }
-  }, [messages, initialLoadComplete]);
+  }, [messages]);
 
   // 6️⃣ Intersection Observer for lazy loading
   useEffect(() => {
@@ -181,7 +199,7 @@ export default function ChatWindow({ swapId }) {
     setIsLoading(true);
 
     try {
-      const url = `/api/chats/${swapId}?before=${encodeURIComponent(oldestMessage.createdAt)}`;
+      const url = `/api/chats/${swapId}?limit=20&before=${encodeURIComponent(oldestMessage.createdAt)}`;
       const res = await axios.get(url, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
