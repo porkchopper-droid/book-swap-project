@@ -19,8 +19,12 @@ dotenv.config({ path: path.join(__dirname, "..", ".env") });
 (async () => {
   const logs = [];
   const logWrap = (msg) => {
+    const localTime = new Date().toLocaleString("sv-SE", {
+      timeZone: process.env.TZ || "Europe/Berlin",
+      hour12: false,
+    });
     log(msg); // write to rotating file
-    logs.push(`[${new Date().toISOString()}] ${msg}`); // collect for email
+    logs.push(`[${localTime}] ${msg}`); // readable timestamp
   };
 
   try {
