@@ -10,7 +10,7 @@ It’s built for people who love reading and hate clutter. 🧠💥
 - ☁️ Cloudinary for book images
 - ✨ Sass-powered UI, React frontend
 
----
+
 
 ## 🔧 Tech Stack
 
@@ -21,7 +21,7 @@ It’s built for people who love reading and hate clutter. 🧠💥
 | Leaflet + GeoJSON| Nodemailer           | Cloudinary             |
 | SCSS/Sass        | JWT Auth             | Node-cron              |
 
----
+
 
 ## ⚙️ Prerequisites
 
@@ -30,7 +30,7 @@ It’s built for people who love reading and hate clutter. 🧠💥
 - [Cloudinary Account](https://cloudinary.com/)
 - A keyboard and curiosity 🤓
 
----
+
 
 ## 🚀 Getting Started
 
@@ -62,7 +62,6 @@ npm run dev
 
 Visit: [`http://localhost:5173`](http://localhost:5173)
 
----
 
 ## 🧠 Project Features
 
@@ -73,8 +72,6 @@ Visit: [`http://localhost:5173`](http://localhost:5173)
 - 🕐 Daily maintenance via cron (cleans stale swaps, resets flags)
 - 📊 Stats, metrics, and moderation tools
 - 📫 Email notifications (swap responses, daily logs)
-
----
 
 ## 📬 Cron Jobs
 
@@ -89,8 +86,6 @@ It handles:
 - Auto-unflagging of reported users
 - Daily metric snapshots
 - Emailing logs to your inbox (if configured)
-
----
 
 ## 🌍 Environment Variables
 
@@ -124,16 +119,12 @@ VITE_SOCKET_URL=
 VITE_API_URL=
 ```
 
----
-
 ## 🧪 Testing
 
 _(Optional)_ You can write unit tests and integration tests using your preferred tools:  
 - Jest, Mocha, Cypress, etc.
 
 Coming soon: `tests/` folder with seeds and mocks.
-
----
 
 ## 🛠️ Scripts
 
@@ -154,13 +145,14 @@ npm run build           # production build
 npm run preview         # preview production
 ```
 
----
+## 📽️ Demo
+
+![BookBook Demo](./assets/bookbook-demo.gif)
 
 ## 📖 License
 
 MIT.  
 Just don't sell this as an NFT or claim it's AI-generated enlightenment.
 
----
 
-Built with too much coffee ☕, not enough sleep 😴, and an irrational love for books 📚.
+*Built with too much coffee, not enough sleep, and an irrational love for books.*
