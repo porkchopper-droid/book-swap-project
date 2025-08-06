@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import SwapCard from "../components/SwapCard";
 import SwapModal from "../components/SwapModal";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
+import useEmblaCarousel from "embla-carousel-react";
 import SwapSVGBackgroundGrid from "../components/SwapSVGBackgroundGrid.jsx";
 import "./SwapsPage.scss";
 
@@ -13,8 +14,16 @@ export default function SwapsPage() {
   const [activeTab, setActiveTab] = useState("active");
   const [selectedSwap, setSelectedSwap] = useState(null); // for modal
   const [swapResponseMessage, setSwapResponseMessage] = useState("");
+  const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", dragFree: true });
 
   const { user } = useAuth();
+
+  const scrollTo = useCallback(
+    (index) => {
+      if (emblaApi) emblaApi.scrollTo(index);
+    },
+    [emblaApi]
+  );
 
   const tabOptions = [
     { label: "🔄 Active", value: "active" },
@@ -223,16 +232,21 @@ export default function SwapsPage() {
         <p style={{ color: "red" }}>{error}</p>
       ) : (
         <>
-          <div className="swap-tabs">
-            {tabOptions.map((tab) => (
-              <button
-                key={tab.value}
-                className={activeTab === tab.value ? "active" : ""}
-                onClick={() => setActiveTab(tab.value)}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div className="swap-tabs" ref={emblaRef}>
+            <div className="embla__container">
+              {tabOptions.map((tab, index) => (
+                <button
+                  key={tab.value}
+                  className={`embla__slide ${activeTab === tab.value ? "active" : ""}`}
+                  onClick={() => {
+                    setActiveTab(tab.value);
+                    scrollTo(index);
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="swaps-container">

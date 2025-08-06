@@ -25,29 +25,34 @@
   }
 
   .book-tabs {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
+    overflow: hidden; // hides the scrollbars
 
-    button {
+    .embla__container {
+      display: flex;
+      gap: $gap-mini;
+    }
+
+    .embla__slide {
+      flex: 0 0 auto;
       padding: 8px 16px;
-      background: none;
       border: 0.5px solid $color-border;
       border-radius: $border-radius-mini;
-      cursor: pointer;
       font-weight: bold;
+      background: none;
       color: $color-heading;
+      cursor: pointer;
+      white-space: nowrap; // keep labels on one line
       transition: background-color 0.1s ease;
 
       &.active {
-      background-color: $color-button-bg;
-      color: $color-text-button-hover;
-    }
+        background-color: $color-button-bg;
+        color: $color-text-button-hover;
+      }
 
-    &:hover {
-      background-color: $color-button-hover;
-      color: $color-text-button-hover;
-    }
+      &:hover {
+        background-color: $color-button-hover;
+        color: $color-text-button-hover;
+      }
     }
   }
 }
@@ -59,32 +64,13 @@
   justify-content: center;
   position: relative;
   min-height: calc(100vh - 180px);
+}
 
-  }
-
-  @include mobile {
-  .book-header {
-    flex-direction: column; // stack add-book-button above tabs if you want
-
-    .book-tabs {
-      display: flex;
-      overflow-x: auto;
-      flex-wrap: nowrap;
-      gap: $gap-mini;
-      padding: $gap-mini 0;
-      scroll-snap-type: x mandatory;
-
-      // Hide scrollbar
-      -ms-overflow-style: none; // IE/Edge
-      scrollbar-width: none; // Firefox
-      &::-webkit-scrollbar {
-        display: none; // Chrome/Safari
-      }
-
-      button {
-        flex: 0 0 auto; // prevent shrinking
-        scroll-snap-align: center;
-      }
+@include mobile {
+  .book-tabs {
+    .embla__slide {
+      min-width: 120px;
+      scroll-snap-align: start;
     }
   }
 }

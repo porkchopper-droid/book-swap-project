@@ -2,18 +2,23 @@
 @use "sass:color";
 
 .swap-tabs {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
+  overflow: hidden;
 
-  button {
+  .embla__container {
+    display: flex;
+    gap: $gap-mini;
+  }
+
+  .embla__slide {
+    flex: 0 0 auto;
     padding: 8px 16px;
     background: none;
-    border: 0.5px solid #ccc;
-    border-radius: 6px;
+    border: 0.5px solid $color-border;
+    border-radius: $border-radius-mini;
     cursor: pointer;
     font-weight: bold;
-    color: white;
+    color: $color-heading;
+    white-space: nowrap;
     transition: background-color 0.1s ease;
 
     &.active {
@@ -28,7 +33,6 @@
   }
 }
 
-
 .swaps-container {
   display: flex;
   flex-wrap: wrap;
@@ -36,4 +40,13 @@
   justify-content: center;
   position: relative;
   min-height: calc(100vh - 180px);
+}
+
+@include mobile {
+  .swap-tabs {
+    .embla__slide {
+      min-width: 120px;
+      scroll-snap-align: start;
+    }
+  }
 }

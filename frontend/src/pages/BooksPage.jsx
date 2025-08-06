@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import "./BooksPage.scss";
 import BookCard from "../components/BookCard";
 import BookModal from "../components/BookModal";
 import axios from "axios";
+import useEmblaCarousel from 'embla-carousel-react';
 import BookSVGBackgroundGrid from "../components/BookSVGBackgroundGrid";
 
 export default function BooksPage() {
@@ -12,6 +13,12 @@ export default function BooksPage() {
   const [selectedBook, setSelectedBook] = useState(null);
   const [activeTab, setActiveTab] = useState("available");
   const [showModal, setShowModal] = useState(false);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ align: 'start', dragFree: true });
+
+  const scrollTo = useCallback((index) => {
+    if (emblaApi) emblaApi.scrollTo(index);
+  }, [emblaApi]);
 
   const tabOptions = [
     { label: "📚 Available", value: "available" },
@@ -137,17 +144,22 @@ export default function BooksPage() {
               ✍️ Add Book
             </button>
 
-            <div className="book-tabs">
-              {tabOptions.map(({ label, value }) => (
-                <button
-                  key={value}
-                  className={activeTab === value ? "active" : ""}
-                  onClick={() => setActiveTab(value)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <div className="book-tabs" ref={emblaRef}>
+  <div className="embla__container">
+    {tabOptions.map(({ label, value }, index) => (
+      <button
+        key={value}
+        className={`embla__slide ${activeTab === value ? 'active' : ''}`}
+        onClick={() => {
+          setActiveTab(value);
+          scrollTo(index);
+        }}
+      >
+        {label}
+      </button>
+    ))}
+  </div>
+</div>
           </div>
 
           <div className="books-container">

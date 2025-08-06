@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
@@ -8,11 +8,28 @@ export default function Navbar() {
   const { user } = useAuth();
   const { unreadCounts } = useNotification();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
   // Sum all unread counts into a single number
   const totalUnread = Object.values(unreadCounts).reduce((sum, cnt) => sum + (cnt || 0), 0);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuOpen]);
+
   return (
-    <nav className="navbar">
+    <nav className="navbar" ref={menuRef}>
       <div className="nav-left">
         <NavLink to="/account" className="account-link">
           {user?.profilePicture && user.profilePicture.trim() !== "" ? (
