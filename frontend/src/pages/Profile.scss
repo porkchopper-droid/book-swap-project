@@ -180,3 +180,15 @@
     }
   }
 }
+
+@include mobile {
+  .profile-layout {
+    flex-direction: column;
+
+    aside,
+    main {
+      width: 100%;
+    }
+  }
+}
+

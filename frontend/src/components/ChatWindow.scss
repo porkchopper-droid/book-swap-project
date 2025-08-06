@@ -63,9 +63,10 @@
     }
 
     /* pretty scrollbar */
-    scrollbar-width: thin;
-    scrollbar-color: color.adjust($color-border, $alpha: -0.4) transparent;
-
+    & {
+      scrollbar-width: thin;
+      scrollbar-color: color.adjust($color-border, $alpha: -0.4) transparent;
+    }
     &::-webkit-scrollbar {
       width: 8px;
     }

@@ -61,3 +61,30 @@
   min-height: calc(100vh - 180px);
 
   }
+
+  @include mobile {
+  .book-header {
+    flex-direction: column; // stack add-book-button above tabs if you want
+
+    .book-tabs {
+      display: flex;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      gap: $gap-mini;
+      padding: $gap-mini 0;
+      scroll-snap-type: x mandatory;
+
+      // Hide scrollbar
+      -ms-overflow-style: none; // IE/Edge
+      scrollbar-width: none; // Firefox
+      &::-webkit-scrollbar {
+        display: none; // Chrome/Safari
+      }
+
+      button {
+        flex: 0 0 auto; // prevent shrinking
+        scroll-snap-align: center;
+      }
+    }
+  }
+}
