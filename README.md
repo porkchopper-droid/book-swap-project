@@ -117,6 +117,7 @@ Frontend keys:
 VITE_GEONAMES_USER=
 VITE_SOCKET_URL=
 VITE_API_URL=
+VITE_UMAMI_ID=
 ```
 
 ## 🧪 Testing
