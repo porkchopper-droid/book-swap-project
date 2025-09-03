@@ -1,0 +1,20 @@
+[Unit]
+Description=BookBook DEMO
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+WorkingDirectory=/media/dmytrokuzyk/kuato/shared/book-swap-project/backend
+EnvironmentFile=/media/dmytrokuzyk/kuato/shared/book-swap-project/backend/.env.demo
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=3
+User=dmytrokuzyk
+
+# Optional file logging
+# StandardOutput=append:/var/log/bookbook/demo.out.log
+# StandardError=append:/var/log/bookbook/demo.err.log
+
+[Install]
+WantedBy=multi-user.target
