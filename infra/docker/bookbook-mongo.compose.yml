@@ -4,7 +4,7 @@ services:
   mongo-main:
     image: mongo:7
     container_name: mongo-main
-    command: ["--bind_ip", "127.0.0.1", "--port", "27017"]
+    command: ["--bind_ip_all", "--port", "27017"]
     ports:
       - "127.0.0.1:27017:27017"
     volumes:
@@ -16,7 +16,7 @@ services:
   mongo-demo:
     image: mongo:7
     container_name: mongo-demo
-    command: ["--bind_ip", "127.0.0.1", "--port", "27018"]
+    command: ["--bind_ip_all", "--port", "27018"]
     ports:
       - "127.0.0.1:27018:27018"
     volumes:

@@ -114,3 +114,35 @@ NB: a fresh Pi can be rebuilt using this repo, NPM data, and Mongo data alone. I
 5. Install service templates to /etc/systemd/system/, enable them.
 6. In NPM, confirm hosts and reissue certs if needed.
 7. Hit backend ports locally, then through domains. Sign in. Done.
+
+## ASCII ART
+
+                   ┌──────────────────────────┐
+                   │        Users (Web)       │
+                   └─────────────┬────────────┘
+                                 │
+                       HTTPS (80/443 via NPM)
+                                 │
+              ┌──────────────────┴───────────────────┐
+              │                                      │
+   pi.bookbook.live                        pi.demo.bookbook.live
+        (Main)                                     (Demo)
+              │                                      │
+              ▼                                      ▼
+      ┌────────────────┐                    ┌────────────────┐
+      │  bookbook-main │   systemd service  │  bookbook-demo │
+      │(Node/Exp) 6969 │                    │ (Node/Exp) 6970│
+      └───────┬────────┘                    └───────┬────────┘
+              │                                     │
+              │                                     │
+              ▼                                     ▼
+      ┌────────────────┐                    ┌────────────────┐
+      │  mongo-main    │  docker container  │  mongo-demo    │
+      │   port 27017   │  (volume: data/)   │   port 27018   │
+      └────────────────┘                    └────────────────┘
+
+### Other infra:
+
+- Nginx Proxy Manager (docker, ports 80/81/443).
+- Systemd ensures backend services stay alive.
+- Docker ensures Mongo stays isolated + persistent in `/media/dmytrokuzyk/kuato/data`.
