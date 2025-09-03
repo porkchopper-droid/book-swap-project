@@ -1,0 +1,26 @@
+name: bookbook-mongo
+
+services:
+  mongo-main:
+    image: mongo:7
+    container_name: mongo-main
+    command: ["--bind_ip", "127.0.0.1", "--port", "27017"]
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - /media/dmytrokuzyk/kuato/data/mongo-main:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=bookbook_main
+    restart: unless-stopped
+
+  mongo-demo:
+    image: mongo:7
+    container_name: mongo-demo
+    command: ["--bind_ip", "127.0.0.1", "--port", "27018"]
+    ports:
+      - "127.0.0.1:27018:27018"
+    volumes:
+      - /media/dmytrokuzyk/kuato/data/mongo-demo:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=bookbook_demo
+    restart: unless-stopped
