@@ -6,7 +6,7 @@ Requires=docker.service
 [Service]
 Type=simple
 WorkingDirectory=/media/dmytrokuzyk/kuato/shared/book-swap-project/backend
-EnvironmentFile=/media/dmytrokuzyk/kuato/shared/book-swap-project/backend/.env.demo
+Environment=NODE_ENV=demo
 ExecStart=/usr/bin/node server.js
 Restart=always
 RestartSec=3
