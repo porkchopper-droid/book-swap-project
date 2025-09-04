@@ -1,8 +1,28 @@
+name: Deploy to Pi
+
+on:
+  push:
+    branches:
+      - main
+      - demo
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: [self-hosted, pi]
     steps:
-      - name: Run deploy script on Pi
+      - name: Deploy on Pi
         env:
           BRANCH: ${{ github.ref_name }}
-        run: /home/dmytrokuzyk/deploy/deploy.sh
+        run: /home/dmytrokuzyk/deploy/deploy.sh | tee /home/dmytrokuzyk/deploy/deploy.log
+
+      - name: Upload deploy log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-log-${{ github.run_id }}
+          path: /home/dmytrokuzyk/deploy/deploy.log
