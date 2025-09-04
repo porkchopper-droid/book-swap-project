@@ -1,15 +1,8 @@
-name: Deploy to Pi
-
-on:
-  push:
-    branches: [ "main", "demo" ]   # deploy when you push to these
-  workflow_dispatch:               # allows manual runs from Actions tab
-
 jobs:
   deploy:
-    runs-on: [self-hosted, pi]     # use your Pi runner with the "pi" label
+    runs-on: [self-hosted, pi]
     steps:
       - name: Run deploy script on Pi
-        run: |
-          BRANCH="${GITHUB_REF_NAME}"
-          /home/dmytrokuzyk/deploy/deploy.sh "$BRANCH"
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: /home/dmytrokuzyk/deploy/deploy.sh
