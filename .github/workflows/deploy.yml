@@ -3,21 +3,13 @@ name: Deploy to Pi
 on:
   push:
     branches: [ "main", "demo" ]   # deploy when you push to these
+  workflow_dispatch:               # allows manual runs from Actions tab
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, pi]     # use your Pi runner with the "pi" label
     steps:
-      - name: Pick branch
-        id: meta
-        run: echo "branch_ref=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
-
-      - name: SSH into Pi and run deploy
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.PI_HOST }}
-          username: ${{ secrets.PI_USER }}
-          key: ${{ secrets.PI_SSH_KEY }}
-          script: |
-            export BRANCH="${{ steps.meta.outputs.branch_ref }}"
-            /home/dmytrokuzyk/deploy/deploy.sh
+      - name: Run deploy script on Pi
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          /home/dmytrokuzyk/deploy/deploy.sh "$BRANCH"
